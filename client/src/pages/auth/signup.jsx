@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Signup() {
-  const [name, setName] = useState("");
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -20,20 +19,10 @@ export default function Signup() {
         {/* Decorative bottom-left gradient circle */}
         <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full opacity-30"></div>
 
-        <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">Sign Up</h2>
+        <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">Sign In</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-700 mb-2 font-medium">Name</label>
-            <input
-              type="text"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your Name"
-              required
-            />
-          </div>
+          
           <div>
             <label className="block text-gray-700 mb-2 font-medium">Email</label>
             <input
@@ -61,17 +50,17 @@ export default function Signup() {
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-semibold text-lg shadow-md hover:scale-105 transform transition"
           >
-            Sign Up
+            Sign In
           </button>
         </form>
 
         <p className="mt-6 text-center text-gray-500">
-          Already have an account?{" "}
+          Don't have an account?{" "}
           <span
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/signup")}
             className="text-purple-500 font-semibold cursor-pointer"
           >
-            Login
+            Register
           </span>
         </p>
       </div>

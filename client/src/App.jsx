@@ -3,8 +3,8 @@ import Home from "./Home";
 import AdminDashboard from "./pages/AdminDashboard";
 import Report from "./pages/Report";
 import IssueCard from "./components/IssueCard";
-import SignIn from "./auth/signin";
-
+import SignUp from "./auth/signup";
+import Login from "./auth/login";
 function App() {
   return (
       <Routes>
@@ -13,7 +13,8 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/report" element={<Report />} />
           <Route path="/issue-card" element={<IssueCard />} />
-          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+           <Route path="/login" element={<Login />} />
 
 
       </Routes>

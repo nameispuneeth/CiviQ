@@ -2,7 +2,6 @@ import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 
-// Red marker icon
 const redIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
@@ -13,7 +12,6 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Capitals of India with lat/lng
 const indiaCapitals = [
   { state: "Andhra Pradesh", capital: "Amaravati", lat: 16.5417, lng: 80.5155 },
   { state: "Arunachal Pradesh", capital: "Itanagar", lat: 27.0844, lng: 93.6053 },
@@ -32,7 +30,7 @@ const indiaCapitals = [
   { state: "Manipur", capital: "Imphal", lat: 24.817, lng: 93.9368 },
   { state: "Meghalaya", capital: "Shillong", lat: 25.5788, lng: 91.8933 },
   { state: "Mizoram", capital: "Aizawl", lat: 23.7271, lng: 92.7176 },
-  { state: "Nagaland", capital: "Kohima", lat: 25.6745, lng: 94.1100 },
+  { state: "Nagaland", capital: "Kohima", lat: 25.6745, lng: 94.11 },
   { state: "Odisha", capital: "Bhubaneswar", lat: 20.2961, lng: 85.8245 },
   { state: "Punjab", capital: "Chandigarh", lat: 30.7333, lng: 76.7794 },
   { state: "Rajasthan", capital: "Jaipur", lat: 26.9124, lng: 75.7873 },
@@ -46,24 +44,46 @@ const indiaCapitals = [
   { state: "Delhi", capital: "New Delhi", lat: 28.6139, lng: 77.209 },
 ];
 
-const MapIssues = ({ issues }) => {
+const MapIssues = ({ issues, theme }) => {
+  const isDark = theme === "dark";
+
   return (
-    <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border p-6 h-[200px]">
-      <h3 className="text-xl font-bold text-black dark:text-white mb-4">
+    <div
+      className={`rounded-xl border p-6 transition-colors ${
+        isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"
+      }`}
+    >
+      <h3 className={`text-xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>
         Map View
       </h3>
-      <div className="rounded-lg h-[600px]">
-        <MapContainer
-          center={[20.5937, 78.9629]}
-          zoom={5}
-          className="h-full w-full rounded-lg"
-        >
+      <div
+        className={`rounded-lg h-[600px] overflow-hidden border shadow-sm transition-colors ${
+          isDark ? "border-[#333333]" : "border-gray-200"
+        }`}
+      >
+        <MapContainer center={[20.5937, 78.9629]} zoom={5} className="h-full w-full">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
 
-          {/* Issue markers */}
+          {/* Capital Markers */}
+          {indiaCapitals.map((capital, idx) => (
+            <Marker
+              key={`capital-${idx}`}
+              position={[capital.lat, capital.lng]}
+              icon={redIcon}
+            >
+              <Popup>
+                <div>
+                  <strong>{capital.capital}</strong>
+                  <p>{capital.state}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {/* Issue Markers */}
           {issues.map(
             (issue) =>
               issue.location && (
@@ -81,22 +101,6 @@ const MapIssues = ({ issues }) => {
                 </Marker>
               )
           )}
-
-          {/* Capital markers */}
-          {indiaCapitals.map((capital, idx) => (
-            <Marker
-              key={`capital-${idx}`}
-              position={[capital.lat, capital.lng]}
-              icon={redIcon}
-            >
-              <Popup>
-                <div>
-                  <strong>{capital.capital}</strong>
-                  <p>{capital.state}</p>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
         </MapContainer>
       </div>
     </div>

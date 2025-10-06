@@ -1,13 +1,17 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
-import { useTheme } from "@mui/material/styles";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 
-export default function DashboardOverview({ stats, issues, setActiveView, setSelectedIssue }) {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
+export default function DashboardOverview({
+  stats,
+  issues,
+  setActiveView,
+  setSelectedIssue,
+  theme,
+}) {
+  const isDark = theme === "dark";
 
   // ----- Statistics -----
   const pending = issues.filter((i) => i.status === "pending").length;
@@ -39,7 +43,7 @@ export default function DashboardOverview({ stats, issues, setActiveView, setSel
   const lineLabels = Object.keys(dateCounts);
   const lineData = Object.values(dateCounts);
 
-  // Colors
+  // Chart colors
   const chartColors = isDark
     ? ["#4FC3F7", "#81C784", "#FFB74D", "#E57373"]
     : ["#1976D2", "#2E7D32", "#F57C00", "#D32F2F"];
@@ -48,7 +52,7 @@ export default function DashboardOverview({ stats, issues, setActiveView, setSel
     <div className="space-y-10">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-black dark:text-white">
+        <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-black"}`}>
           Dashboard Overview
         </h2>
         <Button variant="contained">Hello world</Button>
@@ -59,11 +63,16 @@ export default function DashboardOverview({ stats, issues, setActiveView, setSel
         {Object.entries(stats).map(([key, value]) => (
           <div
             key={key}
-            className="bg-white dark:bg-[#1E1E1E] border border-[#E6E6E6] dark:border-[#333333]
-                       rounded-xl p-4 text-center shadow-md hover:shadow-xl transition"
+            className={`border rounded-xl p-4 text-center shadow-md hover:shadow-xl transition ${
+              isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"
+            }`}
           >
-            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{key}</p>
-            <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">{value}</h3>
+            <p className={`text-sm capitalize ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+              {key}
+            </p>
+            <h3 className={`text-2xl font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+              {value}
+            </h3>
           </div>
         ))}
       </div>
@@ -71,29 +80,34 @@ export default function DashboardOverview({ stats, issues, setActiveView, setSel
       {/* Charts Side by Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Bar Chart */}
-        <div className="bg-white dark:bg-[#1E1E1E] border border-[#E6E6E6] dark:border-[#333333]
-                        rounded-xl p-6 shadow-md hover:shadow-xl transition">
-          <h3 className="text-xl font-bold text-black dark:text-white mb-4">
+        <div
+          className={`border rounded-xl p-6 shadow-md hover:shadow-xl transition ${
+            isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"
+          }`}
+        >
+          <h3 className={`text-xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>
             Issues by Status
           </h3>
-         <BarChart
-  xAxis={[{ data: barLabels, scaleType: "band" }]}
-  series={[{ data: barData, color: isDark ? "#ca1d1dff" : "#1976D2" }]}
-  height={300}
-  sx={{
-    backgroundColor: "transparent",
-    "& .MuiChartsAxis-line": { stroke: isDark ? "#510f0fff" : "#374151" }, // tailwind gray-200 / gray-700
-    "& .MuiChartsAxis-tickLabel": { fill: isDark ? "#e16163ff" : "#374151" },
-    "& .MuiChartsGrid-line": { stroke: isDark ? "#374151" : "#E5E7EB" }, 
-  }}
-/>
-
+          <BarChart
+            xAxis={[{ data: barLabels, scaleType: "band" }]}
+            series={[{ data: barData, color: isDark ? "#ca1d1dff" : "#1976D2" }]}
+            height={300}
+            sx={{
+              backgroundColor: "transparent",
+              "& .MuiChartsAxis-line": { stroke: isDark ? "#510f0fff" : "#374151" },
+              "& .MuiChartsAxis-tickLabel": { fill: isDark ? "#e16163ff" : "#374151" },
+              "& .MuiChartsGrid-line": { stroke: isDark ? "#374151" : "#E5E7EB" },
+            }}
+          />
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white dark:bg-[#1E1E1E] border border-[#E6E6E6] dark:border-[#333333]
-                        rounded-xl p-6 shadow-md hover:shadow-xl transition">
-          <h3 className="text-xl font-bold text-black dark:text-white mb-4">
+        <div
+          className={`border rounded-xl p-6 shadow-md hover:shadow-xl transition ${
+            isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"
+          }`}
+        >
+          <h3 className={`text-xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>
             Issue Priority Distribution
           </h3>
           <PieChart
@@ -113,9 +127,12 @@ export default function DashboardOverview({ stats, issues, setActiveView, setSel
       </div>
 
       {/* Line Chart Full Width */}
-      <div className="bg-white dark:bg-[#1E1E1E] border border-[#E6E6E6] dark:border-[#333333]
-                      rounded-xl p-6 shadow-md hover:shadow-xl transition">
-        <h3 className="text-xl font-bold text-black dark:text-white mb-4">
+      <div
+        className={`border rounded-xl p-6 shadow-md hover:shadow-xl transition ${
+          isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"
+        }`}
+      >
+        <h3 className={`text-xl font-bold mb-4 ${isDark ? "text-white" : "text-black"}`}>
           Issues Created Over Time
         </h3>
         <LineChart

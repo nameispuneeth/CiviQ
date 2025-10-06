@@ -9,11 +9,12 @@ import CitizenDashboard from "./pages/dashboard/UserDaahboard";
 function App() {
   return (
       <Routes>
+              <Route path="/" element={<CitizenDashboard />} />
+
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/report-issues" element={<ReportPage />} />
         <Route path="/track-issues" element={<TrackIssues />} />
       <Route path="/login" element={<Signup />}/>
-      <Route path="/citizen" element={<CitizenDashboard />} />
       </Routes>
   );
 }

@@ -416,7 +416,7 @@ export default function CitizenApp() {
 
   return (
     <>
-      <Navigation />
+      {/* <Navigation /> */}
       <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] py-4 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -473,11 +473,10 @@ export default function CitizenApp() {
                     onClick={() =>
                       setFormData((prev) => ({ ...prev, category: cat.value }))
                     }
-                    className={`p-3 rounded-lg border text-left transition-all duration-150 ${
-                      formData.category === cat.value
+                    className={`p-3 rounded-lg border text-left transition-all duration-150 ${formData.category === cat.value
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                         : "border-[#D9D9D9] dark:border-[#404040] bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
-                    }`}
+                      }`}
                   >
                     <div className="text-xl mb-1">{cat.icon}</div>
                     <div className="text-sm font-medium font-inter">
@@ -606,14 +605,12 @@ export default function CitizenApp() {
               <button
                 type="button"
                 onClick={() => setIsAnonymous(!isAnonymous)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  isAnonymous ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
-                }`}
+                className={`w-12 h-6 rounded-full transition-colors ${isAnonymous ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
               >
                 <div
-                  className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    isAnonymous ? "translate-x-6" : "translate-x-0.5"
-                  }`}
+                  className={`w-5 h-5 bg-white rounded-full transition-transform ${isAnonymous ? "translate-x-6" : "translate-x-0.5"
+                    }`}
                 />
               </button>
             </div>

@@ -56,6 +56,9 @@ export default function Navigation() {
               onClick={() => {
                 if (document.documentElement.classList.contains('dark')) {
                   document.documentElement.classList.remove('dark');
+                                    document.documentElement.classList.add('white');
+
+
                 } else {
                   document.documentElement.classList.add('dark');
                 }

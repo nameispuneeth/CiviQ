@@ -3,6 +3,7 @@ import Home from "./Home";
 import AdminDashboard from "./pages/AdminDashboard";
 import Report from "./pages/Report";
 import IssueCard from "./components/IssueCard";
+import SignIn from "./auth/signin";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/report" element={<Report />} />
           <Route path="/issue-card" element={<IssueCard />} />
+          <Route path="/sign-in" element={<SignIn />} />
 
 
       </Routes>

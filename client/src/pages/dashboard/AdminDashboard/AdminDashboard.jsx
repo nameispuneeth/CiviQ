@@ -6,6 +6,7 @@ import IssueModal from "./IssueModal";
 import { navigationItems, dummyIssues, dummyDepartments } from "../AdminDashboard/backend/constant";
 import { fetchIssues, fetchDepartments, calculateStats } from "../AdminDashboard/backend/hooks";
 import Departments from "./Departments";
+import MapIssues from "./MapIssues";
 
 export default function AdminDashboard() {
   const [issues, setIssues] = useState([]);
@@ -89,19 +90,8 @@ export default function AdminDashboard() {
             )
           }
 
+    {activeView === "map" && <MapIssues issues={issues} />}
 
-          {activeView === "map" && (
-            <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border p-6 h-full">
-              <h3 className="text-xl font-bold text-black dark:text-white mb-4">
-                Map View
-              </h3>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-                <p className="text-gray-500">
-                  Map integration will be implemented here.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

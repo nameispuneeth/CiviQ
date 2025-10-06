@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./Home";
-import AdminDashboard from "./pages/AdminDashboard";
-import Report from "./pages/Report";
-import IssueCard from "./components/IssueCard";
-import SignIn from "./auth/signin";
+
+import Home from "./components/Home";
+import AdminDashboard from "./pages/dashboard/AdminDashboard/AdminDashboard";
+import ReportPage from "./pages/Report";
+import TrackIssues from "./pages/track";
 
 function App() {
   return (
@@ -11,9 +11,8 @@ function App() {
         <Route path="/" element={<Home />} />
         {/* <Route path="/citizen" element={<CitizenApp />} /> */}
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/report" element={<Report />} />
-          <Route path="/issue-card" element={<IssueCard />} />
-          <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/report" element={<ReportPage />} />
+          <Route path="/track" element={<TrackIssues />} />
 
 
       </Routes>

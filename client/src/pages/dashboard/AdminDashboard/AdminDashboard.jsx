@@ -5,12 +5,13 @@ import IssuesList from "./IssuesList";
 import IssueModal from "./IssueModal";
 import { navigationItems, dummyIssues, dummyDepartments } from "../AdminDashboard/backend/constant";
 import { fetchIssues, fetchDepartments, calculateStats } from "../AdminDashboard/backend/hooks";
+import Departments from "./Departments";
 
 export default function AdminDashboard() {
   const [issues, setIssues] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState("dashboard");
+  const [activeView, setActiveView] = useState("departments");
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [filters, setFilters] = useState({
     status: "all",
@@ -78,6 +79,16 @@ export default function AdminDashboard() {
               setSelectedIssue={setSelectedIssue}
             />
           )}
+
+          {
+            activeView==="departments" &&
+            (
+              <Departments 
+                
+              />
+            )
+          }
+
 
           {activeView === "map" && (
             <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border p-6 h-full">

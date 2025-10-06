@@ -26,19 +26,42 @@ export default function IssuesList({ issues, setIssues, filters, setFilters, set
       {/* Issues */}
       <div className="space-y-3">
         {issues
-          .filter((i) =>
-            i.title.toLowerCase().includes(filters.search.toLowerCase())
-          )
+         .filter((i) => {
+    if (!filters.search) return true; // show all if search is empty
+    return i.title.toLowerCase().includes(filters.search.toLowerCase());
+  })
           .map((issue) => (
             <div
               key={issue.id}
-              className="p-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] flex justify-between items-center"
+              className="p-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] flex flex-col gap-2"
             >
               <div onClick={() => setSelectedIssue(issue)} className="cursor-pointer">
                 <h4 className="font-semibold text-black dark:text-white">
                   {issue.title}
                 </h4>
-                <p className="text-gray-500 text-sm">{issue.status}</p>
+                <p className="text-gray-500 text-sm">
+                  Status: {issue.status} | Priority: {issue.priority} | Category: {issue.category}
+                </p>
+                {issue.place && (
+                  <p className="text-gray-500 text-sm">
+                    Place: {issue.place}
+                  </p>
+                )}
+                {issue.longitude && issue.latitude && (
+                  <p className="text-gray-500 text-sm">
+                    Coordinates: {issue.latitude}, {issue.longitude}
+                  </p>
+                )}
+                {issue.department && (
+                  <p className="text-gray-500 text-sm">
+                    Department: {issue.department}
+                  </p>
+                )}
+                {issue.description && (
+                  <p className="text-gray-500 text-sm">
+                    Description: {issue.description}
+                  </p>
+                )}
               </div>
 
               {/* Status Select */}
@@ -48,7 +71,7 @@ export default function IssuesList({ issues, setIssues, filters, setFilters, set
                 className="px-3 py-1 text-sm border border-gray-300 dark:border-[#404040] rounded bg-white dark:bg-[#262626] text-black dark:text-white"
               >
                 <option value="pending">Pending</option>
-                <option value="running">Running</option>
+                <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
               </select>
             </div>

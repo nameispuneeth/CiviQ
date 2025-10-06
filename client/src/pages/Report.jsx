@@ -175,7 +175,7 @@ import {
 } from "lucide-react";
 import Navigation from "../components/Navigation";
 
-export default function CitizenApp() {
+export default function ReportPage() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",

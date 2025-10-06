@@ -174,6 +174,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Navigation from "../components/Navigation";
+import { Link } from "react-router-dom";
 
 export default function ReportPage() {
   const [formData, setFormData] = useState({
@@ -418,6 +419,7 @@ export default function ReportPage() {
     <>
       {/* <Navigation /> */}
       <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] py-4 px-4">
+  
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="bg-white dark:bg-[#1E1E1E] rounded-t-2xl border border-[#E6E6E6] dark:border-[#333333] p-6">

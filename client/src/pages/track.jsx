@@ -449,7 +449,6 @@ export default function TrackIssues() {
   if (loading) {
     return (
       <>
-        <Navigation />
         <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] flex items-center justify-center">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -459,7 +458,6 @@ export default function TrackIssues() {
 
   return (
     <>
-      <Navigation />
       <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] py-6 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

@@ -16,7 +16,7 @@ export default function Home() {
       {/* Action Buttons */}
       <div className="flex flex-col md:flex-row gap-4">
         <Link
-          to="/citizen"
+          to="/report"
           className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition"
         >
           <User size={20} /> Citizen App

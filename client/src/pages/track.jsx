@@ -10,6 +10,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Navigation from "../components/Navigation";
+import { Link } from "react-router-dom";
 
 export default function TrackIssues() {
   const [issues, setIssues] = useState([]);
@@ -514,12 +515,12 @@ export default function TrackIssues() {
           {/* Footer */}
           <div className="bg-white dark:bg-[#1E1E1E] rounded-b-2xl border border-[#E6E6E6] dark:border-[#333333] p-6">
             <div className="text-center">
-              <a
-                href="/"
+              <Link
+                to="/report-issues"
                 className="inline-flex items-center gap-2 py-3 px-6 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors font-inter"
               >
                 Report New Issue
-              </a>
+              </Link>
             </div>
           </div>
         </div>

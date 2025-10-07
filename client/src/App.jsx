@@ -5,6 +5,7 @@ import ReportPage from "./pages/Report";
 import TrackIssues from "./pages/track";
 import Signup from "./pages/auth/login";
 import CitizenDashboard from "./pages/dashboard/UserDaahboard";
+import Upload from "./pages/dashboard/track/ImageUpload";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/report-issues" element={<ReportPage />} />
         <Route path="/track-issues" element={<TrackIssues />} />
       <Route path="/login" element={<Signup />}/>
+      <Route path="/upload" element={<Upload  />}  />
       </Routes>
   );
 }

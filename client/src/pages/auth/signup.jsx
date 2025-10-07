@@ -14,11 +14,11 @@ export default function SignUp() {
       alert("User Name Is Required");
       return;
     }
-    if(!password){
+    if(!email){
       alert("Email Is Required");
       return;
     }
-    if(!email){
+    if(!password){
       alert("Password Is Required");
       return;
     }

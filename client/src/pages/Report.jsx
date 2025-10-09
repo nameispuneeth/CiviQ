@@ -304,27 +304,28 @@ export default function ReportPage() {
         return;
       }
 
-      const file = submitData.photo;
-      if (!file.type.startsWith("image/")) {
-        alert("Please upload an image file (jpg, png, jpeg, etc.)");
-        return;
-      }
-      const data = new FormData();
-      data.append("file", formData.photo);
-      data.append("upload_preset", "Javeed"); // <-- replace with your Cloudinary preset
-      data.append("cloud_name", "djt3vedth");       // <-- replace with your Cloudinary cloud name
+      // const file = submitData.photo;
+      // if (!file.type.startsWith("image/")) {
+      //   alert("Please upload an image file (jpg, png, jpeg, etc.)");
+      //   return;
+      // }
+      // const data = new FormData();
+      // data.append("file", formData.photo);
+      // data.append("upload_preset", "Javeed"); // <-- replace with your Cloudinary preset
+      // data.append("cloud_name", "djt3vedth");       // <-- replace with your Cloudinary cloud name
 
-      const res = await fetch("https://api.cloudinary.com/v1_1/djt3vedth/image/upload", {
-        method: "POST",
-        body: data,
-      });
+      // const res = await fetch("https://api.cloudinary.com/v1_1/djt3vedth/image/upload", {
+      //   method: "POST",
+      //   body: data,
+      // });
 
-      const uploadImage = await res.json();
-      if (!uploadImage.url) throw new Error("Image upload failed");
+      // const uploadImage = await res.json();
+      // if (!uploadImage.url) throw new Error("Image upload failed");
 
-      submitData.photo = uploadImage.url;
+      // submitData.photo = uploadImage.url;
 
       // If anonymous, clear personal info
+      submitData.photo="https://www.hindustantimes.com/ht-img/img/2023/07/11/550x309/The-helpline-was-established-following-several-com_1689099129441.jpg"
       if (isAnonymous) {
         submitData.reporter_name = "";
         submitData.reporter_email = "";

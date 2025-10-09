@@ -112,9 +112,10 @@ app.get("/api/user/issues", async (req, res) => {
         // Convert Map IDs to array
         // user.issues.pending is already an array of ObjectIds
         const pendingIssues = await Issue.find({ _id: { $in: user.issues.pending } });
+        const inprogressIssues=await Issue.find({ _id: { $in: user.issues.inprogress } });
+        const resolvedssues=await Issue.find({ _id: { $in: user.issues.resolved } });
 
-
-        res.send({ ok: true, pending: pendingIssues });
+        res.send({ ok: true, pending: pendingIssues,inprogress:inprogressIssues,resolved:resolvedssues });
     } catch (err) {
         console.error(err);
         res.status(500).send({ ok: false, error: "Failed to fetch issues" });

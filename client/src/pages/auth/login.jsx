@@ -7,9 +7,9 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(()=>{
-    if(localStorage.getItem("token")!==undefined || sessionStorage.getItem("token")!==undefined){
-      navigate("/report-issues");
-    }
+    // if(localStorage.getItem("token")!==undefined || sessionStorage.getItem("token")!==undefined){
+    //   navigate("/report-issues");
+    // }
   },[])
   const handleSubmit = async(e) => {
     e.preventDefault();

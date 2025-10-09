@@ -5,7 +5,12 @@ const issueSchema = new mongoose.Schema({
   category: String,
   description: String,
   photo: String,
-  location: String,
+  address: String,
+  latitude:String,
+  longitude:String,
+  reporter_name:String,
+  reporter_email:String,
+  is_anonymous:Boolean
 });
 
 const userSchema = new mongoose.Schema({

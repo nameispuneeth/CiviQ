@@ -174,9 +174,10 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Navigation from "../components/Navigation";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function ReportPage() {
+  const navigate=useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -285,12 +286,19 @@ export default function ReportPage() {
 
     try {
       // Validate required fields
+      const token=localStorage.getItem("token") || sessionStorage.getItem("token")
+      if(!token){
+        alert("User Have To Login");
+        navigate("/login");
+        return;
+      }
       if (!formData.title || !formData.description || !formData.category) {
         throw new Error("Please fill in all required fields");
       }
 
       const submitData = { ...formData };
-
+      console.log(submitData)
+      submitData.photo=null;
       // If anonymous, clear personal info
       if (isAnonymous) {
         submitData.reporter_name = "";
@@ -300,59 +308,60 @@ export default function ReportPage() {
       }
 
       // Handle photo upload if present
-      if (formData.photo) {
-        const photoFormData = new FormData();
-        photoFormData.append("file", formData.photo);
+      // if (formData.photo) {
+      //   const photoFormData = new FormData();
+      //   photoFormData.append("file", formData.photo);
 
-        const photoResponse = await fetch("/api/upload", {
-          method: "POST",
-          body: photoFormData,
-        });
+      //   const photoResponse = await fetch("/api/upload", {
+      //     method: "POST",
+      //     body: photoFormData,
+      //   });
 
-        if (!photoResponse.ok) {
-          throw new Error("Failed to upload photo");
-        }
+      //   if (!photoResponse.ok) {
+      //     throw new Error("Failed to upload photo");
+      //   }
 
-        const photoData = await photoResponse.json();
-        submitData.photo_url = photoData.url;
-      }
+      //   const photoData = await photoResponse.json();
+      //   submitData.photo_url = photoData.url;
+      // }
 
       // Get AI analysis for enhanced classification
-      try {
-        const aiResponse = await fetch("/api/ai/classify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: submitData.title,
-            description: submitData.description,
-            category: submitData.category,
-            latitude: submitData.latitude,
-            longitude: submitData.longitude,
-            address: submitData.address,
-          }),
-        });
+      // try {
+      //   const aiResponse = await fetch("/api/ai/classify", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({
+      //       title: submitData.title,
+      //       description: submitData.description,
+      //       category: submitData.category,
+      //       latitude: submitData.latitude,
+      //       longitude: submitData.longitude,
+      //       address: submitData.address,
+      //     }),
+      //   });
 
-        if (aiResponse.ok) {
-          const aiAnalysis = await aiResponse.json();
+      //   if (aiResponse.ok) {
+      //     const aiAnalysis = await aiResponse.json();
 
-          // Enhance submission data with AI insights
-          submitData.ai_classification = aiAnalysis.classification;
-          submitData.ai_priority_score = aiAnalysis.priority_score;
-          submitData.priority = aiAnalysis.priority;
-          submitData.assigned_department = aiAnalysis.assigned_department;
-        }
-      } catch (aiError) {
-        console.log("AI analysis failed, proceeding with basic submission");
-        // Continue with submission even if AI fails
-      }
+      //     // Enhance submission data with AI insights
+      //     submitData.ai_classification = aiAnalysis.classification;
+      //     submitData.ai_priority_score = aiAnalysis.priority_score;
+      //     submitData.priority = aiAnalysis.priority;
+      //     submitData.assigned_department = aiAnalysis.assigned_department;
+      //   }
+      // } catch (aiError) {
+      //   console.log("AI analysis failed, proceeding with basic submission");
+      //   // Continue with submission even if AI fails
+      // }
 
       // Submit the issue
-      const response = await fetch("/api/issues", {
+      const response = await fetch("http://localhost:8000/api/issues", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'authorization':token
         },
         body: JSON.stringify(submitData),
       });

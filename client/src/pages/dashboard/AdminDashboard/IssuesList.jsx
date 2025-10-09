@@ -1,7 +1,9 @@
 import React from "react";
+import { useContext } from "react";
+import { ThemeContext } from "../../../Context/ThemeContext";
 
-export default function IssuesList({ issues, setIssues, filters, setFilters, setSelectedIssue, theme }) {
-  const isDark = theme === "dark";
+export default function IssuesList({ issues, setIssues, filters, setFilters, setSelectedIssue }) {
+  const {isDark} = useContext(ThemeContext);
 
   const updateStatus = (issueId, newStatus) => {
     setIssues((prev) =>

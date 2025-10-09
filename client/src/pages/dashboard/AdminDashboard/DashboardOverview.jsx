@@ -3,15 +3,16 @@ import Button from "@mui/material/Button";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useContext } from "react";
+import { ThemeContext } from "../../../Context/ThemeContext";
 
 export default function DashboardOverview({
   stats,
   issues,
   setActiveView,
   setSelectedIssue,
-  theme,
 }) {
-  const isDark = theme === "dark";
+  const {isDark} = useContext(ThemeContext);
 
   // ----- Statistics -----
   const pending = issues.filter((i) => i.status === "pending").length;

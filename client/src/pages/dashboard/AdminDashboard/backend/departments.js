@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
 const dummyDepartments = [
@@ -47,65 +46,63 @@ const dummyDepartments = [
   },
 ];
 
-const Departments = ({ theme }) => {
+const Departments = () => {
   const [departments, setDepartments] = useState([]);
+  const { isDark } = useContext(ThemeContext);
 
   useEffect(() => {
     setDepartments(dummyDepartments);
   }, []);
 
-  const {isDark} = useContext(ThemeContext);
-
   return (
-  <div
-  className={` p-1 transition-colors duration-300
-    ${isDark ? "bg-gray-900" : "bg-gray-100"}`}
->
-  <h2 className={`text-4xl font-extrabold mb-10 text-center ${isDark ? "text-white" : "text-gray-900"}`}>
-    City Departments
-  </h2>
+    <div className={`p-6 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`}>
+      {departments.map((dept) => (
+        <div
+          key={dept.name}
+          className={`
+            relative rounded-3xl overflow-hidden shadow-xl transform transition duration-300 hover:scale-105 p-6 pt-8
+            ${isDark ? "bg-gray-800 border border-gray-700 text-gray-100" : "bg-white border border-gray-200 text-gray-900"}
+          `}
+        >
+          {/* Top accent */}
+          <div className={`absolute top-0 left-0 w-full h-2 ${isDark ? "bg-indigo-500" : "bg-blue-500"}`}></div>
 
-  <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-    {departments.map((dept) => (
-      <div
-        key={dept.name}
-        className={`relative rounded-2xl overflow-hidden shadow-lg transform transition duration-300 hover:scale-105
-          ${isDark 
-            ? "bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white" 
-            : "bg-white text-gray-900"} 
-        `}
-      >
-        {/* Top colored accent */}
-        <div className={`absolute top-0 left-0 w-full h-2 
-          ${isDark ? "bg-indigo-500" : "bg-blue-500"}`}></div>
+          {/* Department Name */}
+          <h4 className={`${isDark ? "text-yellow-400" : "text-gray-900"} text-2xl font-bold mb-2`}>
+            {dept.name}
+          </h4>
 
-        <div className="py-2 px-5 pt-4 pb-5">
-          <h4 className="text-2xl font-bold mb-3">{dept.name}</h4>
-          <p className="text-sm text-gray-700 mb-1">{`Head: ${dept.head}`}</p>
-          <p className="text-sm text-gray-700 mb-4">{`Email: ${dept.contact}`}</p>
+          {/* Head */}
+          <p className={`${isDark ? "text-cyan-400" : "text-gray-700"} text-sm mb-1`}>
+            Head: {dept.head}
+          </p>
 
-          <span className="font-semibold block mb-2 text-gray-200">Problems Solved:</span>
+          {/* Email */}
+          <p className={`${isDark ? "text-pink-400" : "text-gray-700"} text-sm mb-3`}>
+            Email: {dept.contact}
+          </p>
+
+          {/* Categories */}
+          <span className={`${isDark ? "text-green-400" : "text-gray-900"} font-semibold block mb-2`}>
+            Problems Solved:
+          </span>
           <div className="flex flex-wrap gap-2">
             {dept.categoriesHandled.map((cat, index) => (
               <span
                 key={index}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition
-                  ${isDark 
-                    ? "bg-gray-700 text-white hover:bg-indigo-500 hover:text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-blue-500 hover:text-white"}`}
+                className={`
+                  px-3 py-1 rounded-full text-xs font-medium
+                  ${isDark ? "bg-gray-700 text-white hover:bg-indigo-500" : "bg-gray-200 text-gray-800 hover:bg-blue-500 hover:text-white"}
+                  transition-colors
+                `}
               >
                 {cat}
               </span>
             ))}
           </div>
         </div>
-      </div>
-    ))}
-  </div>
-</div>
-
-
-
+      ))}
+    </div>
   );
 };
 

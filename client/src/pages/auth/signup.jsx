@@ -3,12 +3,43 @@ import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
+
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    alert(`Signup with:\nName: ${name}\nEmail: ${email}\nPassword: ${password}`);
+    if(!name){
+      alert("User Name Is Required");
+      return;
+    }
+    if(!email){
+      alert("Email Is Required");
+      return;
+    }
+    if(!password){
+      alert("Password Is Required");
+      return;
+    }
+    const response=await fetch("http://localhost:8000/api/register",{
+      method:"POST",
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        name:name,
+        email:email,
+        password:password
+      })
+    })
+    const data=await response.json();
+    console.log(data);
+    if(data.status=="ok"){
+      navigate("/");
+    }else{
+      alert(data.error);
+    }
   };
 
   return (
@@ -19,10 +50,20 @@ export default function SignUp() {
         {/* Decorative bottom-left gradient circle */}
         <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full opacity-30"></div>
 
-        <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">Sign In</h2>
+        <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">Sign Up</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium">Name</label>
+            <input
+              type="text"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="username"
+              required
+            />
+          </div>
           <div>
             <label className="block text-gray-700 mb-2 font-medium">Email</label>
             <input
@@ -57,7 +98,7 @@ export default function SignUp() {
         <p className="mt-6 text-center text-gray-500">
           Don't have an account?{" "}
           <span
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/")}
             className="text-purple-500 font-semibold cursor-pointer"
           >
             Register

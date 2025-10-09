@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const issueSchema = new mongoose.Schema({
   title: String,
   category: String,
   description: String,
   photo: String,
-  location: String
+  location: String,
 });
 
 const userSchema = new mongoose.Schema({
@@ -15,8 +15,8 @@ const userSchema = new mongoose.Schema({
   issues: {
     pending: { type: Map, of: issueSchema, default: {} },
     inprogress: { type: Map, of: issueSchema, default: {} },
-    resolved: { type: Map, of: issueSchema, default: {} }
-  }
+    resolved: { type: Map, of: issueSchema, default: {} },
+  },
 });
 
-export default mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -6,9 +6,37 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  useEffect(()=>{
+    if(localStorage.getItem("token")!==undefined || sessionStorage.getItem("token")!==undefined){
+      navigate("/report-issues");
+    }
+  },[])
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    alert(`Signup with:\nName: ${name}\nEmail: ${email}\nPassword: ${password}`);
+     if(!email){
+      alert("Email Is Required");
+      return;
+    }
+    if(!password){
+      alert("Password Is Required");
+      return;
+    }
+    const response=await fetch("http://localhost:8000/api/login",{
+      method:"POST",
+      headers:{
+        'Content-Type':'application/json'
+      },body:JSON.stringify({
+        email:email,
+        password:password
+      })
+    })
+    const data=await response.json();
+    if(data.status=="ok"){
+      sessionStorage.setItem("token",data.token);
+      navigate("/report-issues");
+    }else{
+      alert(data.error);
+    }
   };
 
   return (

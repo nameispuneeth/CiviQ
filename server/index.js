@@ -56,6 +56,7 @@ app.post("/api/login", async (req, res) => {
 })
 
 app.post("/api/issues", async (req, res) => {
+    console.log("came")
   const token = req.headers.authorization; // Bearer token
 
   if (!token) return res.status(401).send({ error: "Unauthorized" });

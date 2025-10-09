@@ -56,15 +56,17 @@ app.post("/api/login", async (req, res) => {
 })
 
 app.post("/api/issues", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1]; // Bearer token
+  const token = req.headers.authorization; // Bearer token
+
   if (!token) return res.status(401).send({ error: "Unauthorized" });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const decoded = jwt.verify(token, secretCode);
+    const user = await User.findOne({email:decoded.email});
     if (!user) return res.status(404).send({ error: "User not found" });
 
     const issueData = req.body; // title, category, description, photo, location
+    console.log(issueData)
     const issueId = Date.now().toString(); // unique id for the Map
 
     user.issues.pending.set(issueId, issueData);

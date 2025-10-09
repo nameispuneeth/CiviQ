@@ -98,7 +98,7 @@ export default function SignUp() {
         <p className="mt-6 text-center text-gray-500">
           Don't have an account?{" "}
           <span
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="text-purple-500 font-semibold cursor-pointer"
           >
             Register

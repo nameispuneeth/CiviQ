@@ -16,7 +16,7 @@ import Navigation from "../components/Navigation";
 import { useNavigate } from "react-router-dom";
 
 export default function ReportPage() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -125,8 +125,8 @@ export default function ReportPage() {
 
     try {
       // Validate required fields
-      const token=localStorage.getItem("token") || sessionStorage.getItem("token")
-      if(!token){
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+      if (!token) {
         alert("User Have To Login");
         navigate("/login");
         return;
@@ -136,9 +136,35 @@ export default function ReportPage() {
       }
 
       const submitData = { ...formData };
-      console.log(submitData)
-      submitData.photo=null;
+
+
+      if (!formData.photo) {
+        alert("PHOTO EVIDENCE IS REQUIRED")
+        return;
+      }
+
+      // const file = submitData.photo;
+      // if (!file.type.startsWith("image/")) {
+      //   alert("Please upload an image file (jpg, png, jpeg, etc.)");
+      //   return;
+      // }
+      // const data = new FormData();
+      // data.append("file", formData.photo);
+      // data.append("upload_preset", "Javeed"); // <-- replace with your Cloudinary preset
+      // data.append("cloud_name", "djt3vedth");       // <-- replace with your Cloudinary cloud name
+
+      // const res = await fetch("https://api.cloudinary.com/v1_1/djt3vedth/image/upload", {
+      //   method: "POST",
+      //   body: data,
+      // });
+
+      // const uploadImage = await res.json();
+      // if (!uploadImage.url) throw new Error("Image upload failed");
+
+      // submitData.photo = uploadImage.url;
+
       // If anonymous, clear personal info
+      submitData.photo="https://www.hindustantimes.com/ht-img/img/2023/07/11/550x309/The-helpline-was-established-following-several-com_1689099129441.jpg"
       if (isAnonymous) {
         submitData.reporter_name = "";
         submitData.reporter_email = "";
@@ -200,7 +226,7 @@ export default function ReportPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'authorization':token
+          'authorization': token
         },
         body: JSON.stringify(submitData),
       });
@@ -267,7 +293,7 @@ export default function ReportPage() {
     <>
       {/* <Navigation /> */}
       <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] py-4 px-4">
-  
+
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="bg-white dark:bg-[#1E1E1E] rounded-t-2xl border border-[#E6E6E6] dark:border-[#333333] p-6">
@@ -324,8 +350,8 @@ export default function ReportPage() {
                       setFormData((prev) => ({ ...prev, category: cat.value }))
                     }
                     className={`p-3 rounded-lg border text-left transition-all duration-150 ${formData.category === cat.value
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                        : "border-[#D9D9D9] dark:border-[#404040] bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                      : "border-[#D9D9D9] dark:border-[#404040] bg-white dark:bg-[#262626] text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                   >
                     <div className="text-xl mb-1">{cat.icon}</div>

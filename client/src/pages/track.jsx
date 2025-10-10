@@ -10,9 +10,10 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Navigation from "../components/Navigation";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 export default function TrackIssues() {
+  const navigate=useNavigate();
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,8 +54,8 @@ export default function TrackIssues() {
           category: "Road Maintenance",
           status: "pending",
           assigned_department: "Public Works Department",
-          created_at: "2025-09-29T10:00:00Z",
-          photo_url: "https://picsum.photos/400/200?random=1",
+          createdAt: "2025-09-29T10:00:00Z",
+          photo: "https://picsum.photos/400/200?random=1",
           ai_classification: "Road Damage",
           ai_priority_score: 0.85,
         },
@@ -66,8 +67,8 @@ export default function TrackIssues() {
           category: "Electrical",
           status: "in_progress",
           assigned_department: "Electrical Department",
-          created_at: "2025-09-25T09:00:00Z",
-          photo_url: "https://picsum.photos/400/200?random=2",
+          createdAt: "2025-09-25T09:00:00Z",
+          photo: "https://picsum.photos/400/200?random=2",
           ai_classification: "Lighting Issue",
           ai_priority_score: 0.62,
         },
@@ -79,20 +80,42 @@ export default function TrackIssues() {
           category: "Sanitation",
           status: "resolved",
           assigned_department: "Sanitation Department",
-          created_at: "2025-09-20T12:00:00Z",
+          createdAt: "2025-09-20T12:00:00Z",
           resolved_at: "2025-09-28T16:00:00Z",
-          photo_url: "https://picsum.photos/400/200?random=3",
+          photo: "https://picsum.photos/400/200?random=3",
           ai_classification: "Waste Management",
           ai_priority_score: 0.72,
           citizen_rating: 4,
           citizen_feedback: "Cleaned well, but took some time.",
         },
       ];
-
+      const token=localStorage.getItem("token") || sessionStorage.getItem("token");
+      if(!token){
+        alert("Login required");
+        navigate("/login");
+        return;
+      }
+      const response=await fetch("http://localhost:8000/api/user/issues",{
+        method:'GET',
+        headers:{
+          'Content-Type':'application/json',
+          'authorization':token
+        }
+      });
+      const data=await response.json();
+      console.log(data);
+      console.log("Hello")
       // simulate loading delay
-      await new Promise((r) => setTimeout(r, 1000));
-      setIssues(dummyData);
-    } catch (error) {
+let backendIssues = [];
+
+// Only append arrays if they exist
+if (data.ok) {
+  if (Array.isArray(data.pending)) backendIssues.push(...data.pending);
+  if (Array.isArray(data.inprogress)) backendIssues.push(...data.inprogress);
+  if (Array.isArray(data.resolved)) backendIssues.push(...data.resolved);
+}
+
+setIssues([...dummyData, ...backendIssues]);    } catch (error) {
       console.error("Error loading dummy data:", error);
     } finally {
       setLoading(false);
@@ -129,7 +152,7 @@ export default function TrackIssues() {
   const IssueCard = ({ issue }) => {
     const StatusIcon = statusIcons[issue.status];
     const daysSinceReported = Math.floor(
-      (new Date() - new Date(issue.created_at)) / (1000 * 60 * 60 * 24)
+      (new Date() - new Date(issue.createdAt)) / (1000 * 60 * 60 * 24)
     );
 
     return (
@@ -287,13 +310,13 @@ export default function TrackIssues() {
               </div>
 
               {/* Photo */}
-              {issue.photo_url && (
+              {issue.photo && (
                 <div>
                   <h3 className="font-semibold text-black dark:text-white mb-2">
                     Photo Evidence
                   </h3>
                   <img
-                    src={issue.photo_url}
+                    src={issue.photo}
                     alt="Issue evidence"
                     className="max-w-full h-64 object-cover rounded-lg"
                   />
@@ -323,7 +346,7 @@ export default function TrackIssues() {
                         Issue Reported
                       </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(issue.created_at).toLocaleString()}
+                        {new Date(issue.createdAt).toLocaleString()}
                       </p>
                     </div>
                   </div>

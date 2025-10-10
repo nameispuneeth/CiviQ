@@ -1,36 +1,97 @@
-export default function IssueModal({ issue, onClose, departments, theme }) {
-  const isDark = theme === "dark";
+import * as React from "react";
+import Backdrop from "@mui/material/Backdrop";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Fade from "@mui/material/Fade";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { useContext } from "react";
+import { ThemeContext } from "../../../Context/ThemeContext";
+
+export default function IssueModal({ issue, onClose, departments }) {
+  const {isDark} = useContext(ThemeContext);
+
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "90%",
+    maxWidth: 650, // ✅ wider modal
+    bgcolor: isDark ? "#1E1E1E" : "background.paper",
+    border: `2px solid ${isDark ? "#333333" : "#000"}`,
+    boxShadow: 24,
+    p: 5,
+    borderRadius: 3,
+    color: isDark ? "#FFFFFF" : "#000000",
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div
-        className={`p-6 rounded-xl w-[90%] md:w-[500px] transition
-          ${isDark ? "bg-[#1E1E1E]" : "bg-white"}`}
-      >
-        <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-black"}`}>
-          {issue.title}
-        </h3>
-        <p className={`mb-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-          {issue.description}
-        </p>
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      open={!!issue}
+      onClose={onClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+          sx: { backgroundColor: "rgba(0,0,0,0.6)" },
+        },
+      }}
+    >
+      <Fade in={!!issue}>
+        <Box sx={style}>
+          <Typography id="transition-modal-title" variant="h5" component="h2" sx={{ mb: 2, fontWeight: "bold" }}>
+            {issue?.title}
+          </Typography>
 
-        <p className={`text-sm mb-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-          Category: <span className="font-medium">{issue.category}</span>
-        </p>
-        <p className={`text-sm mb-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-          Status: <span className="font-medium">{issue.status}</span>
-        </p>
-        <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-          Department: <span className="font-medium">{issue.department}</span>
-        </p>
+          <Typography id="transition-modal-description" sx={{ mb: 3, color: isDark ? "#CCC" : "#555" }}>
+            {issue?.description}
+          </Typography>
 
-        <button
-          onClick={onClose}
-          className="mt-6 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          Close
-        </button>
-      </div>
-    </div>
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+              <strong>Category:</strong> {issue?.category}
+            </Typography>
+            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+              <strong>Status:</strong> {issue?.status}
+            </Typography>
+            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+              <strong>Priority:</strong> {issue?.priority}
+            </Typography>
+            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+              <strong>Department:</strong> {issue?.department}
+            </Typography>
+            {issue?.place && (
+              <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+                <strong>Place:</strong> {issue?.place}
+              </Typography>
+            )}
+            {issue?.latitude && issue?.longitude && (
+              <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+                <strong>Location:</strong> {issue?.latitude}, {issue?.longitude}
+              </Typography>
+            )}
+          </Box>
+
+          <Button
+            onClick={onClose}
+            fullWidth
+            variant="contained"
+            sx={{
+              mt: 4,
+              py: 1.2,
+              fontSize: "1rem",
+              backgroundColor: "#1976d2",
+              "&:hover": { backgroundColor: "#1565c0" },
+            }}
+          >
+            Close
+          </Button>
+        </Box>
+      </Fade>
+    </Modal>
   );
 }

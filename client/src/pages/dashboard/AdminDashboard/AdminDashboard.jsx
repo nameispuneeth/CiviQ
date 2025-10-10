@@ -1,35 +1,40 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import {
+  CssBaseline,
+  Box,
+  CircularProgress,
+  Container,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  BottomNavigation,
+  BottomNavigationAction,
+  useMediaQuery,
+} from "@mui/material";
+import { DarkMode, LightMode, Dashboard, ListAlt, Map, Apartment } from "@mui/icons-material";
 import Sidebar from "./Sidebar";
 import DashboardOverview from "./DashboardOverview";
 import IssuesList from "./IssuesList";
 import IssueModal from "./IssueModal";
-import { navigationItems } from "../AdminDashboard/backend/constant";
-import { fetchIssues, fetchDepartments, calculateStats } from "../AdminDashboard/backend/hooks";
 import Departments from "./Departments";
 import MapIssues from "./MapIssues";
+import { navigationItems } from "../AdminDashboard/backend/constant";
+import { fetchIssues, fetchDepartments, calculateStats } from "../AdminDashboard/backend/hooks";
+import { ThemeContext } from "../../../Context/ThemeContext";
 
 export default function AdminDashboard() {
+  const { isDark, toggleTheme } = useContext(ThemeContext); // useContext for theme
+
   const [issues, setIssues] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState("departments");
   const [selectedIssue, setSelectedIssue] = useState(null);
-  const [filters, setFilters] = useState({
-    status: "all",
-    category: "all",
-    priority: "all",
-    search: "",
-  });
-  const [stats, setStats] = useState({
-    total: 0,
-    pending: 0,
-    inProgress: 0,
-    resolved: 0,
-    todayReports: 0,
-  });
+  const [filters, setFilters] = useState({ status: "all", category: "all", priority: "all", search: "" });
+  const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0, todayReports: 0 });
 
-  // Theme state
-  const [theme, setTheme] = useState("light");
+  const isMobile = useMediaQuery("(max-width:768px)");
 
   useEffect(() => {
     fetchIssues(setIssues, setLoading);
@@ -40,90 +45,101 @@ export default function AdminDashboard() {
     setStats(calculateStats(issues));
   }, [issues]);
 
-  // Toggle theme
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
-
-  if (loading) {
+  if (loading)
     return (
-      <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <>
+        {/* <CssBaseline /> */}
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            bgcolor: isDark ? "#121212" : "#f3f3f3",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </>
     );
-  }
 
   return (
-    <div className={`flex h-screen ${theme === "light" ? "bg-[#F3F3F3]" : "bg-[#0A0A0A]"}`}>
-      <Sidebar
-        navigationItems={navigationItems}
-        activeView={activeView}
-        setActiveView={setActiveView}
-        theme={theme}
-      />
+    <>
+      {/* <CssBaseline /> */}
+      <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100vh", bgcolor: isDark ? "#121212" : "#f3f3f3" }}>
+        {!isMobile && <Sidebar navigationItems={navigationItems} activeView={activeView} setActiveView={setActiveView} />}
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <div
-          className={`h-16 flex items-center justify-between px-6 border-b ${
-            theme === "light" ? "bg-[#F3F3F3] border-[#E6E6E6]" : "bg-[#1A1A1A] border-[#333333]"
-          }`}
-        >
-          <h1
-            className={`text-2xl font-bold font-inter capitalize ${
-              theme === "light" ? "text-black" : "text-white"
-            }`}
-          >
-            {activeView}
-          </h1>
-          <button
-            onClick={toggleTheme}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            {theme === "light" ? "Dark Mode" : "Light Mode"}
-          </button>
-        </div>
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, position: "relative" }}>
+      <AppBar
+  position="static"
+  color="default"
+  sx={{
+    borderBottom: 1,
+    borderColor: "divider",
+    boxShadow: "none",
+    bgcolor: isDark ? "#1A1A1A" : "#fff",
+  }}
+>
+  <Toolbar>
+    <Typography
+      variant="h6"
+      sx={{
+        flexGrow: 1,
+        textTransform: "capitalize",
+        color: isDark ? "#fff" : "#000", // make title visible
+      }}
+    >
+      {activeView}
+    </Typography>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          {activeView === "dashboard" && (
-            <DashboardOverview
-              stats={stats}
-              issues={issues}
-              setActiveView={setActiveView}
-              setSelectedIssue={setSelectedIssue}
-              theme={theme}
-            />
-          )}
-
-          {activeView === "issues" && (
-            <IssuesList
-              issues={issues}
-              filters={filters}
-              setFilters={setFilters}
-              setSelectedIssue={setSelectedIssue}
-              theme={theme}
-            />
-          )}
-
-          {activeView === "departments" && <Departments theme={theme} />}
-
-          {activeView === "map" && <MapIssues issues={issues} theme={theme} />}
-        </div>
-      </div>
-
-      {selectedIssue && (
-        <IssueModal
-          issue={selectedIssue}
-          onClose={() => setSelectedIssue(null)}
-          departments={departments}
-          theme={theme}
-        />
+    <IconButton onClick={toggleTheme} color="inherit">
+      {isDark ? (
+        <LightMode sx={{ color: "#FFD700" }} /> // sun icon, yellow in dark mode
+      ) : (
+        <DarkMode sx={{ color: "#00008B" }} /> // moon icon, dark blue in light mode
       )}
-    </div>
+    </IconButton>
+  </Toolbar>
+</AppBar>
+
+
+          <Container sx={{ flex: 1, overflowY: "auto", py: 3, mb: isMobile ? "56px" : 0 }}>
+            {activeView === "dashboard" && (
+              <DashboardOverview stats={stats} issues={issues} setActiveView={setActiveView} setSelectedIssue={setSelectedIssue} />
+            )}
+            {activeView === "issues" && (
+              <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} />
+            )}
+            {activeView === "departments" && <Departments />}
+            {activeView === "map" && <MapIssues issues={issues} />}
+          </Container>
+
+          {selectedIssue && <IssueModal issue={selectedIssue} onClose={() => setSelectedIssue(null)} departments={departments} />}
+
+          {isMobile && (
+            <BottomNavigation
+              value={activeView}
+              onChange={(e, newValue) => setActiveView(newValue)}
+              showLabels
+              sx={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                borderTop: 1,
+                borderColor: "divider",
+                bgcolor: isDark ? "#1A1A1A" : "#fff",
+                zIndex: 1200,
+              }}
+            >
+              <BottomNavigationAction label="Dashboard" value="dashboard" icon={<Dashboard />} />
+              <BottomNavigationAction label="Issues" value="issues" icon={<ListAlt />} />
+              <BottomNavigationAction label="Departments" value="departments" icon={<Apartment />} />
+              <BottomNavigationAction label="Map" value="map" icon={<Map />} />
+            </BottomNavigation>
+          )}
+        </Box>
+      </Box>
+    </>
   );
 }

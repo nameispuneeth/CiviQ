@@ -1,5 +1,8 @@
-export default function Sidebar({ navigationItems, activeView, setActiveView, theme }) {
-  const isDark = theme === "dark";
+import { useContext } from "react";
+import { ThemeContext } from "../../../Context/ThemeContext";
+
+export default function Sidebar({ navigationItems, activeView, setActiveView }) {
+  const {isDark} = useContext(ThemeContext);
 
   return (
     <div

@@ -7,10 +7,10 @@ const CitizenDashboard = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-6">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-white font-sora">
-          Welcome, Citizen!
+          Welcome, Citizen! 
         </h1>
         <p className="text-gray-600 dark:text-gray-300 font-inter text-lg">
-          Manage your civic issues efficiently — report new problems or track existing ones.
+          Manage your civic issues are  efficiently — report new problems or track existing ones.
         </p>
       </div>
 

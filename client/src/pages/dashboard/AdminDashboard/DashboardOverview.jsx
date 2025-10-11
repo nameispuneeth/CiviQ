@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import { useContext } from 'react';
@@ -20,6 +21,23 @@ import {
 
 export default function DashboardOverview({ stats, issues, setActiveView }) {
   const { isDark } = useContext(ThemeContext);
+=======
+import * as React from "react";
+import Button from "@mui/material/Button";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { PieChart } from "@mui/x-charts/PieChart";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { useContext } from "react";
+import { ThemeContext } from "../../../Context/ThemeContext";
+
+export default function DashboardOverview({
+  stats,
+  issues,
+  setActiveView,
+  setSelectedIssue,
+}) {
+  const {isDark} = useContext(ThemeContext);
+>>>>>>> Javeed
 
   // ----- Statistics -----
   const pending = issues.filter(i => i.status === 'pending').length;

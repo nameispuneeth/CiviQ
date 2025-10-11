@@ -103,8 +103,6 @@ export default function TrackIssues() {
         }
       });
       const data = await response.json();
-      console.log(data);
-
       setIssues([...dummyData, ...data.issues]);
     } catch (error) {
       console.error("Error loading dummy data:", error);
@@ -149,7 +147,7 @@ export default function TrackIssues() {
     return (
       <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E6E6E6] dark:border-[#333333] p-6 hover:shadow-lg transition-all duration-200">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+          <div className="flex-1" key={issue.createdAt}>
             <h3 className="text-lg font-semibold text-black dark:text-white mb-2 font-sora">
               {issue.title}
             </h3>

@@ -20,7 +20,8 @@ mongoose.connect("mongodb://localhost:27017/Hackathon")
     .catch((err) => console.error("MongoDB connection error:", err));
 
 
-const secretCode = "Heelo";
+const UsersecretCode = "UserSecretCode";
+const AdminSecretCode="AdminSecretCode"
 
 // Test route
 app.get("/", (req, res) => {
@@ -49,17 +50,42 @@ app.post("/api/register", async (req, res) => {
 // User Login
 // ----------------------
 app.post("/api/login", async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body
 
-    try {
-        const tempuser = await User.findOne({ email, password });
-        if (!tempuser) return res.send({ status: "error", error: "Invalid credentials" });
+  try {
+    // 1️⃣ Check Admin first
+    const admin = await Admin.findOne({ email, password });
+    if (admin) {
+      const token = jwt.sign(
+        { name: admin.name, email: admin.email, role: "superadmin" },
+        AdminSecretCode
+      );
+      return res.send({
+        status: "ok",
+        token,
+        role: "superadmin",
+        message: "Admin login successful",
+      });
+    }
 
-        const token = jwt.sign(
-            { name: tempuser.name, email: tempuser.email },
-            secretCode
-        );
-        res.send({ status: "ok", token });
+    // 2️⃣ Check regular User if not admin
+    const user = await User.findOne({ email, password });
+    if (user) {
+      const token = jwt.sign(
+        { name: user.name, email: user.email, role: "user" },
+        UsersecretCode
+      );
+      return res.send({
+        status: "ok",
+        token,
+        role: "user",
+        message: "User login successful",
+      });
+    }
+
+    // 3️⃣ If not found in either
+    res.status(401).send({ status: "error", error: "Invalid credentials" });
+
     } catch (e) {
         console.error(e);
         res.send({ status: "error", error: "Network Issues" });
@@ -75,7 +101,7 @@ app.post("/api/issues", async (req, res) => {
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
 
     try {
-        const decoded = jwt.verify(token, secretCode);
+        const decoded = jwt.verify(token, UsersecretCode);
         console.log(decoded);
         const user = await User.findOne({ email: decoded.email });
         if (!user) return res.status(404).send({ ok: false, error: "User not found" });
@@ -105,12 +131,10 @@ app.post("/api/issues", async (req, res) => {
         if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
 
         try {
-            const decoded = jwt.verify(token, secretCode);
+            const decoded = jwt.verify(token, UsersecretCode);
             const user = await User.findOne({ email: decoded.email });
             if (!user) return res.status(404).send({ ok: false, error: "User not found" });
 
-            // Convert Map IDs to array
-            // user.issues.pending is already an array of ObjectIds
             const Issues = await Issue.find({ _id: { $in: user.issues } });
             console.log(Issues);
 
@@ -121,7 +145,7 @@ app.post("/api/issues", async (req, res) => {
         }
     });
 
-    // ----------------------
+// ----------------------
 // Start server
 // ----------------------
 app.listen(8000, () => {

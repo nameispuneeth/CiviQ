@@ -417,13 +417,13 @@ export default function EnhancedIssuesList({
       {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
-          onClick={() => goToPage(currentPage - 1)}
+          onClick={() => goToPage(page - 1)}
           className={`px-3 py-1 rounded-md border ${
             isDark
               ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
               : "bg-white border-gray-300 text-gray-800"
           }`}
-          disabled={currentPage === 1}
+          disabled={page === 1}
         >
           Prev
         </button>
@@ -432,7 +432,7 @@ export default function EnhancedIssuesList({
             key={i + 1}
             onClick={() => goToPage(i + 1)}
             className={`px-3 py-1 rounded-md border ${
-              currentPage === i + 1
+              page === i + 1
                 ? isDark
                   ? "bg-[#4b4b4b] border-gray-700 text-white"
                   : "bg-gray-300 border-gray-300 text-gray-800"
@@ -445,18 +445,17 @@ export default function EnhancedIssuesList({
           </button>
         ))}
         <button
-          onClick={() => goToPage(currentPage + 1)}
+          onClick={() => goToPage(page + 1)}
           className={`px-3 py-1 rounded-md border ${
             isDark
               ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
               : "bg-white border-gray-300 text-gray-800"
           }`}
-          disabled={currentPage === totalPages}
+          disabled={page === totalPages}
         >
           Next
         </button>
       </div>
-    </div>
     </div>
   );
 }

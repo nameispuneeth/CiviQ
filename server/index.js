@@ -85,7 +85,7 @@ app.post("/api/issues", async (req, res) => {
         const issue = await Issue.create({ ...issueData });
 
         // Store the generated ObjectId in user's pending issues
-        user.issues.pending.push(issue._id);
+        user.issues.push(issue._id);
         await user.save();
 
 
@@ -100,29 +100,28 @@ app.post("/api/issues", async (req, res) => {
 // ----------------------
 // Get User Issues (with details)
 // ----------------------
-app.get("/api/user/issues", async (req, res) => {
-    const token = req.headers.authorization;
-    if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
+    app.get("/api/user/issues", async (req, res) => {
+        const token = req.headers.authorization;
+        if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
 
-    try {
-        const decoded = jwt.verify(token, secretCode);
-        const user = await User.findOne({ email: decoded.email });
-        if (!user) return res.status(404).send({ ok: false, error: "User not found" });
+        try {
+            const decoded = jwt.verify(token, secretCode);
+            const user = await User.findOne({ email: decoded.email });
+            if (!user) return res.status(404).send({ ok: false, error: "User not found" });
 
-        // Convert Map IDs to array
-        // user.issues.pending is already an array of ObjectIds
-        const pendingIssues = await Issue.find({ _id: { $in: user.issues.pending } });
-        const inprogressIssues=await Issue.find({ _id: { $in: user.issues.inprogress } });
-        const resolvedssues=await Issue.find({ _id: { $in: user.issues.resolved } });
+            // Convert Map IDs to array
+            // user.issues.pending is already an array of ObjectIds
+            const Issues = await Issue.find({ _id: { $in: user.issues } });
+            console.log(Issues);
 
-        res.send({ ok: true, pending: pendingIssues,inprogress:inprogressIssues,resolved:resolvedssues });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({ ok: false, error: "Failed to fetch issues" });
-    }
-});
+            res.send({ ok: true,issues:Issues});
+        } catch (err) {
+            console.error(err);
+            res.status(500).send({ ok: false, error: "Failed to fetch issues" });
+        }
+    });
 
-// ----------------------
+    // ----------------------
 // Start server
 // ----------------------
 app.listen(8000, () => {

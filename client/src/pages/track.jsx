@@ -10,10 +10,10 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Navigation from "../components/Navigation";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function TrackIssues() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,7 +25,7 @@ export default function TrackIssues() {
   const statusColors = {
     pending:
       "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
-    in_progress:
+    inprogress:
       "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800",
     resolved:
       "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
@@ -33,7 +33,7 @@ export default function TrackIssues() {
 
   const statusIcons = {
     pending: Clock,
-    in_progress: AlertTriangle,
+    inprogress: AlertTriangle,
     resolved: CheckCircle,
   };
 
@@ -65,7 +65,7 @@ export default function TrackIssues() {
           description: "Streetlight flickers and stays off most of the night.",
           address: "5th Avenue, Near Park",
           category: "Electrical",
-          status: "in_progress",
+          status: "inprogress",
           assigned_department: "Electrical Department",
           createdAt: "2025-09-25T09:00:00Z",
           photo: "https://picsum.photos/400/200?random=2",
@@ -89,33 +89,24 @@ export default function TrackIssues() {
           citizen_feedback: "Cleaned well, but took some time.",
         },
       ];
-      const token=localStorage.getItem("token") || sessionStorage.getItem("token");
-      if(!token){
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
         alert("Login required");
         navigate("/login");
         return;
       }
-      const response=await fetch("http://localhost:8000/api/user/issues",{
-        method:'GET',
-        headers:{
-          'Content-Type':'application/json',
-          'authorization':token
+      const response = await fetch("http://localhost:8000/api/user/issues", {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': token
         }
       });
-      const data=await response.json();
+      const data = await response.json();
       console.log(data);
-      console.log("Hello")
-      // simulate loading delay
-let backendIssues = [];
 
-// Only append arrays if they exist
-if (data.ok) {
-  if (Array.isArray(data.pending)) backendIssues.push(...data.pending);
-  if (Array.isArray(data.inprogress)) backendIssues.push(...data.inprogress);
-  if (Array.isArray(data.resolved)) backendIssues.push(...data.resolved);
-}
-
-setIssues([...dummyData, ...backendIssues]);    } catch (error) {
+      setIssues([...dummyData, ...data.issues]);
+    } catch (error) {
       console.error("Error loading dummy data:", error);
     } finally {
       setLoading(false);
@@ -218,13 +209,12 @@ setIssues([...dummyData, ...backendIssues]);    } catch (error) {
         {/* Progress indicator */}
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-3">
           <div
-            className={`h-2 rounded-full transition-all duration-300 ${
-              issue.status === "pending"
+            className={`h-2 rounded-full transition-all duration-300 ${issue.status === "pending"
                 ? "bg-red-500 w-1/3"
-                : issue.status === "in_progress"
-                ? "bg-yellow-500 w-2/3"
-                : "bg-green-500 w-full"
-            }`}
+                : issue.status === "inprogress"
+                  ? "bg-yellow-500 w-2/3" 
+                  : "bg-green-500 w-full"
+              }`}
           />
         </div>
 

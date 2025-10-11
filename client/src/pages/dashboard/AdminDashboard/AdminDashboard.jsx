@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   const [issues, setIssues] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState("departments");
+  const [activeView, setActiveView] = useState("dashboard");
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [filters, setFilters] = useState({ status: "all", category: "all", priority: "all", search: "" });
   const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0, todayReports: 0 });

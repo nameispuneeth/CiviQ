@@ -291,6 +291,5 @@ export default function IssuesTable() {
         </button>
       </div>
     </div>
-    </div>
   );
 }

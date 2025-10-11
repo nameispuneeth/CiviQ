@@ -31,9 +31,11 @@ export default function Login() {
       })
     })
     const data=await response.json();
+    console.log(data);
     if(data.status=="ok"){
       sessionStorage.setItem("token",data.token);
-      navigate("/report-issues");
+      if(data.role==="superadmin") navigate("/admin");
+      else navigate("/report-issues");
     }else{
       alert(data.error);
     }

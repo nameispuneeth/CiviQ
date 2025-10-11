@@ -11,7 +11,7 @@ const issueSchema = new mongoose.Schema({
   reporter_name: String,
   reporter_email: String,
   is_anonymous: Boolean,
-    status: { type: String, enum: ["pending", "inprogress", "resolved"], default: "pending" },
+  status: { type: String, enum: ["pending", "inprogress", "resolved"], default: "pending" },
   createdAt: { type: Date, default: Date.now },
 });
 

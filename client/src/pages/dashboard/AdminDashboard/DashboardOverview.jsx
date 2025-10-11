@@ -1,27 +1,3 @@
-<<<<<<< HEAD
-'use client';
-
-import { useContext } from 'react';
-import { ThemeContext } from '../../../Context/ThemeContext';
-import { Button } from '@mui/material';
-import { AlertTriangle, Clock, RefreshCw, CheckCircle } from 'lucide-react';
-import {
-  BarChart as ReBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  PieChart as RePieChart,
-  Pie,
-  Cell,
-  LineChart as ReLineChart,
-  Line,
-} from 'recharts';
-
-export default function DashboardOverview({ stats, issues, setActiveView }) {
-  const { isDark } = useContext(ThemeContext);
-=======
 import * as React from "react";
 import Button from "@mui/material/Button";
 import { BarChart } from "@mui/x-charts/BarChart";
@@ -29,7 +5,19 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
-
+import {
+  BarChart,
+  PieChart,
+  LineChart,
+  Bar,
+  Pie,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+} from "recharts";
 export default function DashboardOverview({
   stats,
   issues,
@@ -37,7 +25,6 @@ export default function DashboardOverview({
   setSelectedIssue,
 }) {
   const {isDark} = useContext(ThemeContext);
->>>>>>> Javeed
 
   // ----- Statistics -----
   const pending = issues.filter(i => i.status === 'pending').length;

@@ -1,249 +1,415 @@
-import { useContext, useState } from "react";
-import { Search } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  Filter,
+  Eye,
+  Save,
+  RefreshCw,
+  Play,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  MapPin,
+  Calendar,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
+import { useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
-export default function IssuesTable() {
-  const { isDark } = useContext(ThemeContext);
+export default function EnhancedIssuesList({
+  issues = [],
+  setIssues,
+  filters = { search: "" },
+  setFilters,
+  setSelectedIssue,
+}) {
+  const {isDark}=useContext(ThemeContext)
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [localIssues, setLocalIssues] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  useEffect(() => {
+    setLocalIssues([...issues]);
+    setHasChanges(false);
+  }, [issues]);
 
-  const [issues, setIssues] = useState([
-    {
-      id: "ISS-001",
-      title: "Broken Projector",
-      description: "Projector in Lecture Hall 2 not working",
-      reporter: "John Doe",
-      date: "2025-10-08",
-      status: "Pending",
-      department: "",
-      priority: "High",
-    },
-    {
-      id: "ISS-002",
-      title: "WiFi Not Working",
-      description: "No internet connectivity in Lab 3",
-      reporter: "Sara Ali",
-      date: "2025-10-07",
-      status: "In Progress",
-      department: "IT",
-      priority: "Medium",
-    },
-    {
-      id: "ISS-003",
-      title: "Light Flickering",
-      description: "Light flickering in corridor",
-      reporter: "Rahul Verma",
-      date: "2025-10-09",
-      status: "Completed",
-      department: "Electrical",
-      priority: "Low",
-    },
-    {
-      id: "ISS-004",
-      title: "AC Not Cooling",
-      description: "AC in Lab 2 blowing hot air",
-      reporter: "Anita Singh",
-      date: "2025-10-10",
-      status: "Pending",
-      department: "",
-      priority: "High",
-    },
-    {
-      id: "ISS-005",
-      title: "Projector Lens Broken",
-      description: "Lens cracked in Lecture Hall 1",
-      reporter: "John Doe",
-      date: "2025-10-06",
-      status: "Completed",
-      department: "Maintenance",
-      priority: "Medium",
-    },
-    {
-      id: "ISS-006",
-      title: "Network Cable Loose",
-      description: "Ethernet port not working in Lab 1",
-      reporter: "Sara Ali",
-      date: "2025-10-09",
-      status: "Pending",
-      department: "",
-      priority: "Low",
-    },
-  ]);
-
-  const handleStatusChange = (id, value) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id
-          ? { ...issue, status: value, department: value === "Pending" ? "" : issue.department }
-          : issue
+  const updateStatus = (issueId, newStatus) => {
+    setLocalIssues(prev =>
+      prev.map(i =>
+        i.id === issueId
+          ? {
+              ...i,
+              status: newStatus,
+              updated_at: new Date().toISOString(),
+              ...(newStatus === "resolved" && {
+                resolved_at: new Date().toISOString()
+              })
+            }
+          : i
       )
     );
     setHasChanges(true);
   };
 
-  const handleDeptChange = (id, value) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, department: value } : issue
+  const updateDepartment = (issueId, newDept) => {
+    setLocalIssues(prev =>
+      prev.map(i =>
+        i.id === issueId
+          ? {
+              ...i,
+              department: newDept,
+              assigned_to: newDept ? `${newDept} Team` : null,
+              updated_at: new Date().toISOString()
+            }
+          : i
       )
     );
+    setHasChanges(true);
   };
 
-  const filteredIssues = issues.filter((issue) => {
-    const matchesStatus =
-      filterStatus === "All" || issue.status === filterStatus;
+  const handleSave = async () => {
+    try {
+      if (setIssues) setIssues([...localIssues]);
+      setHasChanges(false);
+      alert("Changes saved successfully!");
+    } catch (error) {
+      console.error("Error saving changes:", error);
+      alert("Error saving changes. Please try again.");
+    }
+  };
+
+  const handleRefresh = () => {
+    setLocalIssues([...issues]);
+    setHasChanges(false);
+  };
+
+  const filteredIssues = localIssues.filter(issue => {
     const matchesSearch =
-      issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      issue.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      issue.reporter.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
+      !filters.search ||
+      issue.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      issue.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      issue.location_address
+        ?.toLowerCase()
+        .includes(filters.search.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || issue.status === statusFilter;
+    const matchesCategory =
+      categoryFilter === "all" ||
+      issue.category?.toLowerCase() === categoryFilter.toLowerCase();
+    return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredIssues.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredIssues.length / rowsPerPage);
   const paginatedIssues = filteredIssues.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    page * rowsPerPage,
+    (page + 1) * rowsPerPage
   );
 
-  const goToPage = (page) => {
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    setCurrentPage(page);
+  const getStatusInfo = status => {
+    const statusMap = {
+      pending: {
+        label: "Pending",
+        icon: Clock,
+        color: isDark ? "text-yellow-400" : "text-yellow-700",
+        bgColor: isDark ? "bg-yellow-900/40" : "bg-yellow-100",
+        borderColor: "border-yellow-500/40"
+      },
+      in_progress: {
+        label: "In Progress",
+        icon: AlertTriangle,
+        color: isDark ? "text-blue-400" : "text-blue-700",
+        bgColor: isDark ? "bg-blue-900/40" : "bg-blue-100",
+        borderColor: "border-blue-500/40"
+      },
+      resolved: {
+        label: "Resolved",
+        icon: CheckCircle,
+        color: isDark ? "text-green-400" : "text-green-700",
+        bgColor: isDark ? "bg-green-900/40" : "bg-green-100",
+        borderColor: "border-green-500/40"
+      }
+    };
+    return statusMap[status] || statusMap.pending;
   };
+
+  const departments = [
+    "Roads & Infrastructure",
+    "Street Lighting",
+    "Sanitation",
+    "Parks & Recreation",
+    "Water & Utilities",
+    "General Services",
+    "Emergency Services"
+  ];
+
+  const categories = ["Roads", "Lighting", "Sanitation", "Parks", "Water", "Other"];
+
+  const baseClasses = isDark
+    ? "bg-gray-800 text-white border-gray-700"
+    : "bg-white text-gray-900 border-gray-200";
+
+  const inputClasses = isDark
+    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500";
+
+  const hoverClasses = isDark ? "hover:bg-gray-700" : "hover:bg-gray-50";
 
   return (
     <div
-      className={`p-6 rounded-2xl border transition-all duration-300 ${
-        isDark
-          ? "bg-[#121212] border-gray-700 text-gray-100"
-          : "bg-white border-gray-200 text-gray-800"
-      }`}
+      className={`rounded-xl border shadow-sm ${baseClasses} transition-colors duration-300`}
     >
-      {/* Header with search + filter */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
-        <h2 className="text-xl font-semibold">Issues List</h2>
-
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          {/* Search box */}
-          <div
-            className={`flex items-center px-3 py-2 rounded-md border w-full sm:w-64 ${
-              isDark
-                ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
-                : "bg-white border-gray-300 text-gray-800"
-            }`}
-          >
-            <Search size={18} className="opacity-70 mr-2" />
-            <input
-              type="text"
-              placeholder="Search issues..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full bg-transparent outline-none ${
-                isDark ? "placeholder-gray-400" : "placeholder-gray-500"
-              }`}
-            />
+      {/* Header */}
+      <div className={`p-6 border-b ${isDark ? "border-gray-700" : "border-gray-200"}`}>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Issues Management Center</h2>
+            <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>
+              Track, assign, and resolve civic issues efficiently
+            </p>
           </div>
 
-          {/* Status Filter */}
-          <select
-            className={`p-2 rounded-md border ${
-              isDark
-                ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
-                : "bg-white border-gray-300 text-gray-800"
-            }`}
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleRefresh}
+              className={`p-2 rounded-lg ${hoverClasses} transition-colors duration-200`}
+              title="Refresh Data"
+            >
+              <RefreshCw
+                size={20}
+                className={isDark ? "text-gray-400" : "text-gray-600"}
+              />
+            </button>
+
+            {hasChanges && (
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
+              >
+                <Save size={16} />
+                Save Changes
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <div className="lg:col-span-2">
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                isDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Search Issues
+            </label>
+            <div className="relative">
+              <Search
+                size={16}
+                className={`absolute left-3 top-3 ${
+                  isDark ? "text-gray-400" : "text-gray-500"
+                }`}
+              />
+              <input
+                type="text"
+                placeholder="Search by title, description, or location..."
+                value={filters.search}
+                onChange={e => setFilters({ ...filters, search: e.target.value })}
+                className={`w-full pl-10 pr-3 py-2 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                isDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200`}
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                isDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Category
+            </label>
+            <select
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className={`w-full px-3 py-2 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200`}
+            >
+              <option value="all">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat.toLowerCase()}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Issues Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr
-              className={`text-left text-sm ${
-                isDark ? "bg-[#1f1f1f] text-gray-200" : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              <th className="py-3 px-4 border-b">ID</th>
-              <th className="py-3 px-4 border-b">Title</th>
-              <th className="py-3 px-4 border-b">Description</th>
-              <th className="py-3 px-4 border-b">Reporter</th>
-              <th className="py-3 px-4 border-b">Date Reported</th>
-              <th className="py-3 px-4 border-b">Status</th>
-              <th className="py-3 px-4 border-b">Department</th>
-              <th className="py-3 px-4 border-b">Priority</th>
+        <table className="w-full">
+          <thead className={`${isDark ? "bg-gray-700" : "bg-gray-50"}`}>
+            <tr>
+              <th className="px-6 py-4 text-left text-sm font-semibold">
+                Issue Details
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedIssues.map((issue) => (
-              <tr
-                key={issue.id}
-                className={`text-sm transition-all ${
-                  isDark
-                    ? "hover:bg-[#1b1b1b] border-gray-700"
-                    : "hover:bg-gray-50 border-gray-200"
-                }`}
-              >
-                <td className="py-3 px-4 border-b">{issue.id}</td>
-                <td className="py-3 px-4 border-b">{issue.title}</td>
-                <td className="py-3 px-4 border-b">{issue.description}</td>
-                <td className="py-3 px-4 border-b">{issue.reporter}</td>
-                <td className="py-3 px-4 border-b">{issue.date}</td>
+            {paginatedIssues.map(issue => {
+              const statusInfo = getStatusInfo(issue.status);
+              const StatusIcon = statusInfo.icon;
 
-                {/* Status select */}
-                <td className="py-3 px-4 border-b">
-                  <select
-                    className={`p-1 rounded-md text-sm border ${
-                      isDark
-                        ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
-                        : "bg-white border-gray-300 text-gray-800"
-                    }`}
-                    value={issue.status}
-                    onChange={(e) => handleStatusChange(issue.id, e.target.value)}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </td>
+              return (
+                <tr
+                  key={issue.id}
+                  className={`border-b ${
+                    isDark ? "border-gray-700" : "border-gray-200"
+                  } ${hoverClasses} transition-colors duration-200 cursor-pointer`}
+                  onClick={() => setSelectedIssue && setSelectedIssue(issue)}
+                >
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">
+                        {issue.title}
+                      </h3>
+                      {issue.description && (
+                        <p
+                          className={`text-sm ${
+                            isDark ? "text-gray-400" : "text-gray-600"
+                          } line-clamp-2`}
+                        >
+                          {issue.description}
+                        </p>
+                      )}
+                      {issue.location_address && (
+                        <div
+                          className={`flex items-center gap-1 text-xs ${
+                            isDark ? "text-gray-500" : "text-gray-500"
+                          }`}
+                        >
+                          <MapPin size={12} />
+                          <span>{issue.location_address}</span>
+                        </div>
+                      )}
+                      <div
+                        className={`flex items-center gap-1 text-xs ${
+                          isDark ? "text-gray-500" : "text-gray-500"
+                        }`}
+                      >
+                        <Calendar size={12} />
+                        <span>
+                          #{issue.id} •{" "}
+                          {new Date(issue.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
 
-                {/* Department column */}
-                <td className="py-3 px-4 border-b">
-                  {issue.status === "Pending" ? (
-                    <select
-                      className={`p-1 rounded-md text-sm border ${
-                        isDark
-                          ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
-                          : "bg-white border-gray-300 text-gray-800"
-                      }`}
-                      value={issue.department}
-                      onChange={(e) => handleDeptChange(issue.id, e.target.value)}
+                  <td className="px-6 py-4">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}
                     >
-                      <option value="">Select Department</option>
-                      <option value="IT">IT</option>
-                      <option value="Electrical">Electrical</option>
-                      <option value="Maintenance">Maintenance</option>
-                      <option value="Admin">Admin</option>
-                    </select>
-                  ) : (
-                    <span>{issue.department}</span>
-                  )}
-                </td>
+                      <StatusIcon size={14} />
+                      {statusInfo.label}
+                    </div>
+                  </td>
 
-                <td className="py-3 px-4 border-b">{issue.priority}</td>
-              </tr>
-            ))}
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-medium">{issue.category}</span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <select
+                      value={issue.department || ""}
+                      onChange={e => updateDepartment(issue.id, e.target.value)}
+                      disabled={issue.status === "resolved"}
+                      className={`w-full px-3 py-1 text-sm rounded border ${inputClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <option value="" disabled>
+                        Select Department
+                      </option>
+                      {departments.map(dept => (
+                        <option key={dept} value={dept}>
+                          {dept}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          setSelectedIssue && setSelectedIssue(issue);
+                        }}
+                        className={`p-1 rounded ${hoverClasses} transition-colors duration-200`}
+                        title="View Details"
+                      >
+                        <Eye
+                          size={16}
+                          className={isDark ? "text-gray-400" : "text-gray-600"}
+                        />
+                      </button>
+
+                      {issue.status === "pending" && issue.department && (
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            updateStatus(issue.id, "in_progress");
+                          }}
+                          className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
+                          title="Start Progress"
+                        >
+                          <Play size={16} />
+                        </button>
+                      )}
+
+                      {issue.status === "in_progress" && (
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            updateStatus(issue.id, "resolved");
+                          }}
+                          className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
+                          title="Mark Resolved"
+                        >
+                          <CheckCircle size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -290,6 +456,7 @@ export default function IssuesTable() {
           Next
         </button>
       </div>
+    </div>
     </div>
   );
 }

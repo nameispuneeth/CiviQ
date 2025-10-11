@@ -8,7 +8,7 @@ import SignUp from "./pages/auth/signup"
 import CitizenDashboard from "./pages/dashboard/UserDaahboard";
 import Upload from "./pages/dashboard/track/ImageUpload";
 import { ThemeProvider } from "./Context/ThemeContext";
-// import DepartmentDashboard from "./pages/dashboard/DepartmentDashboard";
+import DepartmentDashboard from "./pages/dashboard/Department/DepartmentDashboard";
 // import ThemeProvider
 function App() {
   return (
@@ -23,6 +23,8 @@ function App() {
       <Route path="/login" element={<Login />}/>
             <Route path="/signup" element={<SignUp />}/>
       <Route path="/citizen" element={<CitizenDashboard />} />
+            <Route path="/department" element={<DepartmentDashboard />} />
+
       </Routes>
      </ThemeProvider>
   );

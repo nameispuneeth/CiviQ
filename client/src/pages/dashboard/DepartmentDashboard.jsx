@@ -1,160 +1,213 @@
-import React, { useState, useEffect } from "react";
-import { ClipboardList, CheckCircle, Clock, RefreshCcw } from "lucide-react";
+'use client';
 
-/**
- * DepartmentDashboard.jsx
- * ------------------------
- * Displays issues assigned to a specific department.
- * Department staff can update issue status (e.g., "In Progress", "Resolved").
- * 
- * 🔧 Backend Logic (to be implemented later):
- * ------------------------------------------
- * 1️⃣ On page load, fetch all issues assigned to the logged-in department.
- *    GET /api/issues/department/:deptId
- *
- * 2️⃣ When status is updated:
- *    PATCH /api/issues/:issueId
- *    { status: "resolved" }
- *    → This should also notify the admin & user (through DB updates or notifications).
- *
- * 3️⃣ When issue is resolved, mark completion date & push update to frontend.
- */
+import React, { useState, useEffect } from 'react';
+import { Box, Paper, Grid, Button, Select, MenuItem, Typography, CircularProgress } from '@mui/material';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
+import { Clock, AlertTriangle, CheckCircle, X } from 'lucide-react';
 
 export default function DepartmentDashboard() {
   const [issues, setIssues] = useState([]);
+  const [stats, setStats] = useState({ total: 0, pending: 0, inprogress: 0, resolved: 0, avgRating: 0 });
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedIssue, setSelectedIssue] = useState(null);
+  const [viewMode, setViewMode] = useState('map');
+  const [updating, setUpdating] = useState(false);
 
-  // 🧩 Dummy data (replace with backend fetch)
+  // Dummy department issues
   const dummyIssues = [
-    {
-      id: 1,
-      title: "Street Light Not Working",
-      description: "Lamp post near Park #5 has been out for 3 days.",
-      category: "Lighting",
-      location: "Green Park Road",
-      status: "In Progress",
-      assignedDate: "2025-10-05",
-      reporter: "Anonymous",
-    },
-    {
-      id: 2,
-      title: "Garbage Overflow",
-      description: "Overflowing bins near main market area.",
-      category: "Sanitation",
-      location: "Main Market Street",
-      status: "Pending",
-      assignedDate: "2025-10-04",
-      reporter: "Ravi Kumar",
-    },
+    { issue_id: 1, title: 'Pothole', category: 'Road', status: 'pending', priority: 'high', rating: 4, address: '123 Main St', latitude: 40.7589, longitude: -73.9851, created_at: new Date().toISOString() },
+    { issue_id: 2, title: 'Streetlight out', category: 'Electricity', status: 'inprogress', priority: 'medium', rating: 5, address: '456 Elm St', latitude: 40.761, longitude: -73.9815, created_at: new Date().toISOString() },
+    { issue_id: 3, title: 'Garbage not collected', category: 'Sanitation', status: 'pending', priority: 'low', rating: 3, address: '789 Oak St', latitude: 40.756, longitude: -73.99, created_at: new Date().toISOString() },
   ];
 
   useEffect(() => {
-    // Simulate fetch delay
+    setLoading(true);
     setTimeout(() => {
       setIssues(dummyIssues);
+      setCategories([...new Set(dummyIssues.map(i => i.category))]);
+      setStats({
+        total: dummyIssues.length,
+        pending: dummyIssues.filter(i => i.status === 'pending').length,
+        inprogress: dummyIssues.filter(i => i.status === 'inprogress').length,
+        resolved: dummyIssues.filter(i => i.status === 'resolved').length,
+        avgRating: (dummyIssues.reduce((sum, i) => sum + (i.rating || 0), 0) / dummyIssues.length).toFixed(1)
+      });
       setLoading(false);
-    }, 1000);
-
-    // In real backend:
-    // fetch(`/api/issues/department/${departmentId}`)
-    //   .then(res => res.json())
-    //   .then(data => setIssues(data))
-    //   .finally(() => setLoading(false));
+    }, 500);
   }, []);
 
-  const handleStatusChange = (id, newStatus) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, status: newStatus } : issue
-      )
-    );
-
-    // 🔧 Backend logic (PATCH request)
-    // fetch(`/api/issues/${id}`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ status: newStatus }),
-    // });
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'orange';
+      case 'inprogress': return 'blue';
+      case 'resolved': return 'green';
+      default: return 'gray';
+    }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300">
-        <RefreshCcw className="animate-spin mr-2" /> Loading Department Data...
-      </div>
-    );
+  const filteredIssues = issues.filter(issue => 
+    (statusFilter === 'all' || issue.status === statusFilter) &&
+    (categoryFilter === 'all' || issue.category === categoryFilter)
+  );
+
+  const barData = [
+    { name: 'Pending', value: stats.pending },
+    { name: 'In Progress', value: stats.inprogress },
+    { name: 'Resolved', value: stats.resolved },
+  ];
+
+  const categoryCounts = categories.map(c => ({
+    name: c,
+    value: issues.filter(i => i.category === c).length
+  }));
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 font-sora">
-          Department Dashboard
-        </h1>
+    <Box p={4}>
+      {/* KPI Cards */}
+      <Grid container spacing={2} mb={4}>
+        {['total', 'pending', 'inprogress', 'resolved'].map(key => (
+          <Grid item xs={6} sm={3} key={key}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="subtitle2">{key.toUpperCase()}</Typography>
+              {loading ? <CircularProgress size={24} /> :
+                <Typography variant="h5" fontWeight="bold" color={getStatusColor(key)}>
+                  {stats[key]}
+                </Typography>
+              }
+            </Paper>
+          </Grid>
+        ))}
+        <Grid item xs={6} sm={3}>
+          <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Typography variant="subtitle2">AVG RATING</Typography>
+            {loading ? <CircularProgress size={24} /> :
+              <Typography variant="h5" fontWeight="bold" color="purple">{stats.avgRating}</Typography>
+            }
+          </Paper>
+        </Grid>
+      </Grid>
 
-        {issues.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400 text-center">
-            No issues assigned yet.
-          </p>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {issues.map((issue) => (
-              <div
-                key={issue.id}
-                className="bg-white dark:bg-[#1E1E1E] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-6 transition-all hover:shadow-lg"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white font-sora">
-                    {issue.title}
-                  </h2>
-                  <span
-                    className={`text-sm px-3 py-1 rounded-full ${
-                      issue.status === "Resolved"
-                        ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300"
-                        : issue.status === "In Progress"
-                        ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-300"
-                        : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                    }`}
-                  >
-                    {issue.status}
-                  </span>
-                </div>
+      {/* Filters */}
+      <Box display="flex" gap={2} mb={4}>
+        <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <MenuItem value="all">All Status</MenuItem>
+          <MenuItem value="pending">Pending</MenuItem>
+          <MenuItem value="inprogress">In Progress</MenuItem>
+          <MenuItem value="resolved">Resolved</MenuItem>
+        </Select>
+        <Select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+          <MenuItem value="all">All Categories</MenuItem>
+          {categories.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+        </Select>
+        <Button variant="outlined" onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}>
+          {viewMode === 'map' ? 'List View' : 'Map View'}
+        </Button>
+      </Box>
 
-                <p className="text-gray-700 dark:text-gray-300 mb-3 font-inter">
-                  {issue.description}
-                </p>
+      {/* Charts */}
+      <Grid container spacing={2} mb={4}>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" mb={2}>Issues by Status</Typography>
+            <BarChart width={400} height={250} data={barData}>
+              <CartesianGrid stroke="#eee"/>
+              <XAxis dataKey="name"/>
+              <YAxis/>
+              <Tooltip/>
+              <Bar dataKey="value" fill="#3B82F6"/>
+            </BarChart>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" mb={2}>Issues by Category</Typography>
+            <PieChart width={400} height={250}>
+              <Pie data={categoryCounts} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                {categoryCounts.map((entry, index) => <Cell key={index} fill={['#EF4444','#F59E0B','#10B981'][index % 3]} />)}
+              </Pie>
+            </PieChart>
+          </Paper>
+        </Grid>
+      </Grid>
 
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  📍 {issue.location}
-                </p>
-
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  🕒 Assigned: {issue.assignedDate}
-                </p>
-
-                <div className="flex items-center gap-3">
-                  {issue.status !== "In Progress" && (
-                    <button
-                      onClick={() => handleStatusChange(issue.id, "In Progress")}
-                      className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-all"
-                    >
-                      <Clock size={18} /> In Progress
-                    </button>
-                  )}
-
-                  {issue.status !== "Resolved" && (
-                    <button
-                      onClick={() => handleStatusChange(issue.id, "Resolved")}
-                      className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all"
-                    >
-                      <CheckCircle size={18} /> Mark Resolved
-                    </button>
-                  )}
-                </div>
-              </div>
+      {/* Map/List */}
+      {viewMode === 'map' ? (
+        <Paper sx={{ height: 400, width: '100%', overflow: 'hidden' }}>
+          <MapContainer center={[40.7589, -73.9851]} zoom={13} style={{ height: '100%', width: '100%' }}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+            {filteredIssues.map(issue => issue.latitude && issue.longitude && (
+              <Marker key={issue.issue_id} position={[issue.latitude, issue.longitude]} icon={L.icon({iconUrl:`https://via.placeholder.com/32/${getStatusColor(issue.status)}/ffffff?text=%20`,iconSize:[32,32]})}
+                eventHandlers={{click:() => setSelectedIssue(issue)}}>
+                <Popup>
+                  <Box>
+                    <Typography>{issue.title}</Typography>
+                    <Typography>Status: {issue.status}</Typography>
+                  </Box>
+                </Popup>
+              </Marker>
             ))}
-          </div>
-        )}
-      </div>
-    </div>
+          </MapContainer>
+        </Paper>
+      ) : (
+        <Paper sx={{ p: 2 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th>ID</th><th>Title</th><th>Category</th><th>Status</th><th>Priority</th><th>Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredIssues.map(issue => (
+                <tr key={issue.issue_id} style={{ cursor: 'pointer' }} onClick={() => setSelectedIssue(issue)}>
+                  <td>{issue.issue_id}</td>
+                  <td>{issue.title}</td>
+                  <td>{issue.category}</td>
+                  <td>{issue.status}</td>
+                  <td>{issue.priority}</td>
+                  <td>{issue.rating}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Paper>
+      )}
+
+      {/* Issue Detail Modal */}
+      {selectedIssue && (
+        <Box position="fixed" inset={0} bgcolor="rgba(0,0,0,0.5)" display="flex" alignItems="center" justifyContent="center" p={2}>
+          <Paper sx={{ width: 500, maxHeight: '90vh', overflowY: 'auto', p: 3 }}>
+            <Box display="flex" justifyContent="space-between" mb={2}>
+              <Typography variant="h6">{selectedIssue.title}</Typography>
+              <Button onClick={() => setSelectedIssue(null)}><X /></Button>
+            </Box>
+            <Typography>Status: {selectedIssue.status}</Typography>
+            <Typography>Category: {selectedIssue.category}</Typography>
+            <Typography>Address: {selectedIssue.address}</Typography>
+            <Typography>Rating: {selectedIssue.rating}</Typography>
+            <Box mt={2} display="flex" gap={1}>
+              <Select value={selectedIssue.status} onChange={e => setSelectedIssue({...selectedIssue, status: e.target.value})}>
+                <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="inprogress">In Progress</MenuItem>
+                <MenuItem value="resolved">Resolved</MenuItem>
+              </Select>
+              <Button variant="contained" color="primary" onClick={() => {
+                setUpdating(true);
+                setTimeout(() => {
+                  setUpdating(false);
+                  setIssues(prev => prev.map(i => i.issue_id === selectedIssue.issue_id ? {...i, status: selectedIssue.status} : i));
+                  setSelectedIssue(null);
+                }, 500);
+              }} disabled={updating}>{updating ? 'Updating...' : 'Update Status'}</Button>
+            </Box>
+          </Paper>
+        </Box>
+      )}
+    </Box>
   );
 }

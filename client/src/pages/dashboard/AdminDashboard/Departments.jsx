@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 'use client';
 
 import React, { useEffect, useState, useContext } from "react";
-=======
-import React, { useEffect, useState } from "react";
-import { useContext } from "react";
->>>>>>> Javeed
 import { ThemeContext } from "../../../Context/ThemeContext";
 
 const dummyDepartments = [

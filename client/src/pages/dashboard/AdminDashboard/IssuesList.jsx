@@ -1,375 +1,296 @@
-// import React, { useContext, useState } from "react";
-// import { ThemeContext } from "../../../Context/ThemeContext";
-// import {
-//   Paper,
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TablePagination,
-//   TableRow,
-//   Select,
-//   MenuItem,
-//   FormControl,
-//   InputLabel,
-//   TextField,
-// } from "@mui/material";
-
-// export default function IssuesList({ issues, setIssues, filters, setFilters, setSelectedIssue }) {
-//   const { isDark } = useContext(ThemeContext);
-//   const [statusFilter, setStatusFilter] = useState("all");
-//   const [page, setPage] = useState(0);
-//   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-//   const filteredIssues = issues.filter(
-//     (i) =>
-//       (!filters.search || i.title.toLowerCase().includes(filters.search.toLowerCase())) &&
-//       (statusFilter === "all" || i.status === statusFilter)
-//   );
-
-//   const handleChangePage = (event, newPage) => setPage(newPage);
-//   const handleChangeRowsPerPage = (event) => {
-//     setRowsPerPage(+event.target.value);
-//     setPage(0);
-//   };
-
-//   const updateStatus = (issueId, newStatus) => {
-//     setIssues((prev) =>
-//       prev.map((i) => (i.id === issueId ? { ...i, status: newStatus } : i))
-//     );
-//   };
-
-//   const paperBg = isDark ? "#1E1E1E" : "#FFF";
-//   const textColor = isDark ? "#FFF" : "#000";
-
-//   return (
-//     <Paper sx={{ width: "100%", overflow: "hidden", p: 2, bgcolor: paperBg, color: textColor }}>
-//       {/* Search & Status Filter */}
-//       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-//         <TextField
-//           label="Search"
-//           size="small"
-//           value={filters.search}
-//           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-//           sx={{ bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
-//         />
-//         <FormControl size="small" sx={{ minWidth: 200 }}>
-//           <InputLabel>Status Filter</InputLabel>
-//           <Select
-//             value={statusFilter}
-//             onChange={(e) => setStatusFilter(e.target.value)}
-//             sx={{ bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
-//           >
-//             <MenuItem value="all">All</MenuItem>
-//             <MenuItem value="pending">Pending</MenuItem>
-//             <MenuItem value="in_progress">In Progress</MenuItem>
-//             <MenuItem value="completed">Completed</MenuItem>
-//           </Select>
-//         </FormControl>
-//       </div>
-
-//       {/* Issues Table */}
-//       <TableContainer sx={{ maxHeight: 500 }}>
-//         <Table stickyHeader>
-//           <TableHead>
-//             <TableRow>
-//               {["Title", "Status", "Priority", "Category", "Department", "Action"].map((head) => (
-//                 <TableCell key={head} sx={{ color: textColor }}>{head}</TableCell>
-//               ))}
-//             </TableRow>
-//           </TableHead>
-//           <TableBody>
-//             {filteredIssues
-//               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-//               .map((issue) => (
-//                 <TableRow hover key={issue.id}>
-//                   {/* Title - click to open modal */}
-//                   <TableCell
-//                     sx={{ cursor: "pointer", color: isDark ? "#90caf9" : "#1976d2" }}
-//                     onClick={() => setSelectedIssue(issue)}
-//                   >
-//                     {issue.title}
-//                   </TableCell>
-
-//                   {/* Status select */}
-//                   <TableCell>
-//                     <Select
-//                       value={issue.status}
-//                       onChange={(e) => updateStatus(issue.id, e.target.value)}
-//                       size="small"
-//                       sx={{ minWidth: 120, bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
-//                     >
-//                       <MenuItem value="pending">Pending</MenuItem>
-//                       <MenuItem value="in_progress">In Progress</MenuItem>
-//                       <MenuItem value="completed">Completed</MenuItem>
-//                     </Select>
-//                   </TableCell>
-
-//                   <TableCell>{issue.priority}</TableCell>
-//                   <TableCell>{issue.category}</TableCell>
-
-//                   {/* Department select */}
-//                   <TableCell>
-//   <Select
-//     value={issue.department || ""} // always controlled
-//     onChange={(e) =>
-//       setIssues(prev =>
-//         prev.map(i =>
-//           i.id === issue.id
-//             ? { ...i, department: e.target.value } // new object
-//             : i
-//         )
-//       )
-//     }
-//     size="small"
-//     sx={{ minWidth: 140, bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
-//     disabled={issue.status !== "pending"} // only editable when pending
-//     displayEmpty
-//   >
-//     <MenuItem value="" disabled>
-//       Select Department
-//     </MenuItem>
-//     <MenuItem value="IT">IT</MenuItem>
-//     <MenuItem value="HR">HR</MenuItem>
-//     <MenuItem value="Maintenance">Maintenance</MenuItem>
-//     <MenuItem value="Admin">Admin</MenuItem>
-//   </Select>
-// </TableCell>
-
-
-//                   {/* Assign button */}
-//                   <TableCell>
-//                     {issue.status === "pending" && (
-//                       <button
-//                         onClick={() => alert(`Issue "${issue.title}" assigned to ${issue.department || "No Dept"}`)}
-//                         disabled={!issue.department}
-//                         style={{
-//                           padding: "4px 8px",
-//                           backgroundColor: "#1976d2",
-//                           color: "#fff",
-//                           border: "none",
-//                           borderRadius: "4px",
-//                           cursor: issue.department ? "pointer" : "not-allowed",
-//                         }}
-//                       >
-//                         Assign
-//                       </button>
-//                     )}
-//                   </TableCell>
-//                 </TableRow>
-//               ))}
-//           </TableBody>
-//         </Table>
-//       </TableContainer>
-
-//       {/* Pagination */}
-//       <TablePagination
-//         rowsPerPageOptions={[5, 10, 25, 50]}
-//         component="div"
-//         count={filteredIssues.length}
-//         rowsPerPage={rowsPerPage}
-//         page={page}
-//         onPageChange={handleChangePage}
-//         onRowsPerPageChange={handleChangeRowsPerPage}
-//       />
-//     </Paper>
-//   );
-// }
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
+import { Search } from "lucide-react";
 import { ThemeContext } from "../../../Context/ThemeContext";
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  TextField,
-  Button,
-} from "@mui/material";
 
-export default function IssuesList({ issues, setIssues, filters, setFilters, setSelectedIssue }) {
+export default function IssuesTable() {
   const { isDark } = useContext(ThemeContext);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Local state for table editing
-  const [localIssues, setLocalIssues] = useState([]);
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  useEffect(() => {
-    setLocalIssues([...issues]); // Initialize local state when issues prop changes
-  }, [issues]);
+  const [issues, setIssues] = useState([
+    {
+      id: "ISS-001",
+      title: "Broken Projector",
+      description: "Projector in Lecture Hall 2 not working",
+      reporter: "John Doe",
+      date: "2025-10-08",
+      status: "Pending",
+      department: "",
+      priority: "High",
+    },
+    {
+      id: "ISS-002",
+      title: "WiFi Not Working",
+      description: "No internet connectivity in Lab 3",
+      reporter: "Sara Ali",
+      date: "2025-10-07",
+      status: "In Progress",
+      department: "IT",
+      priority: "Medium",
+    },
+    {
+      id: "ISS-003",
+      title: "Light Flickering",
+      description: "Light flickering in corridor",
+      reporter: "Rahul Verma",
+      date: "2025-10-09",
+      status: "Completed",
+      department: "Electrical",
+      priority: "Low",
+    },
+    {
+      id: "ISS-004",
+      title: "AC Not Cooling",
+      description: "AC in Lab 2 blowing hot air",
+      reporter: "Anita Singh",
+      date: "2025-10-10",
+      status: "Pending",
+      department: "",
+      priority: "High",
+    },
+    {
+      id: "ISS-005",
+      title: "Projector Lens Broken",
+      description: "Lens cracked in Lecture Hall 1",
+      reporter: "John Doe",
+      date: "2025-10-06",
+      status: "Completed",
+      department: "Maintenance",
+      priority: "Medium",
+    },
+    {
+      id: "ISS-006",
+      title: "Network Cable Loose",
+      description: "Ethernet port not working in Lab 1",
+      reporter: "Sara Ali",
+      date: "2025-10-09",
+      status: "Pending",
+      department: "",
+      priority: "Low",
+    },
+  ]);
 
-  const handleChangePage = (event, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
-
-  const updateStatus = (issueId, newStatus) => {
-    setLocalIssues((prev) =>
-      prev.map((i) => (i.id === issueId ? { ...i, status: newStatus, department: newStatus === "pending" ? i.department : "" } : i))
+  const handleStatusChange = (id, value) => {
+    setIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === id
+          ? { ...issue, status: value, department: value === "Pending" ? "" : issue.department }
+          : issue
+      )
     );
     setHasChanges(true);
   };
 
-  const updateDepartment = (issueId, newDept) => {
-    setLocalIssues((prev) =>
-      prev.map((i) => (i.id === issueId ? { ...i, department: newDept } : i))
+  const handleDeptChange = (id, value) => {
+    setIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === id ? { ...issue, department: value } : issue
+      )
     );
   };
 
-  const handleSave = () => {
-    setIssues([...localIssues]); // Update parent issues
-    alert("Changes saved!");
-  };
+  const filteredIssues = issues.filter((issue) => {
+    const matchesStatus =
+      filterStatus === "All" || issue.status === filterStatus;
+    const matchesSearch =
+      issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      issue.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      issue.reporter.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
-  const filteredIssues = localIssues.filter(
-    (i) =>
-      (!filters.search || i.title.toLowerCase().includes(filters.search.toLowerCase())) &&
-      (statusFilter === "all" || i.status === statusFilter)
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredIssues.length / itemsPerPage);
+  const paginatedIssues = filteredIssues.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
-  const paperBg = isDark ? "#1E1E1E" : "#FFF";
-  const textColor = isDark ? "#FFF" : "#000";
-  const pendingBg = isDark ? "#2A2A3A" : "#FFF3E0"; // Highlight for pending
+  const goToPage = (page) => {
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    setCurrentPage(page);
+  };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", p: 2, bgcolor: paperBg, color: textColor }}>
-      {/* Search & Status Filter */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-        <TextField
-          label="Search"
-          size="small"
-          value={filters.search}
-          onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          sx={{ bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
-        />
-        <FormControl size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>Status Filter</InputLabel>
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            sx={{ bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
+    <div
+      className={`p-6 rounded-2xl border transition-all duration-300 ${
+        isDark
+          ? "bg-[#121212] border-gray-700 text-gray-100"
+          : "bg-white border-gray-200 text-gray-800"
+      }`}
+    >
+      {/* Header with search + filter */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+        <h2 className="text-xl font-semibold">Issues List</h2>
+
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {/* Search box */}
+          <div
+            className={`flex items-center px-3 py-2 rounded-md border w-full sm:w-64 ${
+              isDark
+                ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+                : "bg-white border-gray-300 text-gray-800"
+            }`}
           >
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="in_progress">In Progress</MenuItem>
-            <MenuItem value="completed">Completed</MenuItem>
-          </Select>
-        </FormControl>
+            <Search size={18} className="opacity-70 mr-2" />
+            <input
+              type="text"
+              placeholder="Search issues..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full bg-transparent outline-none ${
+                isDark ? "placeholder-gray-400" : "placeholder-gray-500"
+              }`}
+            />
+          </div>
+
+          {/* Status Filter */}
+          <select
+            className={`p-2 rounded-md border ${
+              isDark
+                ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+                : "bg-white border-gray-300 text-gray-800"
+            }`}
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
       </div>
 
       {/* Issues Table */}
-      <TableContainer sx={{ maxHeight: 500 }}>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              {["Title", "Status", "Priority", "Category", "Department", "Action"].map((head) => (
-                <TableCell key={head} sx={{ color: textColor }}>{head}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredIssues
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((issue) => (
-                <TableRow
-                  hover
-                  key={issue.id}
-                  sx={{ bgcolor: issue.status === "pending" ? pendingBg : "inherit" }}
-                >
-                  {/* Title - click to open modal */}
-                  <TableCell
-                    sx={{ cursor: "pointer", color: isDark ? "#90caf9" : "#1976d2" }}
-                    onClick={() => setSelectedIssue(issue)}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse">
+          <thead>
+            <tr
+              className={`text-left text-sm ${
+                isDark ? "bg-[#1f1f1f] text-gray-200" : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              <th className="py-3 px-4 border-b">ID</th>
+              <th className="py-3 px-4 border-b">Title</th>
+              <th className="py-3 px-4 border-b">Description</th>
+              <th className="py-3 px-4 border-b">Reporter</th>
+              <th className="py-3 px-4 border-b">Date Reported</th>
+              <th className="py-3 px-4 border-b">Status</th>
+              <th className="py-3 px-4 border-b">Department</th>
+              <th className="py-3 px-4 border-b">Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedIssues.map((issue) => (
+              <tr
+                key={issue.id}
+                className={`text-sm transition-all ${
+                  isDark
+                    ? "hover:bg-[#1b1b1b] border-gray-700"
+                    : "hover:bg-gray-50 border-gray-200"
+                }`}
+              >
+                <td className="py-3 px-4 border-b">{issue.id}</td>
+                <td className="py-3 px-4 border-b">{issue.title}</td>
+                <td className="py-3 px-4 border-b">{issue.description}</td>
+                <td className="py-3 px-4 border-b">{issue.reporter}</td>
+                <td className="py-3 px-4 border-b">{issue.date}</td>
+
+                {/* Status select */}
+                <td className="py-3 px-4 border-b">
+                  <select
+                    className={`p-1 rounded-md text-sm border ${
+                      isDark
+                        ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+                        : "bg-white border-gray-300 text-gray-800"
+                    }`}
+                    value={issue.status}
+                    onChange={(e) => handleStatusChange(issue.id, e.target.value)}
                   >
-                    {issue.title}
-                  </TableCell>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </td>
 
-                  {/* Status Select */}
-                  <TableCell>
-                    <Select
-                      value={issue.status}
-                      onChange={(e) => updateStatus(issue.id, e.target.value)}
-                      size="small"
-                      sx={{ minWidth: 120, bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
+                {/* Department column */}
+                <td className="py-3 px-4 border-b">
+                  {issue.status === "Pending" ? (
+                    <select
+                      className={`p-1 rounded-md text-sm border ${
+                        isDark
+                          ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+                          : "bg-white border-gray-300 text-gray-800"
+                      }`}
+                      value={issue.department}
+                      onChange={(e) => handleDeptChange(issue.id, e.target.value)}
                     >
-                      <MenuItem value="pending">Pending</MenuItem>
-                      <MenuItem value="in_progress">In Progress</MenuItem>
-                      <MenuItem value="completed">Completed</MenuItem>
-                    </Select>
-                  </TableCell>
+                      <option value="">Select Department</option>
+                      <option value="IT">IT</option>
+                      <option value="Electrical">Electrical</option>
+                      <option value="Maintenance">Maintenance</option>
+                      <option value="Admin">Admin</option>
+                    </select>
+                  ) : (
+                    <span>{issue.department}</span>
+                  )}
+                </td>
 
-                  <TableCell>{issue.priority}</TableCell>
-                  <TableCell>{issue.category}</TableCell>
-
-                  {/* Department Select */}
-                  <TableCell>
-                    <Select
-                      value={issue.department || ""}
-                      onChange={(e) => updateDepartment(issue.id, e.target.value)}
-                      size="small"
-                      sx={{ minWidth: 140, bgcolor: isDark ? "#2A2A2A" : "#FFF" }}
-                      disabled={issue.status !== "pending"}
-                      displayEmpty
-                    >
-                      <MenuItem value="" disabled>
-                        Select Department
-                      </MenuItem>
-                      <MenuItem value="IT">IT</MenuItem>
-                      <MenuItem value="HR">HR</MenuItem>
-                      <MenuItem value="Maintenance">Maintenance</MenuItem>
-                      <MenuItem value="Admin">Admin</MenuItem>
-                    </Select>
-                  </TableCell>
-
-                  {/* Assign button */}
-                  <TableCell>
-                    {issue.status === "pending" && (
-                      <Button
-                        variant="contained"
-                        size="small"
-                        disabled={!issue.department}
-                        onClick={() =>
-                          alert(`Issue "${issue.title}" assigned to ${issue.department || "No Dept"}`)
-                        }
-                      >
-                        Assign
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                <td className="py-3 px-4 border-b">{issue.priority}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        component="div"
-        count={filteredIssues.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-
-      {/* Save button */}
-      <div style={{ marginTop: "1rem" }}>
-        <Button variant="contained" color="primary" onClick={handleSave}>
-          Save Changes
-        </Button>
+      <div className="flex justify-center items-center gap-2 mt-4">
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          className={`px-3 py-1 rounded-md border ${
+            isDark
+              ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+              : "bg-white border-gray-300 text-gray-800"
+          }`}
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            onClick={() => goToPage(i + 1)}
+            className={`px-3 py-1 rounded-md border ${
+              currentPage === i + 1
+                ? isDark
+                  ? "bg-[#4b4b4b] border-gray-700 text-white"
+                  : "bg-gray-300 border-gray-300 text-gray-800"
+                : isDark
+                ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+                : "bg-white border-gray-300 text-gray-800"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          className={`px-3 py-1 rounded-md border ${
+            isDark
+              ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+              : "bg-white border-gray-300 text-gray-800"
+          }`}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
       </div>
+    </div>
     </div>
   );
 }

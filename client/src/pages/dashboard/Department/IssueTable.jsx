@@ -1,10 +1,30 @@
-import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow, Paper, Button } from "@mui/material";
-import { Clock, AlertTriangle, CheckCircle } from "lucide-react";
-import { ThemeContext, ThemeProvider } from "../../../Context/ThemeContext";
-import { useContext } from "react";
-export default function IssueTable({ issues, setSelectedIssue, getStatusColor, getStatusIcon }) {
+import React, { useState, useContext } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { ThemeContext } from "../../../Context/ThemeContext";
+
+export default function IssueTable({ issues, getStatusColor, getStatusIcon }) {
   const { isDark } = useContext(ThemeContext);
+  const [selectedIssue, setSelectedIssue] = useState(null);
+
+  const handleClose = () => setSelectedIssue(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
+
+  const handleStatusChange = (e) => setSelectedStatus(e.target.value);
 
   return (
     <Paper sx={{ overflowX: "auto", borderRadius: 3, boxShadow: 3, backgroundColor: isDark ? "#1E1E2F" : "#fff" }}>

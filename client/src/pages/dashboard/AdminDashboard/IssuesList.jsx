@@ -157,6 +157,11 @@ export default function EnhancedIssuesList({
     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500";
 
   const hoverClasses = isDark ? "hover:bg-gray-700" : "hover:bg-gray-50";
+const goToPage = (newPage) => {
+  if (newPage < 0) return;
+  if (newPage >= totalPages) return;
+  setPage(newPage);
+};
 
   return (
     <div
@@ -326,7 +331,7 @@ export default function EnhancedIssuesList({
                         <Calendar size={12} />
                         <span>
                           #{issue.id} •{" "}
-                          {new Date(issue.created_at).toLocaleDateString()}
+                          {new Date(issue.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -423,7 +428,7 @@ export default function EnhancedIssuesList({
               ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
               : "bg-white border-gray-300 text-gray-800"
           }`}
-          disabled={page === 1}
+          disabled={page === 0}
         >
           Prev
         </button>
@@ -451,7 +456,7 @@ export default function EnhancedIssuesList({
               ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
               : "bg-white border-gray-300 text-gray-800"
           }`}
-          disabled={page === totalPages}
+          disabled={page === totalPages-1}
         >
           Next
         </button>

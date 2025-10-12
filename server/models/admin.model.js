@@ -17,13 +17,7 @@ const adminSchema = new mongoose.Schema({
           email: String,
           phone: String,
         },
-      ],
-      // Track issues by status using IDs
-       issues: {
-    pending: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
-    inprogress: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
-    resolved: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
-  }
+      ]
     },
   ],
 });

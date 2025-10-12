@@ -6,12 +6,25 @@ import { dummyIssues, dummyDepartments } from "../backend/constant";
 */
 
 // Fetches issues (simulates GET /api/issues)
-export const fetchIssues = (setIssues, setLoading) => {
+export const fetchIssues = async (setIssues, setLoading) => {
   setLoading(true);
-  setTimeout(() => {
-    setIssues(dummyIssues);
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (!token) {
     setLoading(false);
-  }, 500);
+    setIssues(dummyIssues);
+    return;
+  }
+  const response = await fetch("http://localhost:8000/api/AdminGetIssues", {
+    method: "GET",
+    headers: {
+      'authorization': token,
+      'Content-Type': 'application/json'
+    }
+  })
+  const data = await response.json();
+  console.log(data);
+  setIssues([...dummyIssues, ...data.Issues]);
+  setLoading(false);
 };
 
 // Fetches departments (simulates GET /api/departments)
@@ -28,7 +41,7 @@ export const calculateStats = (issues) => {
   const inProgress = issues.filter((i) => i.status === "in_progress").length;
   const resolved = issues.filter((i) => i.status === "resolved").length;
   const todayReports = issues.filter(
-    (i) => new Date(i.created_at).toDateString() === new Date().toDateString()
+    (i) => new Date(i.createdAt).toDateString() === new Date().toDateString()
   ).length;
 
   return { total, pending, inProgress, resolved, todayReports };

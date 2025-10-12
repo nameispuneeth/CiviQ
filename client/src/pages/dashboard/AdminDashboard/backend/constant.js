@@ -7,7 +7,6 @@ export const navigationItems = [
 ];
 
 // Dummy issues (used when backend is unavailable)
-// Dummy issues (used when backend is unavailable)
 export const dummyIssues = [
   {
     id: 1,
@@ -20,7 +19,7 @@ export const dummyIssues = [
     place: "MG Road, Bengaluru",
     latitude: 12.9762,
     longitude: 77.6033,
-    created_at: "2025-09-30T10:00:00Z",
+    createdAt: "2025-09-30T10:00:00Z",
   },
   {
     id: 2,
@@ -33,7 +32,7 @@ export const dummyIssues = [
     place: "Lalbagh Botanical Garden, Bengaluru",
     latitude: 12.9507,
     longitude: 77.5848,
-    created_at: "2025-09-28T14:00:00Z",
+    createdAt: "2025-09-28T14:00:00Z",
   },
   {
     id: 3,
@@ -46,7 +45,7 @@ export const dummyIssues = [
     place: "Brigade Road, Bengaluru",
     latitude: 12.9716,
     longitude: 77.5946,
-    created_at: "2025-09-27T09:30:00Z",
+    createdAt: "2025-09-27T09:30:00Z",
   },
   {
     id: 4,
@@ -59,7 +58,7 @@ export const dummyIssues = [
     place: "Cubbon Park, Bengaluru",
     latitude: 12.9760,
     longitude: 77.5928,
-    created_at: "2025-09-25T11:00:00Z",
+    createdAt: "2025-09-25T11:00:00Z",
   },
   {
     id: 5,
@@ -72,7 +71,7 @@ export const dummyIssues = [
     place: "Koramangala, Bengaluru",
     latitude: 12.9352,
     longitude: 77.6245,
-    created_at: "2025-09-24T08:45:00Z",
+    createdAt: "2025-09-24T08:45:00Z",
   },
   {
     id: 6,
@@ -85,7 +84,7 @@ export const dummyIssues = [
     place: "Whitefield, Bengaluru",
     latitude: 12.9698,
     longitude: 77.7500,
-    created_at: "2025-09-23T15:20:00Z",
+    createdAt: "2025-09-23T15:20:00Z",
   },
   {
     id: 7,
@@ -98,7 +97,7 @@ export const dummyIssues = [
     place: "Marathahalli, Bengaluru",
     latitude: 12.9561,
     longitude: 77.7012,
-    created_at: "2025-09-22T10:10:00Z",
+    createdAt: "2025-09-22T10:10:00Z",
   },
   {
     id: 8,
@@ -111,7 +110,7 @@ export const dummyIssues = [
     place: "Jayanagar, Bengaluru",
     latitude: 12.9250,
     longitude: 77.5938,
-    created_at: "2025-09-21T13:15:00Z",
+    createdAt: "2025-09-21T13:15:00Z",
   },
   {
     id: 9,
@@ -124,7 +123,7 @@ export const dummyIssues = [
     place: "Fortis Hospital, Bengaluru",
     latitude: 12.9350,
     longitude: 77.6240,
-    created_at: "2025-09-20T09:00:00Z",
+    createdAt: "2025-09-20T09:00:00Z",
   },
   {
     id: 10,
@@ -137,7 +136,7 @@ export const dummyIssues = [
     place: "Bannerghatta Road, Bengaluru",
     latitude: 12.9255,
     longitude: 77.5838,
-    created_at: "2025-09-19T12:30:00Z",
+    createdAt: "2025-09-19T12:30:00Z",
   },
 ];
 

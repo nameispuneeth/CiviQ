@@ -2,7 +2,7 @@ import { MapPin, Clock, AlertTriangle, CheckCircle, Eye, Star } from "lucide-rea
 
 export default function IssueCard({ issue, statusColors, statusIcons, setSelectedIssue, setShowRatingModal }) {
   const StatusIcon = statusIcons[issue.status];
-  const daysSinceReported = Math.floor((new Date() - new Date(issue.created_at)) / (1000 * 60 * 60 * 24));
+  const daysSinceReported = Math.floor((new Date() - new Date(issue.createdAt)) / (1000 * 60 * 60 * 24));
 
   return (
     <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E6E6E6] dark:border-[#333333] p-6 hover:shadow-lg transition-all duration-200">

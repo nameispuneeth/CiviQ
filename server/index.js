@@ -21,7 +21,7 @@ mongoose.connect("mongodb://localhost:27017/Hackathon")
 
 
 const UsersecretCode = "UserSecretCode";
-const AdminSecretCode="AdminSecretCode"
+const AdminSecretCode = "AdminSecretCode"
 
 // Test route
 app.get("/", (req, res) => {
@@ -52,39 +52,39 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
     const { email, password } = req.body
 
-  try {
-    // 1️⃣ Check Admin first
-    const admin = await Admin.findOne({ email, password });
-    if (admin) {
-      const token = jwt.sign(
-        { name: admin.name, email: admin.email, role: "superadmin" },
-        AdminSecretCode
-      );
-      return res.send({
-        status: "ok",
-        token,
-        role: "superadmin",
-        message: "Admin login successful",
-      });
-    }
+    try {
+        // 1️⃣ Check Admin first
+        const admin = await Admin.findOne({ email, password });
+        if (admin) {
+            const token = jwt.sign(
+                { name: admin.name, email: admin.email, role: "superadmin" },
+                AdminSecretCode
+            );
+            return res.send({
+                status: "ok",
+                token,
+                role: "superadmin",
+                message: "Admin login successful",
+            });
+        }
 
-    // 2️⃣ Check regular User if not admin
-    const user = await User.findOne({ email, password });
-    if (user) {
-      const token = jwt.sign(
-        { name: user.name, email: user.email, role: "user" },
-        UsersecretCode
-      );
-      return res.send({
-        status: "ok",
-        token,
-        role: "user",
-        message: "User login successful",
-      });
-    }
+        // 2️⃣ Check regular User if not admin
+        const user = await User.findOne({ email, password });
+        if (user) {
+            const token = jwt.sign(
+                { name: user.name, email: user.email, role: "user" },
+                UsersecretCode
+            );
+            return res.send({
+                status: "ok",
+                token,
+                role: "user",
+                message: "User login successful",
+            });
+        }
 
-    // 3️⃣ If not found in either
-    res.status(401).send({ status: "error", error: "Invalid credentials" });
+        // 3️⃣ If not found in either
+        res.status(401).send({ status: "error", error: "Invalid credentials" });
 
     } catch (e) {
         console.error(e);
@@ -126,25 +126,42 @@ app.post("/api/issues", async (req, res) => {
 // ----------------------
 // Get User Issues (with details)
 // ----------------------
-    app.get("/api/user/issues", async (req, res) => {
-        const token = req.headers.authorization;
-        if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
+app.get("/api/user/issues", async (req, res) => {
+    const token = req.headers.authorization;
+    if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
 
-        try {
-            const decoded = jwt.verify(token, UsersecretCode);
-            const user = await User.findOne({ email: decoded.email });
-            if (!user) return res.status(404).send({ ok: false, error: "User not found" });
+    try {
+        const decoded = jwt.verify(token, UsersecretCode);
+        const user = await User.findOne({ email: decoded.email });
+        if (!user) return res.status(404).send({ ok: false, error: "User not found" });
 
-            const Issues = await Issue.find({ _id: { $in: user.issues } });
-            console.log(Issues);
+        const Issues = await Issue.find({ _id: { $in: user.issues } });
+        console.log(Issues);
 
-            res.send({ ok: true,issues:Issues});
-        } catch (err) {
-            console.error(err);
-            res.status(500).send({ ok: false, error: "Failed to fetch issues" });
-        }
-    });
+        res.send({ ok: true, issues: Issues });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ ok: false, error: "Failed to fetch issues" });
+    }
+});
 
+app.get("/api/AdminGetIssues", async (req, res) => {
+    console.log("Came");
+     const token = req.headers.authorization;
+    if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
+    try{
+        const decoded = jwt.verify(token, AdminSecretCode);
+        console.log(decoded);
+        const admin = await Admin.findOne({ email: decoded.email });
+        console.log(admin);
+        if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
+        const issues=await Issue.find();
+        console.log(issues);
+        res.send({status:'ok',Issues:issues});
+    }catch(e){
+        res.send({status:'error',error:e});
+    }
+})
 // ----------------------
 // Start server
 // ----------------------

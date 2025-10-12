@@ -164,7 +164,7 @@ export default function ReportPage() {
       submitData.photo = uploadImage.url;
 
       // If anonymous, clear personal info
-      submitData.photo="https://www.hindustantimes.com/ht-img/img/2023/07/11/550x309/The-helpline-was-established-following-several-com_1689099129441.jpg"
+      // submitData.photo="https://www.hindustantimes.com/ht-img/img/2023/07/11/550x309/The-helpline-was-established-following-several-com_1689099129441.jpg"
       if (isAnonymous) {
         submitData.reporter_name = "";
         submitData.reporter_email = "";

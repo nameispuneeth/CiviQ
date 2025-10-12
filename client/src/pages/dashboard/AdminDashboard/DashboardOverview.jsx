@@ -50,7 +50,7 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
   // ----- Line Chart Data -----
   const dateCounts = {};
   issues.forEach(i => {
-    const date = new Date(i.created_at).toLocaleDateString();
+    const date = new Date(i.createdAt).toLocaleDateString();
     dateCounts[date] = (dateCounts[date] || 0) + 1;
   });
   const lineData = Object.keys(dateCounts).map(date => ({ date, issues: dateCounts[date] }));

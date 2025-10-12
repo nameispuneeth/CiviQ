@@ -39,11 +39,11 @@ const Departments = ({ dept }) => {
   };
 
   const handleSubmit = async (e) => {
+    console.log(employeeForm);
     e.preventDefault();
     if (!selectedDept) return;
-
     try {
-      const res = await fetch("/api/employees", {
+      const res = await fetch("http://localhost:8000/api/admin/AddEmployees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...employeeForm, departmentName: selectedDept }),
@@ -93,7 +93,7 @@ const Departments = ({ dept }) => {
               </div>
 
               <button
-                className="p-2 mt-3 border border-white bg-white text-black rounded-lg"
+                className={`p-2 mt-5 mb-0 border ${isDark?'border-white bg-white text-black':'border-gray-700 bg-gray-700 text-white'}  rounded-lg`}
                 onClick={() => openModal(dept.name)}
               >
                 ADD EMPLOYEE
@@ -106,7 +106,7 @@ const Departments = ({ dept }) => {
       {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`bg-white p-6 rounded-lg w-96 ${isDark ? "bg-[rgba(31,31,31,1)] text-white" : "text-black"}`}>
+          <div className={`p-6 rounded-lg w-96 ${isDark ? "bg-gray-600 text-white" : "bg-white text-black"}`}>
             <h3 className="text-xl font-bold mb-4">Add Employee to {selectedDept}</h3>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input
@@ -115,7 +115,7 @@ const Departments = ({ dept }) => {
                 placeholder="Name"
                 value={employeeForm.name}
                 onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)]':''}`}
+                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
                 required
               />
               <input
@@ -124,7 +124,7 @@ const Departments = ({ dept }) => {
                 placeholder="Email"
                 value={employeeForm.email}
                 onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)]':''}`}
+                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
                 required
               />
               <input
@@ -133,7 +133,7 @@ const Departments = ({ dept }) => {
                 placeholder="Password"
                 value={employeeForm.password}
                 onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)]':''}`}
+                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
                 required
               />
               <input
@@ -142,7 +142,7 @@ const Departments = ({ dept }) => {
                 placeholder="Phone"
                 value={employeeForm.phone}
                 onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)]':''}`}
+                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
                 required
               />
               <div className="flex justify-end gap-2 mt-3">

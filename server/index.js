@@ -168,6 +168,41 @@ app.get("/api/AdminDetails", async (req, res) => {
         res.send({ status: 'error', error: e });
     }
 })
+
+app.post("/api/admin/AddEmployees",async (req,res) => {
+     try {
+    const { name, email, password, phone, departmentName } = req.body;
+
+
+    // Create employee
+    const employee = new Employee({
+      name,
+      email,
+      password: password,
+      phone,
+      departmentName,
+    });
+
+    await employee.save();
+
+    // Add employee to the admin's department
+    // Assuming you have a single admin, e.g., the first one
+    const admin = await Admin.findOne();
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    const dept = admin.departments.find((d) => d.name === departmentName);
+    if (!dept) return res.status(404).json({ message: "Department not found" });
+
+    dept.employees.push(employee._id);
+
+    await admin.save();
+
+    res.status(201).json({ message: "Employee added successfully", employee });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+})
 // ----------------------
 // Start server
 // ----------------------

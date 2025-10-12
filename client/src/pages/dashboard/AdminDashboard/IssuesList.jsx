@@ -6,9 +6,9 @@ import {
 } from "lucide-react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
-export default function EnhancedIssuesList() {
+export default function IssuesList({ issues: initialIssues }) {
   const { isDark } = useContext(ThemeContext);
-  const [issues, setIssues] = useState([]);
+  const [issues, setIssues] = useState(initialIssues);
   const [filters, setFilters] = useState({ search: "" });
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -18,41 +18,35 @@ export default function EnhancedIssuesList() {
   const [selectedIssue, setSelectedIssue] = useState(null);
 
   // ✅ Fetch issues from backend
-  const fetchIssues = async () => {
-    try {
-      const token = sessionStorage.getItem("token");
-      if (!token) return alert("Please log in first.");
+  // const fetchIssues = async () => {
+  //   try {
+  //     const token = sessionStorage.getItem("token");
+  //     if (!token) return alert("Please log in first.");
 
-      const res = await fetch("http://localhost:8000/api/issues", {
-        headers: { Authorization: token },
-      });
-      const data = await res.json();
+  //     const res = await fetch("http://localhost:8000/api/AdminGetIssues", {
+  //       headers: { Authorization: token },
+  //     });
+  //     const data = await res.json();
 
-      if (data.ok) 
-      {
-        setIssues(data.issues);
-        console.log(data);
-      }
-      else console.error("Failed to load issues:", data.error);
-    } catch (err) {
-      console.error("Error fetching issues:", err);
-    }
-  };
+  //     if (data.ok) 
+  //     {
+  //       setIssues(data.issues);
+  //       console.log(data);
+  //     }
+  //     else console.error("Failed to load issues:", data.error);
+  //   } catch (err) {
+  //     console.error("Error fetching issues:", err);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchIssues();
-  }, []);
+  // useEffect(() => {
+  //   fetchIssues();
+  // }, []);
 
   const handleRefresh = () => {
-    fetchIssues();
     setHasChanges(false);
   };
 
-  const goToPage = (newPage) => {
-  if (newPage >= 0 && newPage < totalPages) {
-    setPage(newPage);
-  }
-};
 
 
   const updateStatus = (id, newStatus) => {
@@ -60,16 +54,17 @@ export default function EnhancedIssuesList() {
       prev.map(i =>
         i._id === id
           ? {
-              ...i,
-              status: newStatus,
-              updated_at: new Date().toISOString(),
-              ...(newStatus === "resolved" && {
-                resolved_at: new Date().toISOString(),
-              }),
-            }
+            ...i,
+            status: newStatus,
+            updated_at: new Date().toISOString(),
+            ...(newStatus === "resolved" && {
+              resolved_at: new Date().toISOString(),
+            }),
+          }
           : i
       )
     );
+    console.log(issues);
     setHasChanges(true);
   };
 
@@ -78,31 +73,33 @@ export default function EnhancedIssuesList() {
       prev.map(i =>
         i._id === id
           ? {
-              ...i,
-              department: newDept,
-              updated_at: new Date().toISOString(),
-            }
+            ...i,
+            department: newDept,
+            updated_at: new Date().toISOString(),
+          }
           : i
       )
     );
     setHasChanges(true);
   };
 
-  const filteredIssues = issues.filter(issue => {
-    const search = filters.search.toLowerCase();
-    const matchesSearch =
-      issue.title?.toLowerCase().includes(search) ||
-      issue.description?.toLowerCase().includes(search) ||
-      issue.location_address?.toLowerCase().includes(search);
+ const filteredIssues = issues.filter(issue => {
+  const search = filters.search.toLowerCase();
+  const matchesSearch =
+    (issue.title || "").toLowerCase().includes(search) ||
+    (issue.description || "").toLowerCase().includes(search) ||
+    (issue.location_address || "").toLowerCase().includes(search);
 
-    const matchesStatus =
-      statusFilter === "all" || issue.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" ||
-      issue.category?.toLowerCase() === categoryFilter.toLowerCase();
+  const matchesStatus =
+    statusFilter === "all" || issue.status === statusFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+  const matchesCategory =
+    categoryFilter === "all" ||
+    (issue.category || "").toLowerCase() === categoryFilter.toLowerCase();
+
+  return matchesSearch && matchesStatus && matchesCategory;
+});
+
 
   const totalPages = Math.ceil(filteredIssues.length / rowsPerPage);
   const paginatedIssues = filteredIssues.slice(
@@ -119,7 +116,7 @@ export default function EnhancedIssuesList() {
         bgColor: isDark ? "bg-yellow-900/40" : "bg-yellow-100",
         borderColor: "border-yellow-500/40",
       },
-      in_progress: {
+      inprogress: {
         label: "In Progress",
         icon: AlertTriangle,
         color: isDark ? "text-blue-400" : "text-blue-700",
@@ -158,6 +155,11 @@ export default function EnhancedIssuesList() {
     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500";
 
   const hoverClasses = isDark ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const goToPage = (newPage) => {
+    if (newPage < 0) return;
+    if (newPage >= totalPages) return;
+    setPage(newPage);
+  };
 
   return (
     <div
@@ -204,18 +206,16 @@ export default function EnhancedIssuesList() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="lg:col-span-2">
             <label
-              className={`block text-sm font-medium mb-2 ${
-                isDark ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Search Issues
             </label>
             <div className="relative">
               <Search
                 size={16}
-                className={`absolute left-3 top-3 ${
-                  isDark ? "text-gray-400" : "text-gray-500"
-                }`}
+                className={`absolute left-3 top-3 ${isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
               />
               <input
                 type="text"
@@ -229,9 +229,8 @@ export default function EnhancedIssuesList() {
 
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${
-                isDark ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Status
             </label>
@@ -242,16 +241,15 @@ export default function EnhancedIssuesList() {
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
-              <option value="in_progress">In Progress</option>
+              <option value="inprogress">In Progress</option>
               <option value="resolved">Resolved</option>
             </select>
           </div>
 
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${
-                isDark ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Category
             </label>
@@ -283,6 +281,56 @@ export default function EnhancedIssuesList() {
               <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
             </tr>
           </thead>
+          {/* Issue Details Popup */}
+          {selectedIssue && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div
+                className={`rounded-xl shadow-lg w-[90%] max-w-lg p-6 ${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+                  }`}
+              >
+                <h2 className="text-2xl font-bold mb-4">{selectedIssue.title}</h2>
+
+                <div className="space-y-2 text-sm">
+                  <p><strong>Description:</strong> {selectedIssue.description}</p>
+                  <p><strong>Category:</strong> {selectedIssue.category}</p>
+                  <p><strong>Status:</strong> {selectedIssue.status}</p>
+                  {/* <p><strong>Department:</strong> {selectedIssue.department}</p> */}
+                  <p><strong>Location:</strong> {selectedIssue.address || selectedIssue.location_address}</p>
+                  <p><strong>Latitude:</strong> {selectedIssue.latitude}</p>
+                  <p><strong>Longitude:</strong> {selectedIssue.longitude}</p>
+
+                  {selectedIssue.photo &&
+                    <>
+                      <p><strong>Photo Evidence: </strong></p>
+
+                      <img
+                        src={selectedIssue.photo}
+                        alt="Issue Evidence"
+                        className="mt-2 w-full max-w-sm rounded shadow"
+                      />
+                    </>
+                  }
+
+                  <p>
+                    <strong>Created At:</strong>{" "}
+                    {selectedIssue.createdAt
+                      ? new Date(selectedIssue.createdAt).toLocaleString()
+                      : "Unknown"}
+                  </p>
+                </div>
+
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={() => setSelectedIssue(null)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <tbody>
             {paginatedIssues.map(issue => {
               const statusInfo = getStatusInfo(issue.status);
@@ -291,9 +339,8 @@ export default function EnhancedIssuesList() {
               return (
                 <tr
                   key={issue._id}
-                  className={`border-b ${
-                    isDark ? "border-gray-700" : "border-gray-200"
-                  } ${hoverClasses} transition-colors duration-200 cursor-pointer`}
+                  className={`border-b ${isDark ? "border-gray-700" : "border-gray-200"
+                    } ${hoverClasses} transition-colors duration-200 cursor-pointer`}
                   onClick={() => setSelectedIssue(issue)}
                 >
                   <td className="px-6 py-4">
@@ -303,32 +350,30 @@ export default function EnhancedIssuesList() {
                       </h3>
                       {issue.description && (
                         <p
-                          className={`text-sm ${
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          } line-clamp-2`}
+                          className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
+                            } line-clamp-2`}
                         >
                           {issue.description}
                         </p>
                       )}
                       {issue.location_address && (
                         <div
-                          className={`flex items-center gap-1 text-xs ${
-                            isDark ? "text-gray-500" : "text-gray-500"
-                          }`}
+                          className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"
+                            }`}
                         >
                           <MapPin size={12} />
                           <span>{issue.location_address}</span>
                         </div>
                       )}
                       <div
-                        className={`flex items-center gap-1 text-xs ${
-                          isDark ? "text-gray-500" : "text-gray-500"
-                        }`}
+                        className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"
+                          }`}
                       >
                         <Calendar size={12} />
                         <span>
-                          #{issue._id.slice(-5)} •{" "}
-                          {new Date(issue.created_at).toLocaleDateString()}
+                          #{issue._id ? issue._id.slice(-5) : "NAN"} •{" "}
+                          {issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : "Unknown"}
+
                         </span>
                       </div>
                     </div>
@@ -382,11 +427,11 @@ export default function EnhancedIssuesList() {
                         />
                       </button>
 
-                      {issue.status === "pending" && issue.department && (
+                      {issue.status === "pending" && (
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                            updateStatus(issue._id, "in_progress");
+                            updateStatus(issue._id, "inprogress");
                           }}
                           className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
                           title="Start Progress"
@@ -395,7 +440,7 @@ export default function EnhancedIssuesList() {
                         </button>
                       )}
 
-                      {issue.status === "in_progress" && (
+                      {issue.status === "inprogress" && (
                         <button
                           onClick={e => {
                             e.stopPropagation();
@@ -404,7 +449,15 @@ export default function EnhancedIssuesList() {
                           className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
                           title="Mark Resolved"
                         >
-                          <CheckCircle size={16} />
+                          <CheckCircle size={16} color="yellow" />
+                        </button>
+                      )}
+
+                      {issue.status === "resolved" && (
+                        <button
+                          className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
+                        >
+                          <CheckCircle size={18} color="green" />
                         </button>
                       )}
                     </div>
@@ -420,12 +473,11 @@ export default function EnhancedIssuesList() {
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
           onClick={() => goToPage(page - 1)}
-          className={`px-3 py-1 rounded-md border ${
-            isDark
-              ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
-              : "bg-white border-gray-300 text-gray-800"
-          }`}
-          disabled={page === 1}
+          className={`px-3 py-1 rounded-md border ${isDark
+            ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+            : "bg-white border-gray-300 text-gray-800"
+            }`}
+          disabled={page === 0}
         >
           Prev
         </button>
@@ -433,27 +485,25 @@ export default function EnhancedIssuesList() {
           <button
             key={i + 1}
             onClick={() => goToPage(i + 1)}
-            className={`px-3 py-1 rounded-md border ${
-              page === i + 1
-                ? isDark
-                  ? "bg-[#4b4b4b] border-gray-700 text-white"
-                  : "bg-gray-300 border-gray-300 text-gray-800"
-                : isDark
+            className={`px-3 py-1 rounded-md border ${page === i + 1
+              ? isDark
+                ? "bg-[#4b4b4b] border-gray-700 text-white"
+                : "bg-gray-300 border-gray-300 text-gray-800"
+              : isDark
                 ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
                 : "bg-white border-gray-300 text-gray-800"
-            }`}
+              }`}
           >
             {i + 1}
           </button>
         ))}
         <button
           onClick={() => goToPage(page + 1)}
-          className={`px-3 py-1 rounded-md border ${
-            isDark
-              ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
-              : "bg-white border-gray-300 text-gray-800"
-          }`}
-          disabled={page === totalPages}
+          className={`px-3 py-1 rounded-md border ${isDark
+            ? "bg-[#1f1f1f] border-gray-700 text-gray-200"
+            : "bg-white border-gray-300 text-gray-800"
+            }`}
+          disabled={page === totalPages - 1}
         >
           Next
         </button>

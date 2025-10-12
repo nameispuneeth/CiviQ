@@ -23,8 +23,8 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
 
   // ----- Statistics -----
   const pending = issues.filter(i => i.status === 'pending').length;
-  const inProgress = issues.filter(i => i.status === 'in_progress').length;
-  const completed = issues.filter(i => i.status === 'completed').length;
+  const inProgress = issues.filter(i => i.status === 'inprogress').length;
+  const completed = issues.filter(i => i.status === 'resolved').length;
 
   const priorityCounts = {
     high: issues.filter(i => i.priority === 'high').length,
@@ -50,7 +50,7 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
   // ----- Line Chart Data -----
   const dateCounts = {};
   issues.forEach(i => {
-    const date = new Date(i.created_at).toLocaleDateString();
+    const date = new Date(i.createdAt).toLocaleDateString();
     dateCounts[date] = (dateCounts[date] || 0) + 1;
   });
   const lineData = Object.keys(dateCounts).map(date => ({ date, issues: dateCounts[date] }));

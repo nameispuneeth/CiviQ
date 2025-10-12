@@ -17,11 +17,11 @@ export default function TrackIssues() {
 
   const statusColors = {
     pending: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
-    in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800",
+    inprogress: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800",
     resolved: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
   };
 
-  const statusIcons = { pending: Clock, in_progress: AlertTriangle, resolved: CheckCircle };
+  const statusIcons = { pending: Clock, inprogress: AlertTriangle, resolved: CheckCircle };
 
   useEffect(() => {
     setTimeout(() => setIssues(dummyIssues), 1000);

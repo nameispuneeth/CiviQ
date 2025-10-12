@@ -10,7 +10,7 @@ export const dummyIssues = [
     latitude: 40.7589,
     longitude: -73.9851,
     reporter_name: "John Doe",
-    created_at: "2025-10-10T10:30:00Z",
+    createdAt: "2025-10-10T10:30:00Z",
     is_anonymous: false,
   },
   {
@@ -24,7 +24,7 @@ export const dummyIssues = [
     latitude: 40.7812,
     longitude: -73.9665,
     reporter_name: "Anonymous",
-    created_at: "2025-10-09T08:15:00Z",
+    createdAt: "2025-10-09T08:15:00Z",
     is_anonymous: true,
   },
   {
@@ -38,7 +38,7 @@ export const dummyIssues = [
     latitude: 40.7736,
     longitude: -73.9566,
     reporter_name: "Alice Smith",
-    created_at: "2025-10-08T12:00:00Z",
+    createdAt: "2025-10-08T12:00:00Z",
     is_anonymous: false,
   },
   // Add more dummy issues as needed

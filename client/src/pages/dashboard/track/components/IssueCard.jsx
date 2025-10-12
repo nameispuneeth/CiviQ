@@ -2,7 +2,7 @@ import { MapPin, Clock, AlertTriangle, CheckCircle, Eye, Star } from "lucide-rea
 
 export default function IssueCard({ issue, statusColors, statusIcons, setSelectedIssue, setShowRatingModal }) {
   const StatusIcon = statusIcons[issue.status];
-  const daysSinceReported = Math.floor((new Date() - new Date(issue.created_at)) / (1000 * 60 * 60 * 24));
+  const daysSinceReported = Math.floor((new Date() - new Date(issue.createdAt)) / (1000 * 60 * 60 * 24));
 
   return (
     <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E6E6E6] dark:border-[#333333] p-6 hover:shadow-lg transition-all duration-200">
@@ -46,7 +46,7 @@ export default function IssueCard({ issue, statusColors, statusIcons, setSelecte
       </div>
 
       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-3">
-        <div className={`h-2 rounded-full transition-all duration-300 ${issue.status === "pending" ? "bg-red-500 w-1/3" : issue.status === "in_progress" ? "bg-yellow-500 w-2/3" : "bg-green-500 w-full"}`} />
+        <div className={`h-2 rounded-full transition-all duration-300 ${issue.status === "pending" ? "bg-red-500 w-1/3" : issue.status === "inprogress" ? "bg-yellow-500 w-2/3" : "bg-green-500 w-full"}`} />
       </div>
 
       <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">

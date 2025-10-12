@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
 
-
 const departmentCategoryMap = new Map([
   ["Roads Department", ["roads", "traffic", "potholes", "sidewalks"]],
   ["Street Lighting Department", ["lighting", "streetlights", "public lamps", "signal lights"]],

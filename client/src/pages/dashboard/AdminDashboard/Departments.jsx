@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
+import { Trash2 } from "lucide-react"; // Trash icon
 
 const departmentCategoryMap = new Map([
   ["Roads Department", ["roads", "traffic", "potholes", "sidewalks"]],
@@ -15,12 +16,11 @@ const Departments = ({ dept }) => {
   const [departments, setDepartments] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState(null);
-  const [employeeForm, setEmployeeForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-  });
+  const [employeeForm, setEmployeeForm] = useState({ name: "", email: "", password: "", phone: "" });
+
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+  const [currentEmployees, setCurrentEmployees] = useState([]);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, empId: null, empName: "" });
 
   const { isDark } = useContext(ThemeContext);
 
@@ -28,10 +28,15 @@ const Departments = ({ dept }) => {
     setDepartments(dept);
   }, [dept]);
 
-  const openModal = (deptName) => {
+  const openAddEmployeeModal = (deptName) => {
     setSelectedDept(deptName);
     setEmployeeForm({ name: "", email: "", password: "", phone: "" });
     setModalOpen(true);
+  };
+
+  const openShowEmployeesModal = (employees) => {
+    setCurrentEmployees(employees || []);
+    setShowEmployeeModal(true);
   };
 
   const handleChange = (e) => {
@@ -39,7 +44,6 @@ const Departments = ({ dept }) => {
   };
 
   const handleSubmit = async (e) => {
-    console.log(employeeForm);
     e.preventDefault();
     if (!selectedDept) return;
     try {
@@ -52,6 +56,42 @@ const Departments = ({ dept }) => {
 
       alert(`✅ ${employeeForm.name} added to ${selectedDept}`);
       setModalOpen(false);
+
+      setDepartments(prev =>
+        prev.map(d => {
+          if (d.name === selectedDept) {
+            return { ...d, employees: [...(d.employees || []), { ...employeeForm, _id: Date.now() }] };
+          }
+          return d;
+        })
+      );
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+
+  const handleDeleteEmployee = async () => {
+    const token=localStorage.getItem("token") || sessionStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:8000/api/admin/DeleteEmployee/${confirmDelete.empId}`, {
+        method: "DELETE",
+        headers:{
+          'authorization':token
+        }
+      });
+      if (!res.ok) throw new Error("Failed to delete employee");
+
+      // Update local state
+      setDepartments(prev =>
+        prev.map(d => {
+          if (d.employees?.some(e => e._id === confirmDelete.empId)) {
+            return { ...d, employees: d.employees.filter(e => e._id !== confirmDelete.empId) };
+          }
+          return d;
+        })
+      );
+      setCurrentEmployees(prev => prev.filter(e => e._id !== confirmDelete.empId));
+      setConfirmDelete({ open: false, empId: null, empName: "" });
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -71,7 +111,6 @@ const Departments = ({ dept }) => {
             ${isDark ? "bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white" : "bg-white text-gray-900"}`}
           >
             <div className={`absolute top-0 left-0 w-full h-2 ${isDark ? "bg-indigo-500" : "bg-blue-500"}`}></div>
-
             <div className="py-5 px-6">
               <h4 className="text-2xl font-bold mb-3">{dept.name}</h4>
               <p className={`text-sm mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>{`Head: ${dept.head}`}</p>
@@ -92,72 +131,89 @@ const Departments = ({ dept }) => {
                 ))}
               </div>
 
-              <button
-                className={`p-2 mt-5 mb-0 border ${isDark?'border-white bg-white text-black':'border-gray-700 bg-gray-700 text-white'}  rounded-lg`}
-                onClick={() => openModal(dept.name)}
-              >
-                ADD EMPLOYEE
-              </button>
+              <div className="mt-5 flex gap-2">
+                <button
+                  className={`p-2 border rounded ${isDark?'border-white bg-white text-black':'border-gray-700 bg-gray-700 text-white'}`}
+                  onClick={() => openAddEmployeeModal(dept.name)}
+                >
+                  ADD EMPLOYEE
+                </button>
+
+                <button
+                  className={`p-2 border rounded ${isDark?'border-white bg-white text-black':'border-gray-700 bg-gray-700 text-white'}`}
+                  onClick={() => openShowEmployeesModal(dept.employees)}
+                >
+                  SHOW EMPLOYEES
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Add Employee Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`p-6 rounded-lg w-96 ${isDark ? "bg-gray-600 text-white" : "bg-white text-black"}`}>
             <h3 className="text-xl font-bold mb-4">Add Employee to {selectedDept}</h3>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                value={employeeForm.name}
-                onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={employeeForm.email}
-                onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
-                required
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={employeeForm.password}
-                onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
-                required
-              />
-              <input
-                type="text"
-                name="phone"
-                placeholder="Phone"
-                value={employeeForm.phone}
-                onChange={handleChange}
-                className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`}
-                required
-              />
+              <input type="text" name="name" placeholder="Name" value={employeeForm.name} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
+              <input type="email" name="email" placeholder="Email" value={employeeForm.email} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
+              <input type="password" name="password" placeholder="Password" value={employeeForm.password} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
+              <input type="text" name="phone" placeholder="Phone" value={employeeForm.phone} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
               <div className="flex justify-end gap-2 mt-3">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">
-                  Add
-                </button>
+                <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">Add</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Show Employees Modal */}
+      {showEmployeeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`p-6 rounded-lg w-96 ${isDark ? "bg-gray-600 text-white" : "bg-white text-black"}`}>
+            <h3 className="text-xl font-bold mb-4">Employees</h3>
+            {currentEmployees.length > 0 ? (
+              currentEmployees.map(emp => (
+                <div key={emp._id} className={`p-2 mb-2 rounded flex justify-between items-center ${isDark ? "bg-gray-700" : "bg-gray-100"}`}>
+                  <div>
+                    <p className="font-semibold">{emp.name}</p>
+                    <p className="text-sm">{emp.email}</p>
+                    <p className="text-sm">{emp.phone}</p>
+                  </div>
+                  <button onClick={() => setConfirmDelete({ open: true, empId: emp._id, empName: emp.name })}>
+                    <Trash2 className="text-red-500" />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p>No employees in this department.</p>
+            )}
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setShowEmployeeModal(false)} className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {confirmDelete.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`p-6 rounded-lg w-80 ${isDark ? "bg-gray-600 text-white" : "bg-white text-black"}`}>
+            <h3 className="text-lg font-bold mb-4">Remove Employee</h3>
+            <p>Are you sure you want to remove <strong>{confirmDelete.empName}</strong> from duty?</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setConfirmDelete({ open: false, empId: null, empName: "" })} className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">
+                Cancel
+              </button>
+              <button onClick={handleDeleteEmployee} className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white">
+                Yes, Remove
+              </button>
+            </div>
           </div>
         </div>
       )}

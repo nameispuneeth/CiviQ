@@ -20,7 +20,7 @@ import IssueModal from "./IssueModal";
 import Departments from "./Departments";
 import MapIssues from "./MapIssues";
 import { navigationItems } from "../AdminDashboard/backend/constant";
-import { fetchIssues, fetchDepartments, calculateStats } from "../AdminDashboard/backend/hooks";
+import { calculateStats } from "../AdminDashboard/backend/hooks";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
 export default function AdminDashboard() {

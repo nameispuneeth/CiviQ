@@ -155,54 +155,92 @@ app.get("/api/AdminDetails", async (req, res) => {
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
     try {
         const decoded = jwt.verify(token, AdminSecretCode);
-        const admin = await Admin.findOne({ email: decoded.email });
-        if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
+        const admin = await Admin.findOne({ email: decoded.email }).populate({
+            path: "departments.employees", // populate employees array
+            model: "Employee",
+            select: "name email phone password departmentName _id", // include _id
+        }); if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
         const issues = await Issue.find();
         const Departments = admin.departments.map(d => ({
             name: d.name,
             description: d.description,
             head: d.head,
             email: d.email,
-        })); res.send({ status: 'ok', Issues: issues, Departments: Departments });
+            employees: d.employees,
+
+        })); 
+        res.send({ status: 'ok', Issues: issues, Departments: Departments });
     } catch (e) {
         res.send({ status: 'error', error: e });
     }
 })
 
-app.post("/api/admin/AddEmployees",async (req,res) => {
-     try {
-    const { name, email, password, phone, departmentName } = req.body;
+app.post("/api/admin/AddEmployees", async (req, res) => {
+    try {
+        const { name, email, password, phone, departmentName } = req.body;
 
 
-    // Create employee
-    const employee = new Employee({
-      name,
-      email,
-      password: password,
-      phone,
-      departmentName,
-    });
+        // Create employee
+        const employee = new Employee({
+            name,
+            email,
+            password: password,
+            phone,
+            departmentName,
+        });
 
-    await employee.save();
+        await employee.save();
 
-    // Add employee to the admin's department
-    // Assuming you have a single admin, e.g., the first one
-    const admin = await Admin.findOne();
-    if (!admin) return res.status(404).json({ message: "Admin not found" });
+        // Add employee to the admin's department
+        // Assuming you have a single admin, e.g., the first one
+        const admin = await Admin.findOne();
+        if (!admin) return res.status(404).json({ message: "Admin not found" });
 
-    const dept = admin.departments.find((d) => d.name === departmentName);
-    if (!dept) return res.status(404).json({ message: "Department not found" });
+        const dept = admin.departments.find((d) => d.name === departmentName);
+        if (!dept) return res.status(404).json({ message: "Department not found" });
 
-    dept.employees.push(employee._id);
+        dept.employees.push(employee._id);
 
-    await admin.save();
+        await admin.save();
 
-    res.status(201).json({ message: "Employee added successfully", employee });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+        res.status(201).json({ message: "Employee added successfully", employee });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
 })
+
+// DELETE Employee by _id
+app.delete("/api/admin/DeleteEmployee/:id", async (req, res) => {
+    const empId = req.params.id; // employee _id to delete
+    const token = req.headers.authorization; // optional: admin token to verify
+
+    if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
+
+    try {
+        // Verify admin token
+        const decoded = jwt.verify(token, AdminSecretCode);
+
+        // Find the admin
+        const admin = await Admin.findOne({ email: decoded.email });
+        if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
+
+        // Iterate departments and remove the employee with matching _id
+        admin.departments.forEach((dept) => {
+            if (dept.employees && dept.employees.length > 0) {
+                dept.employees = dept.employees.filter(emp => emp._id.toString() !== empId);
+            }
+        });
+
+        await admin.save();
+
+        res.send({ ok: true, message: "Employee removed successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ ok: false, error: "Failed to remove employee" });
+    }
+});
+
 // ----------------------
 // Start server
 // ----------------------

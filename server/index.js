@@ -100,25 +100,33 @@ app.post("/api/Generateissue", async (req, res) => {
 
     try {
         const decoded = jwt.verify(token, UsersecretCode);
+
+        // Fetch the authenticated user
         const user = await User.findOne({ email: decoded.email });
         if (!user) return res.status(404).send({ ok: false, error: "User not found" });
 
         const issueData = req.body; // title, category, description, etc.
-        // Create issue in a separate Issue collection
+
+        // If anonymous, still assign name/email from database
+        if (!issueData.is_anonymous) {
+            issueData.reporter_name = user.name;
+            issueData.reporter_email = user.email;
+        }
+
+        // Create issue in Issue collection
         const issue = await Issue.create({ ...issueData });
 
         // Store the generated ObjectId in user's pending issues
         user.issues.push(issue._id);
         await user.save();
 
-
-        // Store only issue ID in user's pending issue
         res.send({ ok: true, status: "ok", id: issue._id, message: "Issue added to pending" });
     } catch (err) {
         console.error(err);
         res.status(500).send({ ok: false, error: "Failed to add issue" });
     }
 });
+
 
 // ----------------------
 // Get User Issues (with details)

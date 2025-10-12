@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Search,
   MapPin,
@@ -11,9 +11,12 @@ import {
 } from "lucide-react";
 import Navigation from "../components/Navigation";
 import { Link, useNavigate } from "react-router-dom";
+import { ThemeContext } from "../Context/ThemeContext"; // Import context
 
 export default function TrackIssues() {
   const navigate = useNavigate();
+  const { isDark } = useContext(ThemeContext); // use isDark variable
+
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,12 +26,15 @@ export default function TrackIssues() {
   const [feedback, setFeedback] = useState("");
 
   const statusColors = {
-    pending:
-      "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
-    inprogress:
-      "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800",
-    resolved:
-      "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
+    pending: isDark
+      ? "bg-red-900/20 text-red-400 border-red-800"
+      : "bg-red-100 text-red-800 border-red-200",
+    inprogress: isDark
+      ? "bg-yellow-900/20 text-yellow-400 border-yellow-800"
+      : "bg-yellow-100 text-yellow-800 border-yellow-200",
+    resolved: isDark
+      ? "bg-green-900/20 text-green-400 border-green-800"
+      : "bg-green-100 text-green-800 border-green-200",
   };
 
   const statusIcons = {
@@ -41,7 +47,6 @@ export default function TrackIssues() {
     fetchIssues();
   }, []);
 
-  // ✅ Dummy data instead of backend API
   const fetchIssues = async () => {
     setLoading(true);
     try {
@@ -111,7 +116,6 @@ export default function TrackIssues() {
     }
   };
 
-  // ✅ Dummy submitRating — updates local state instead of calling API
   const submitRating = async () => {
     if (!selectedIssue || rating === 0) return;
 
@@ -145,17 +149,17 @@ export default function TrackIssues() {
     );
 
     return (
-      <div className="bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#E6E6E6] dark:border-[#333333] p-6 hover:shadow-lg transition-all duration-200">
+      <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-xl border p-6 hover:shadow-lg transition-all duration-200`}>
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1" key={issue.createdAt}>
-            <h3 className="text-lg font-semibold text-black dark:text-white mb-2 font-sora">
+            <h3 className={`${isDark ? "text-white" : "text-black"} text-lg font-semibold mb-2 font-sora`}>
               {issue.title}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-3 font-inter">
+            <p className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-3 font-inter`}>
               {issue.description}
             </p>
 
-            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <div className={`${isDark ? "text-gray-400" : "text-gray-500"} flex items-center gap-4 text-sm mb-3`}>
               <span className="flex items-center gap-1">
                 <MapPin size={14} />
                 {issue.address || "Location not provided"}
@@ -173,7 +177,7 @@ export default function TrackIssues() {
               </span>
 
               {issue.assigned_department && (
-                <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? "bg-blue-900/20 text-blue-400" : "bg-blue-50 text-blue-700"}`}>
                   {issue.assigned_department}
                 </span>
               )}
@@ -183,7 +187,7 @@ export default function TrackIssues() {
           <div className="flex flex-col gap-2 ml-4">
             <button
               onClick={() => setSelectedIssue(issue)}
-              className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className={`${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"} flex items-center gap-1 text-sm font-medium`}
             >
               <Eye size={16} />
               Details
@@ -195,7 +199,7 @@ export default function TrackIssues() {
                   setSelectedIssue(issue);
                   setShowRatingModal(true);
                 }}
-                className="flex items-center gap-1 text-green-600 hover:text-green-700 text-sm font-medium"
+                className={`${isDark ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"} flex items-center gap-1 text-sm font-medium`}
               >
                 <Star size={16} />
                 Rate
@@ -204,8 +208,8 @@ export default function TrackIssues() {
           </div>
         </div>
 
-        {/* Progress indicator */}
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-3">
+        {/* Progress bar */}
+        <div className={`${isDark ? "bg-gray-700" : "bg-gray-200"} w-full rounded-full h-2 mb-3`}>
           <div
             className={`h-2 rounded-full transition-all duration-300 ${issue.status === "pending"
                 ? "bg-red-500 w-1/3"
@@ -216,16 +220,16 @@ export default function TrackIssues() {
           />
         </div>
 
-        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+        <div className={`${isDark ? "text-gray-400" : "text-gray-500"} flex justify-between text-xs`}>
           <span>Reported</span>
           <span>In Progress</span>
           <span>Resolved</span>
         </div>
 
         {issue.citizen_rating && (
-          <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div className={`${isDark ? "bg-green-900/20 text-green-400" : "bg-green-50 text-green-800"} mt-4 p-3 rounded-lg`}>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-green-800 dark:text-green-400">
+              <span className="text-sm font-medium">
                 Your Rating:
               </span>
               <div className="flex">
@@ -243,7 +247,7 @@ export default function TrackIssues() {
               </div>
             </div>
             {issue.citizen_feedback && (
-              <p className="text-sm text-green-700 dark:text-green-300">
+              <p className={`${isDark ? "text-green-300" : "text-green-700"}`}>
                 "{issue.citizen_feedback}"
               </p>
             )}
@@ -253,299 +257,77 @@ export default function TrackIssues() {
     );
   };
 
-  const IssueModal = ({ issue, onClose }) => {
-    if (!issue) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-[#1E1E1E] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-black dark:text-white font-sora">
-                {issue.title}
-              </h2>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {/* Status */}
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-4 py-2 rounded-full text-sm font-medium border ${statusColors[issue.status]}`}
-                >
-                  {issue.status.replace("_", " ").toUpperCase()}
-                </span>
-                {issue.assigned_department && (
-                  <span className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-sm font-medium">
-                    Assigned to: {issue.assigned_department}
-                  </span>
-                )}
-              </div>
-
-              {/* Description */}
-              <div>
-                <h3 className="font-semibold text-black dark:text-white mb-2">
-                  Description
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {issue.description}
-                </p>
-              </div>
-
-              {/* Photo */}
-              {issue.photo && (
-                <div>
-                  <h3 className="font-semibold text-black dark:text-white mb-2">
-                    Photo Evidence
-                  </h3>
-                  <img
-                    src={issue.photo}
-                    alt="Issue evidence"
-                    className="max-w-full h-64 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-
-              {/* Location */}
-              <div>
-                <h3 className="font-semibold text-black dark:text-white mb-2">
-                  Location
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {issue.address}
-                </p>
-              </div>
-
-              {/* Timeline */}
-              <div>
-                <h3 className="font-semibold text-black dark:text-white mb-3">
-                  Timeline
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#262626] rounded-lg">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <div>
-                      <p className="font-medium text-black dark:text-white">
-                        Issue Reported
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(issue.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  {issue.status !== "pending" && (
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#262626] rounded-lg">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <div>
-                        <p className="font-medium text-black dark:text-white">
-                          Work Started
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Issue assigned to {issue.assigned_department}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {issue.status === "resolved" && (
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#262626] rounded-lg">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <div>
-                        <p className="font-medium text-black dark:text-white">
-                          Issue Resolved
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {issue.resolved_at
-                            ? new Date(issue.resolved_at).toLocaleString()
-                            : "Recently"}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* AI Insights */}
-              {issue.ai_classification && (
-                <div>
-                  <h3 className="font-semibold text-black dark:text-white mb-2">
-                    AI Analysis
-                  </h3>
-                  <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-                    <p className="text-sm text-purple-700 dark:text-purple-300">
-                      Classification: <strong>{issue.ai_classification}</strong>
-                    </p>
-                    {issue.ai_priority_score && (
-                      <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
-                        Priority Score:{" "}
-                        <strong>
-                          {(issue.ai_priority_score * 100).toFixed(0)}%
-                        </strong>
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const RatingModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-[#1E1E1E] rounded-xl max-w-md w-full p-6">
-        <h3 className="text-xl font-bold text-black dark:text-white mb-4 font-sora">
-          Rate Resolution Quality
-        </h3>
-
-        <div className="mb-6">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            How satisfied are you with the resolution of your issue?
-          </p>
-
-          <div className="flex justify-center gap-2 mb-4">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                onClick={() => setRating(star)}
-                className="transition-colors"
-              >
-                <Star
-                  size={32}
-                  className={
-                    star <= rating
-                      ? "text-yellow-400 fill-current"
-                      : "text-gray-300"
-                  }
-                />
-              </button>
-            ))}
-          </div>
-
-          <textarea
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Optional feedback about the resolution..."
-            rows={4}
-            className="w-full p-3 border border-[#D9D9D9] dark:border-[#404040] rounded-lg bg-white dark:bg-[#262626] text-black dark:text-white resize-none"
-          />
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowRatingModal(false)}
-            className="flex-1 py-2 px-4 border border-[#D9D9D9] dark:border-[#404040] rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#262626]"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={submitRating}
-            disabled={rating === 0}
-            className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Submit Rating
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
-      <>
-        <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </>
+      <div className={`${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"} min-h-screen flex items-center justify-center`}>
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-[#F3F3F3] dark:bg-[#0A0A0A] py-6 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="bg-white dark:bg-[#1E1E1E] rounded-t-2xl border border-[#E6E6E6] dark:border-[#333333] p-6">
-            <h1 className="text-3xl font-bold text-black dark:text-white mb-2 font-sora">
-              Track Your Issues
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 font-inter mb-6">
-              Monitor the progress of your reported civic issues
-            </p>
+    <div className={`${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"} min-h-screen py-6 px-4`}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-t-2xl border p-6`}>
+          <h1 className={`${isDark ? "text-white" : "text-black"} text-3xl font-bold mb-2 font-sora`}>
+            Track Your Issues
+          </h1>
+          <p className={`${isDark ? "text-gray-300" : "text-gray-600"} font-inter mb-6`}>
+            Monitor the progress of your reported civic issues
+          </p>
 
-            {/* Search */}
-            <div className="relative">
-              <Search
-                size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
-              <input
-                type="text"
-                placeholder="Search your issues..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-[#D9D9D9] dark:border-[#404040] rounded-lg bg-white dark:bg-[#262626] text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-inter"
-              />
-            </div>
-          </div>
-
-          {/* Issues List */}
-          <div className="bg-white dark:bg-[#1E1E1E] border-x border-[#E6E6E6] dark:border-[#333333] p-6">
-            {filteredIssues.length === 0 ? (
-              <div className="text-center py-12">
-                <MessageCircle
-                  size={48}
-                  className="mx-auto text-gray-400 mb-4"
-                />
-                <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                  No issues found
-                </h3>
-                <p className="text-gray-500 dark:text-gray-500">
-                  {searchQuery
-                    ? "Try adjusting your search"
-                    : "You haven't reported any issues yet"}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {filteredIssues.map((issue) => (
-                  <IssueCard key={issue.id} issue={issue} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="bg-white dark:bg-[#1E1E1E] rounded-b-2xl border border-[#E6E6E6] dark:border-[#333333] p-6">
-            <div className="text-center">
-              <Link
-                to="/report-issues"
-                className="inline-flex items-center gap-2 py-3 px-6 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors font-inter"
-              >
-                Report New Issue
-              </Link>
-            </div>
+          {/* Search */}
+          <div className="relative">
+            <Search
+              size={20}
+              className={`${isDark ? "text-gray-500" : "text-gray-400"} absolute left-3 top-1/2 transform -translate-y-1/2`}
+            />
+            <input
+              type="text"
+              placeholder="Search your issues..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`${isDark ? "bg-[#262626] border-[#404040] text-white placeholder-gray-500" : "bg-white border-[#D9D9D9] text-black placeholder-gray-400"} w-full pl-10 pr-4 py-3 rounded-lg font-inter`}
+            />
           </div>
         </div>
 
-        {/* Modals */}
-        {selectedIssue && !showRatingModal && (
-          <IssueModal
-            issue={selectedIssue}
-            onClose={() => setSelectedIssue(null)}
-          />
-        )}
+        {/* Issues List */}
+        <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} border-x p-6`}>
+          {filteredIssues.length === 0 ? (
+            <div className="text-center py-12">
+              <MessageCircle size={48} className={`${isDark ? "text-gray-600" : "text-gray-400"} mx-auto mb-4`} />
+              <h3 className={`${isDark ? "text-gray-400" : "text-gray-600"} text-xl font-semibold mb-2`}>
+                No issues found
+              </h3>
+              <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                {searchQuery
+                  ? "Try adjusting your search"
+                  : "You haven't reported any issues yet"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {filteredIssues.map((issue) => (
+                <IssueCard key={issue.id} issue={issue} />
+              ))}
+            </div>
+          )}
+        </div>
 
-        {showRatingModal && <RatingModal />}
+        {/* Footer */}
+        <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-b-2xl border p-6`}>
+          <div className="text-center">
+            <Link
+              to="/report-issues"
+              className="inline-flex items-center gap-2 py-3 px-6 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors font-inter"
+            >
+              Report New Issue
+            </Link>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

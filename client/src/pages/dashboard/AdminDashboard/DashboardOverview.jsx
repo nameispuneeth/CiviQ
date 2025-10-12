@@ -23,8 +23,8 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
 
   // ----- Statistics -----
   const pending = issues.filter(i => i.status === 'pending').length;
-  const inProgress = issues.filter(i => i.status === 'in_progress').length;
-  const completed = issues.filter(i => i.status === 'completed').length;
+  const inProgress = issues.filter(i => i.status === 'inprogress').length;
+  const completed = issues.filter(i => i.status === 'resolved').length;
 
   const priorityCounts = {
     high: issues.filter(i => i.priority === 'high').length,

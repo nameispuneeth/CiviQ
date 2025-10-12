@@ -136,7 +136,6 @@ app.get("/api/user/issues", async (req, res) => {
         if (!user) return res.status(404).send({ ok: false, error: "User not found" });
 
         const Issues = await Issue.find({ _id: { $in: user.issues } });
-        console.log(Issues);
 
         res.send({ ok: true, issues: Issues });
     } catch (err) {
@@ -151,12 +150,9 @@ app.get("/api/AdminGetIssues", async (req, res) => {
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
     try{
         const decoded = jwt.verify(token, AdminSecretCode);
-        console.log(decoded);
         const admin = await Admin.findOne({ email: decoded.email });
-        console.log(admin);
         if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
         const issues=await Issue.find();
-        console.log(issues);
         res.send({status:'ok',Issues:issues});
     }catch(e){
         res.send({status:'error',error:e});

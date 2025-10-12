@@ -9,7 +9,7 @@ export const navigationItems = [
 // Dummy issues (used when backend is unavailable)
 export const dummyIssues = [
   {
-    id: 1,
+    _id: "11234567890",
     title: "Pothole near MG Road",
     description: "Large pothole causing traffic jams near MG Road, Bengaluru.",
     category: "Road Maintenance",
@@ -22,11 +22,11 @@ export const dummyIssues = [
     createdAt: "2025-09-30T10:00:00Z",
   },
   {
-    id: 2,
+    _id: "21234567890",
     title: "Streetlight not working",
     description: "Streetlight flickering near Lalbagh Botanical Garden.",
     category: "Electrical",
-    status: "in_progress",
+    status: "inprogress",
     priority: "medium",
     department: "Electricity Dept.",
     place: "Lalbagh Botanical Garden, Bengaluru",
@@ -35,7 +35,7 @@ export const dummyIssues = [
     createdAt: "2025-09-28T14:00:00Z",
   },
   {
-    id: 3,
+    _id: "31234567890",
     title: "Overflowing garbage bins",
     description: "Bins not emptied near Brigade Road causing hygiene issues.",
     category: "Sanitation",
@@ -48,7 +48,7 @@ export const dummyIssues = [
     createdAt: "2025-09-27T09:30:00Z",
   },
   {
-    id: 4,
+    _id: "41234567890",
     title: "Broken park bench",
     description: "Bench in Cubbon Park needs repair.",
     category: "Parks & Recreation",
@@ -61,11 +61,11 @@ export const dummyIssues = [
     createdAt: "2025-09-25T11:00:00Z",
   },
   {
-    id: 5,
+    _id: "51234567890",
     title: "Traffic signal malfunction",
     description: "Signal at Koramangala junction not working properly.",
     category: "Traffic Management",
-    status: "in_progress",
+    status: "inprogress",
     priority: "high",
     department: "Traffic Management",
     place: "Koramangala, Bengaluru",
@@ -74,7 +74,7 @@ export const dummyIssues = [
     createdAt: "2025-09-24T08:45:00Z",
   },
   {
-    id: 6,
+    _id: "61234567890",
     title: "Water leakage in main pipeline",
     description: "Water leakage causing disruption near Whitefield.",
     category: "Water Supply",
@@ -87,7 +87,7 @@ export const dummyIssues = [
     createdAt: "2025-09-23T15:20:00Z",
   },
   {
-    id: 7,
+    _id: "71234567890",
     title: "Fire hydrant blocked",
     description: "Fire hydrant near Marathahalli blocked by construction materials.",
     category: "Fire Department",
@@ -100,7 +100,7 @@ export const dummyIssues = [
     createdAt: "2025-09-22T10:10:00Z",
   },
   {
-    id: 8,
+    _id: "81234567890",
     title: "School building maintenance required",
     description: "Peeling walls and leaking roof in Govt. School.",
     category: "Education",
@@ -113,11 +113,11 @@ export const dummyIssues = [
     createdAt: "2025-09-21T13:15:00Z",
   },
   {
-    id: 9,
+    _id: "91234567890",
     title: "Hospital waste disposal issue",
     description: "Medical waste not disposed properly near Fortis Hospital.",
     category: "Health Services",
-    status: "in_progress",
+    status: "inprogress",
     priority: "high",
     department: "Health Services",
     place: "Fortis Hospital, Bengaluru",
@@ -126,7 +126,7 @@ export const dummyIssues = [
     createdAt: "2025-09-20T09:00:00Z",
   },
   {
-    id: 10,
+    _id: "112345678900",
     title: "Broken traffic signage",
     description: "Signage missing near Bannerghatta Road causing confusion.",
     category: "Traffic Management",

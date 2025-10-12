@@ -38,7 +38,7 @@ export const fetchDepartments = (setDepartments) => {
 export const calculateStats = (issues) => {
   const total = issues.length;
   const pending = issues.filter((i) => i.status === "pending").length;
-  const inProgress = issues.filter((i) => i.status === "in_progress").length;
+  const inProgress = issues.filter((i) => i.status === "inprogress").length;
   const resolved = issues.filter((i) => i.status === "resolved").length;
   const todayReports = issues.filter(
     (i) => new Date(i.createdAt).toDateString() === new Date().toDateString()

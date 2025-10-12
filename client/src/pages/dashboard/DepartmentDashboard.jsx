@@ -21,9 +21,9 @@ export default function DepartmentDashboard() {
 
   // Dummy department issues
   const dummyIssues = [
-    { issue_id: 1, title: 'Pothole', category: 'Road', status: 'pending', priority: 'high', rating: 4, address: '123 Main St', latitude: 40.7589, longitude: -73.9851, created_at: new Date().toISOString() },
-    { issue_id: 2, title: 'Streetlight out', category: 'Electricity', status: 'inprogress', priority: 'medium', rating: 5, address: '456 Elm St', latitude: 40.761, longitude: -73.9815, created_at: new Date().toISOString() },
-    { issue_id: 3, title: 'Garbage not collected', category: 'Sanitation', status: 'pending', priority: 'low', rating: 3, address: '789 Oak St', latitude: 40.756, longitude: -73.99, created_at: new Date().toISOString() },
+    { issue_id: 1, title: 'Pothole', category: 'Road', status: 'pending', priority: 'high', rating: 4, address: '123 Main St', latitude: 40.7589, longitude: -73.9851, createdAt: new Date().toISOString() },
+    { issue_id: 2, title: 'Streetlight out', category: 'Electricity', status: 'inprogress', priority: 'medium', rating: 5, address: '456 Elm St', latitude: 40.761, longitude: -73.9815, createdAt: new Date().toISOString() },
+    { issue_id: 3, title: 'Garbage not collected', category: 'Sanitation', status: 'pending', priority: 'low', rating: 3, address: '789 Oak St', latitude: 40.756, longitude: -73.99, createdAt: new Date().toISOString() },
   ];
 
   useEffect(() => {

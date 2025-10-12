@@ -38,7 +38,7 @@ export default function IssueTable({ issues, setSelectedIssue, getStatusColor, g
                   <span style={{ marginLeft: 4 }}>{issue.status}</span>
                 </span>
               </TableCell>
-              <TableCell sx={{ color: isDark ? "#ccc" : "#555" }}>{new Date(issue.created_at).toLocaleDateString()}</TableCell>
+              <TableCell sx={{ color: isDark ? "#ccc" : "#555" }}>{new Date(issue.createdAt).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Button size="small" onClick={() => setSelectedIssue(issue)}>View</Button>
               </TableCell>

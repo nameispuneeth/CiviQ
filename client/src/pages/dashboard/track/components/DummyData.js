@@ -18,7 +18,7 @@ export const dummyIssues = [
     description: "Streetlight flickers and stays off most of the night.",
     address: "5th Avenue, Near Park",
     category: "Electrical",
-    status: "in_progress",
+    status: "inprogress",
     assigned_department: "Electrical Department",
     createdAt: "2025-09-25T09:00:00Z",
     photo_url: "https://picsum.photos/400/200?random=2",

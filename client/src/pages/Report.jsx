@@ -222,7 +222,7 @@ export default function ReportPage() {
       // }
 
       // Submit the issue
-      const response = await fetch("http://localhost:8000/api/issues", {
+      const response = await fetch("http://localhost:8000/api/Generateissue", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -266,26 +266,7 @@ export default function ReportPage() {
 
   if (showSuccess) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl border border-green-200 dark:border-green-800 p-8 max-w-md w-full text-center">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle
-                size={32}
-                className="text-green-600 dark:text-green-400"
-              />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 font-sora">
-              Issue Reported Successfully!
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 font-inter">
-              Thank you for reporting this issue. You'll receive updates on the
-              progress soon.
-            </p>
-          </div>
-        </div>
-      </>
+      alert("issue reported successfully")
     );
   }
 

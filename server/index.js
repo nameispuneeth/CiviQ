@@ -53,7 +53,6 @@ app.post("/api/login", async (req, res) => {
     const { email, password } = req.body
 
     try {
-        // 1️⃣ Check Admin first
         const admin = await Admin.findOne({ email, password });
         if (admin) {
             const token = jwt.sign(
@@ -68,7 +67,6 @@ app.post("/api/login", async (req, res) => {
             });
         }
 
-        // 2️⃣ Check regular User if not admin
         const user = await User.findOne({ email, password });
         if (user) {
             const token = jwt.sign(
@@ -83,7 +81,6 @@ app.post("/api/login", async (req, res) => {
             });
         }
 
-        // 3️⃣ If not found in either
         res.status(401).send({ status: "error", error: "Invalid credentials" });
 
     } catch (e) {
@@ -95,14 +92,13 @@ app.post("/api/login", async (req, res) => {
 // ----------------------
 // Submit Issue
 // ----------------------
-app.post("/api/issues", async (req, res) => {
+app.post("/api/Generateissue", async (req, res) => {
     console.log("CAME");
     const token = req.headers.authorization; // Bearer token
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
 
     try {
         const decoded = jwt.verify(token, UsersecretCode);
-        console.log(decoded);
         const user = await User.findOne({ email: decoded.email });
         if (!user) return res.status(404).send({ ok: false, error: "User not found" });
 

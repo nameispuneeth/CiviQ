@@ -15,7 +15,6 @@ function App() {
      <ThemeProvider>
        <Routes>
               <Route path="/user-home" element={<CitizenDashboard />} />
-
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/report-issues" element={<ReportPage />} />
         <Route path="/track-issues" element={<TrackIssues />} />

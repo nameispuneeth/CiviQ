@@ -568,13 +568,13 @@ export default function ReportPage() {
   const [isAnonymous, setIsAnonymous] = useState(true);
 
   const categories = [
-    { value: "roads", label: "Roads & Potholes", icon: "🚧" },
-    { value: "lighting", label: "Street Lighting", icon: "💡" },
-    { value: "sanitation", label: "Garbage & Waste", icon: "🗑️" },
-    { value: "parks", label: "Parks & Recreation", icon: "🌳" },
-    { value: "traffic", label: "Traffic & Parking", icon: "🚦" },
-    { value: "water", label: "Water & Utilities", icon: "💧" },
-    { value: "other", label: "Other Issues", icon: "❗" },
+    { value: "Roads", label: "Roads & Potholes", icon: "🚧" },
+    { value: "Lighting", label: "Street Lighting", icon: "💡" },
+    { value: "Sanitation", label: "Garbage & Waste", icon: "🗑️" },
+    { value: "Parks", label: "Parks & Recreation", icon: "🌳" },
+    { value: "Traffic", label: "Traffic & Parking", icon: "🚦" },
+    { value: "Water", label: "Water & Utilities", icon: "💧" },
+    { value: "Other", label: "Other Issues", icon: "❗" },
   ];
 
   useEffect(() => {

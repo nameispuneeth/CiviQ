@@ -1,53 +1,66 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useContext } from "react";
 import {
-  Search,
-  Filter,
-  Eye,
-  Save,
-  RefreshCw,
-  Play,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-  MapPin,
-  Calendar,
-  ChevronLeft,
-  ChevronRight
+  Search, Eye, Save, RefreshCw, Play, CheckCircle,
+  Clock, AlertTriangle, MapPin, Calendar
 } from "lucide-react";
-import { useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
-export default function EnhancedIssuesList({
-  issues = [],
-  setIssues,
-  filters = { search: "" },
-  setFilters,
-  setSelectedIssue,
-}) {
-  const {isDark}=useContext(ThemeContext)
+export default function EnhancedIssuesList() {
+  const { isDark } = useContext(ThemeContext);
+  const [issues, setIssues] = useState([]);
+  const [filters, setFilters] = useState({ search: "" });
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [localIssues, setLocalIssues] = useState([]);
+  const [rowsPerPage] = useState(10);
   const [hasChanges, setHasChanges] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState(null);
+
+  // ✅ Fetch issues from backend
+  const fetchIssues = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) return alert("Please log in first.");
+
+      const res = await fetch("http://localhost:8000/api/issues", {
+        headers: { Authorization: token },
+      });
+      const data = await res.json();
+
+      if (data.ok) 
+      {
+        setIssues(data.issues);
+        console.log(data);
+      }
+      else console.error("Failed to load issues:", data.error);
+    } catch (err) {
+      console.error("Error fetching issues:", err);
+    }
+  };
 
   useEffect(() => {
-    setLocalIssues([...issues]);
-    setHasChanges(false);
-  }, [issues]);
+    fetchIssues();
+  }, []);
 
-  const updateStatus = (issueId, newStatus) => {
-    setLocalIssues(prev =>
+  const handleRefresh = () => {
+    fetchIssues();
+    setHasChanges(false);
+  };
+
+
+
+  const updateStatus = (id, newStatus) => {
+    setIssues(prev =>
       prev.map(i =>
-        i.id === issueId
+        i._id === id
           ? {
               ...i,
               status: newStatus,
               updated_at: new Date().toISOString(),
               ...(newStatus === "resolved" && {
-                resolved_at: new Date().toISOString()
-              })
+                resolved_at: new Date().toISOString(),
+              }),
             }
           : i
       )
@@ -55,15 +68,14 @@ export default function EnhancedIssuesList({
     setHasChanges(true);
   };
 
-  const updateDepartment = (issueId, newDept) => {
-    setLocalIssues(prev =>
+  const updateDepartment = (id, newDept) => {
+    setIssues(prev =>
       prev.map(i =>
-        i.id === issueId
+        i._id === id
           ? {
               ...i,
               department: newDept,
-              assigned_to: newDept ? `${newDept} Team` : null,
-              updated_at: new Date().toISOString()
+              updated_at: new Date().toISOString(),
             }
           : i
       )
@@ -71,35 +83,19 @@ export default function EnhancedIssuesList({
     setHasChanges(true);
   };
 
-  const handleSave = async () => {
-    try {
-      if (setIssues) setIssues([...localIssues]);
-      setHasChanges(false);
-      alert("Changes saved successfully!");
-    } catch (error) {
-      console.error("Error saving changes:", error);
-      alert("Error saving changes. Please try again.");
-    }
-  };
-
-  const handleRefresh = () => {
-    setLocalIssues([...issues]);
-    setHasChanges(false);
-  };
-
-  const filteredIssues = localIssues.filter(issue => {
+  const filteredIssues = issues.filter(issue => {
+    const search = filters.search.toLowerCase();
     const matchesSearch =
-      !filters.search ||
-      issue.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      issue.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      issue.location_address
-        ?.toLowerCase()
-        .includes(filters.search.toLowerCase());
+      issue.title?.toLowerCase().includes(search) ||
+      issue.description?.toLowerCase().includes(search) ||
+      issue.location_address?.toLowerCase().includes(search);
+
     const matchesStatus =
       statusFilter === "all" || issue.status === statusFilter;
     const matchesCategory =
       categoryFilter === "all" ||
       issue.category?.toLowerCase() === categoryFilter.toLowerCase();
+
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -116,22 +112,22 @@ export default function EnhancedIssuesList({
         icon: Clock,
         color: isDark ? "text-yellow-400" : "text-yellow-700",
         bgColor: isDark ? "bg-yellow-900/40" : "bg-yellow-100",
-        borderColor: "border-yellow-500/40"
+        borderColor: "border-yellow-500/40",
       },
       in_progress: {
         label: "In Progress",
         icon: AlertTriangle,
         color: isDark ? "text-blue-400" : "text-blue-700",
         bgColor: isDark ? "bg-blue-900/40" : "bg-blue-100",
-        borderColor: "border-blue-500/40"
+        borderColor: "border-blue-500/40",
       },
       resolved: {
         label: "Resolved",
         icon: CheckCircle,
         color: isDark ? "text-green-400" : "text-green-700",
         bgColor: isDark ? "bg-green-900/40" : "bg-green-100",
-        borderColor: "border-green-500/40"
-      }
+        borderColor: "border-green-500/40",
+      },
     };
     return statusMap[status] || statusMap.pending;
   };
@@ -143,7 +139,7 @@ export default function EnhancedIssuesList({
     "Parks & Recreation",
     "Water & Utilities",
     "General Services",
-    "Emergency Services"
+    "Emergency Services",
   ];
 
   const categories = ["Roads", "Lighting", "Sanitation", "Parks", "Water", "Other"];
@@ -191,7 +187,10 @@ const goToPage = (newPage) => {
 
             {hasChanges && (
               <button
-                onClick={handleSave}
+                onClick={() => {
+                  alert("Changes saved locally (backend sync not implemented)");
+                  setHasChanges(false);
+                }}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
               >
                 <Save size={16} />
@@ -277,9 +276,7 @@ const goToPage = (newPage) => {
         <table className="w-full">
           <thead className={`${isDark ? "bg-gray-700" : "bg-gray-50"}`}>
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Issue Details
-              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Issue Details</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
@@ -293,11 +290,11 @@ const goToPage = (newPage) => {
 
               return (
                 <tr
-                  key={issue.id}
+                  key={issue._id}
                   className={`border-b ${
                     isDark ? "border-gray-700" : "border-gray-200"
                   } ${hoverClasses} transition-colors duration-200 cursor-pointer`}
-                  onClick={() => setSelectedIssue && setSelectedIssue(issue)}
+                  onClick={() => setSelectedIssue(issue)}
                 >
                   <td className="px-6 py-4">
                     <div className="space-y-1">
@@ -330,8 +327,8 @@ const goToPage = (newPage) => {
                       >
                         <Calendar size={12} />
                         <span>
-                          #{issue.id} •{" "}
-                          {new Date(issue.createdAt).toLocaleDateString()}
+                          #{issue._id.slice(-5)} •{" "}
+                          {new Date(issue.created_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -353,7 +350,7 @@ const goToPage = (newPage) => {
                   <td className="px-6 py-4">
                     <select
                       value={issue.department || ""}
-                      onChange={e => updateDepartment(issue.id, e.target.value)}
+                      onChange={e => updateDepartment(issue._id, e.target.value)}
                       disabled={issue.status === "resolved"}
                       className={`w-full px-3 py-1 text-sm rounded border ${inputClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
                       onClick={e => e.stopPropagation()}
@@ -374,7 +371,7 @@ const goToPage = (newPage) => {
                       <button
                         onClick={e => {
                           e.stopPropagation();
-                          setSelectedIssue && setSelectedIssue(issue);
+                          setSelectedIssue(issue);
                         }}
                         className={`p-1 rounded ${hoverClasses} transition-colors duration-200`}
                         title="View Details"
@@ -389,7 +386,7 @@ const goToPage = (newPage) => {
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                            updateStatus(issue.id, "in_progress");
+                            updateStatus(issue._id, "in_progress");
                           }}
                           className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
                           title="Start Progress"
@@ -402,7 +399,7 @@ const goToPage = (newPage) => {
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                            updateStatus(issue.id, "resolved");
+                            updateStatus(issue._id, "resolved");
                           }}
                           className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
                           title="Mark Resolved"

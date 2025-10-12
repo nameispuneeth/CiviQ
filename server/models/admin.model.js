@@ -6,18 +6,13 @@ const adminSchema = new mongoose.Schema({
   password: String,
   role: { type: String, default: "admin" },
 
-  // Departments managed by admin
   departments: [
     {
       name: String,
       description: String,
-      employees: [
-        {
-          name: String,
-          email: String,
-          phone: String,
-        },
-      ]
+      head: String,
+      email: String,
+      employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
     },
   ],
 });

@@ -36,9 +36,27 @@ export default function AdminDashboard() {
 
   const isMobile = useMediaQuery("(max-width:768px)");
 
-  useEffect(() => {
-    fetchIssues(setIssues, setLoading);
-    fetchDepartments(setDepartments);
+  useEffect(async() => {
+    setLoading(true);
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        alert("Login Required");
+        navigate("/login");
+        return;
+      }
+      const response = await fetch("http://localhost:8000/api/AdminDetails", {
+        method: "GET",
+        headers: {
+          'authorization': token,
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await response.json();
+      console.log(data);
+      setIssues(data.Issues);
+      setDepartments(data.Departments);
+      setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -110,7 +128,7 @@ export default function AdminDashboard() {
             {activeView === "issues" && (
               <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} />
             )}
-            {activeView === "departments" && <Departments />}
+            {activeView === "departments" && <Departments dept={departments} />}
             {activeView === "map" && <MapIssues issues={issues} />}
           </Container>
 

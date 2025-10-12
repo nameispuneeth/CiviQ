@@ -8,7 +8,8 @@ const { v4: uuidv4 } = require("uuid");
 // Models
 const User = require("./models/user.model");
 const Admin = require("./models/admin.model");
-const Issue = require("./models/issue.model"); // We'll create this
+const Issue = require("./models/issue.model");
+const Employee = require("./models/employee.model");
 
 // Middleware
 app.use(express.json());
@@ -140,18 +141,23 @@ app.get("/api/user/issues", async (req, res) => {
     }
 });
 
-app.get("/api/AdminGetIssues", async (req, res) => {
+app.get("/api/AdminDetails", async (req, res) => {
     console.log("Came");
-     const token = req.headers.authorization;
+    const token = req.headers.authorization;
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
-    try{
+    try {
         const decoded = jwt.verify(token, AdminSecretCode);
         const admin = await Admin.findOne({ email: decoded.email });
         if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
-        const issues=await Issue.find();
-        res.send({status:'ok',Issues:issues});
-    }catch(e){
-        res.send({status:'error',error:e});
+        const issues = await Issue.find();
+        const Departments = admin.departments.map(d => ({
+            name: d.name,
+            description: d.description,
+            head: d.head,
+            email: d.email,
+        })); res.send({ status: 'ok', Issues: issues, Departments: Departments });
+    } catch (e) {
+        res.send({ status: 'error', error: e });
     }
 })
 // ----------------------

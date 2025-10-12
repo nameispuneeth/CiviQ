@@ -1,57 +1,23 @@
 import React, { useEffect, useState, useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
-const dummyDepartments = [
-  {
-    name: "Roads Department",
-    head: "Rajesh Kumar",
-    contact: "roads@citygov.in",
-    categoriesHandled: ["roads", "traffic", "potholes", "sidewalks"],
-  },
-  {
-    name: "Street Lighting Department",
-    head: "Anita Sharma",
-    contact: "lighting@citygov.in",
-    categoriesHandled: ["lighting", "streetlights", "public lamps", "signal lights"],
-  },
-  {
-    name: "Sanitation Department",
-    head: "Vikram Singh",
-    contact: "sanitation@citygov.in",
-    categoriesHandled: ["sanitation", "garbage", "waste", "sewage", "cleanliness"],
-  },
-  {
-    name: "Parks & Recreation Department",
-    head: "Priya Reddy",
-    contact: "parks@citygov.in",
-    categoriesHandled: ["parks", "recreation", "gardens", "playgrounds", "green spaces"],
-  },
-  {
-    name: "Traffic Management Department",
-    head: "Suresh Patel",
-    contact: "traffic@citygov.in",
-    categoriesHandled: ["traffic", "parking", "signals", "congestion", "road safety"],
-  },
-  {
-    name: "Water & Utilities Department",
-    head: "Meena Iyer",
-    contact: "water@citygov.in",
-    categoriesHandled: ["water", "utilities", "sewage", "leakage", "pipes"],
-  },
-  {
-    name: "General Issues Department",
-    head: "Arun Chatterjee",
-    contact: "other@citygov.in",
-    categoriesHandled: ["other", "miscellaneous", "public grievances", "citizen complaints"],
-  },
-];
 
-const Departments = () => {
+
+const departmentCategoryMap = new Map([
+  ["Roads Department", ["roads", "traffic", "potholes", "sidewalks"]],
+  ["Street Lighting Department", ["lighting", "streetlights", "public lamps", "signal lights"]],
+  ["Sanitation Department", ["sanitation", "garbage", "waste", "sewage", "cleanliness"]],
+  ["Parks & Recreation Department", ["parks", "recreation", "gardens", "playgrounds", "green spaces"]],
+  ["Traffic Management Department", ["traffic", "parking", "signals", "congestion", "road safety"]],
+  ["Water & Utilities Department", ["water", "utilities", "sewage", "leakage", "pipes"]],
+  ["General Issues Department", ["other", "miscellaneous", "public grievances", "citizen complaints"]],
+]);
+const Departments = ({dept}) => {
   const [departments, setDepartments] = useState([]);
   const { isDark } = useContext(ThemeContext);
 
   useEffect(() => {
-    setDepartments(dummyDepartments);
+    setDepartments(dept);
   }, []);
 
   return (
@@ -74,11 +40,11 @@ const Departments = () => {
             <div className="py-5 px-6">
               <h4 className="text-2xl font-bold mb-3">{dept.name}</h4>
               <p className={`text-sm mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>{`Head: ${dept.head}`}</p>
-              <p className={`text-sm mb-4 ${isDark ? "text-gray-300" : "text-gray-700"}`}>{`Email: ${dept.contact}`}</p>
+              <p className={`text-sm mb-4 ${isDark ? "text-gray-300" : "text-gray-700"}`}>{`Email: ${dept.email}`}</p>
 
               <span className={`font-semibold block mb-2 ${isDark ? "text-gray-400" : "text-gray-600"}`}>Problems Solved:</span>
               <div className="flex flex-wrap gap-2">
-                {dept.categoriesHandled.map((cat, index) => (
+                {departmentCategoryMap.get(dept.name).map((cat, index) => (
                   <span
                     key={index}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200

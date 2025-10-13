@@ -10,11 +10,13 @@ import Upload from "./pages/dashboard/track/ImageUpload";
 import { ThemeProvider } from "./Context/ThemeContext";
 import DepartmentDashboard from "./pages/dashboard/Department/DepartmentDashboard";
 import EmployeePage from "./pages/Employee/Employee";
+import HomePage from "./pages/HomePage"
 // import ThemeProvider
 function App() {
   return (
      <ThemeProvider>
        <Routes>
+            <Route path="/" element={<HomePage/>}/>
               <Route path="/user-home" element={<CitizenDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/report-issues" element={<ReportPage />} />

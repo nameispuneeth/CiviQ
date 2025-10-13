@@ -6,8 +6,9 @@ import {
 } from "lucide-react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
-export default function IssuesList({ issues: initialIssues }) {
+export default function IssuesList({ issues: initialIssues, dept: dept }) {
   const { isDark } = useContext(ThemeContext);
+  const [Departments, setDepartments] = useState(dept);
   const [issues, setIssues] = useState(initialIssues);
   const [filters, setFilters] = useState({ search: "" });
   const [statusFilter, setStatusFilter] = useState("all");
@@ -16,6 +17,10 @@ export default function IssuesList({ issues: initialIssues }) {
   const [rowsPerPage] = useState(10);
   const [hasChanges, setHasChanges] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
+
+  const [modalIssue, setModalIssue] = useState(null);
+  const [selectedDept, setSelectedDept] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
 
   // ✅ Fetch issues from backend
   // const fetchIssues = async () => {
@@ -49,56 +54,153 @@ export default function IssuesList({ issues: initialIssues }) {
 
 
 
-  const updateStatus = (id, newStatus) => {
-    setIssues(prev =>
-      prev.map(i =>
-        i._id === id
-          ? {
-            ...i,
-            status: newStatus,
-            updated_at: new Date().toISOString(),
-            ...(newStatus === "resolved" && {
-              resolved_at: new Date().toISOString(),
-            }),
-          }
-          : i
-      )
-    );
-    console.log(issues);
-    setHasChanges(true);
-  };
+  // const updateStatus = (id, newStatus) => {
+  //   setIssues(prev =>
+  //     prev.map(i =>
+  //       i._id === id
+  //         ? {
+  //           ...i,
+  //           status: newStatus,
+  //           updated_at: new Date().toISOString(),
+  //           ...(newStatus === "resolved" && {
+  //             resolved_at: new Date().toISOString(),
+  //           }),
+  //         }
+  //         : i
+  //     )
+  //   );
+  //   console.log(issues);
+  //   setHasChanges(true);
+  // };
 
-  const updateDepartment = (id, newDept) => {
-    setIssues(prev =>
-      prev.map(i =>
-        i._id === id
-          ? {
-            ...i,
-            department: newDept,
-            updated_at: new Date().toISOString(),
-          }
-          : i
-      )
-    );
-    setHasChanges(true);
-  };
+  const handleChangeStatus = async (issue) => {
+    if(!issue.assigned_department_employee){
+      alert("Dummy Data");
+      return;
+    }
+    if (!issue.assigned_employee_finished) {
+      alert(`${issue.assigned_department_employee} Didnt Finished His Job`);
+      return;
+    }
 
- const filteredIssues = issues.filter(issue => {
-  const search = filters.search.toLowerCase();
-  const matchesSearch =
-    (issue.title || "").toLowerCase().includes(search) ||
-    (issue.description || "").toLowerCase().includes(search) ||
-    (issue.location_address || "").toLowerCase().includes(search);
+    const deptmt = Departments.find(dept => dept.name === issue.assigned_department);
+    if (!deptmt) {
+      alert("Department not found!");
+      return;
+    }
 
-  const matchesStatus =
-    statusFilter === "all" || issue.status === statusFilter;
+    // 🔍 Find the employee inside that department
+    const employee = deptmt.employees.find(emp => emp.name === issue.assigned_department_employee);
+    if (!employee) {
+      alert("Employee not found!");
+      return;
+    }
 
-  const matchesCategory =
-    categoryFilter === "all" ||
-    (issue.category || "").toLowerCase() === categoryFilter.toLowerCase();
+    console.log(issue._id);
+    const res = await fetch(`http://localhost:8000/api/issues/changeToResolved/${issue._id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        departmentName: issue.assigned_department,
+        employeeEmail: employee.email,
+      }),
+    });
 
-  return matchesSearch && matchesStatus && matchesCategory;
-});
+    const data = await res.json();
+    console.log(data);
+    if(data.ok){
+      setIssues(prevIssues =>
+          prevIssues.map(previssue =>
+            previssue._id === issue._id
+              ? {
+                ...issue,
+                status: "resolved", 
+                updatedAt: new Date().toISOString(),
+              }
+              : previssue
+          )
+        );
+
+    }else{
+      alert("Netwrok Issues");
+    }
+  }
+  const handleAssign = async () => {
+    if (!selectedDept || !selectedEmployee) {
+      alert("Please select both department and employee.");
+      return;
+    }
+    console.log(Departments);
+    const deptmt = Departments.find(dept => dept.name === selectedDept);
+    if (!deptmt) {
+      alert("Department not found!");
+      return;
+    }
+
+    // 🔍 Find the employee inside that department
+    const employee = deptmt.employees.find(emp => emp.name === selectedEmployee);
+    if (!employee) {
+      alert("Employee not found!");
+      return;
+    }
+
+    console.log("Assigning to:", employee.email, employee.phone);
+    try {
+      const res = await fetch(`http://localhost:8000/api/issues/assign/${modalIssue._id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          departmentName: selectedDept,
+          employeeEmail: employee.email,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        alert("Updated SuccesFully");
+        setIssues(prevIssues =>
+          prevIssues.map(issue =>
+            issue._id === modalIssue._id
+              ? {
+                ...issue,
+                status: "inprogress",
+                assigned_department: selectedDept,
+                assigned_department_employee: selectedEmployee,
+                assigned_date: new Date().toISOString(),
+              }
+              : issue
+          )
+        );
+
+        // ✅ Close modal
+        setModalIssue(null);
+        setSelectedDept("");
+        setSelectedEmployee("");
+      } else {
+        alert("Failed To Uplaod");
+      }
+      setModalIssue(null);
+    } catch (e) {
+      alert("Network Issues");
+    }
+  }
+
+  const filteredIssues = issues.filter(issue => {
+    const search = filters.search.toLowerCase();
+    const matchesSearch =
+      (issue.title || "").toLowerCase().includes(search) ||
+      (issue.description || "").toLowerCase().includes(search) ||
+      (issue.location_address || "").toLowerCase().includes(search);
+
+    const matchesStatus =
+      statusFilter === "all" || issue.status === statusFilter;
+
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (issue.category || "").toLowerCase() === categoryFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
 
 
   const totalPages = Math.ceil(filteredIssues.length / rowsPerPage);
@@ -133,7 +235,10 @@ export default function IssuesList({ issues: initialIssues }) {
     };
     return statusMap[status] || statusMap.pending;
   };
-
+  const handleDepartmentChange = (deptName) => {
+    setSelectedDept(deptName);
+    setSelectedEmployee("");
+  };
   const departments = [
     "Roads & Infrastructure",
     "Street Lighting",
@@ -277,7 +382,6 @@ export default function IssuesList({ issues: initialIssues }) {
               <th className="px-6 py-4 text-left text-sm font-semibold">Issue Details</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Department</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
             </tr>
           </thead>
@@ -393,27 +497,8 @@ export default function IssuesList({ issues: initialIssues }) {
                   </td>
 
                   <td className="px-6 py-4">
-                    <select
-                      value={issue.department || ""}
-                      onChange={e => updateDepartment(issue._id, e.target.value)}
-                      disabled={issue.status === "resolved"}
-                      className={`w-full px-3 py-1 text-sm rounded border ${inputClasses} disabled:opacity-50 disabled:cursor-not-allowed`}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <option value="" disabled>
-                        Select Department
-                      </option>
-                      {departments.map(dept => (
-                        <option key={dept} value={dept}>
-                          {dept}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-
-                  <td className="px-6 py-4">
                     <div className="flex items-center gap-1">
-                      <button
+                      {/* <button
                         onClick={e => {
                           e.stopPropagation();
                           setSelectedIssue(issue);
@@ -425,13 +510,13 @@ export default function IssuesList({ issues: initialIssues }) {
                           size={16}
                           className={isDark ? "text-gray-400" : "text-gray-600"}
                         />
-                      </button>
+                      </button> */}
 
                       {issue.status === "pending" && (
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                            updateStatus(issue._id, "inprogress");
+                            setModalIssue(issue);
                           }}
                           className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
                           title="Start Progress"
@@ -444,7 +529,7 @@ export default function IssuesList({ issues: initialIssues }) {
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                            updateStatus(issue._id, "resolved");
+                            handleChangeStatus(issue);
                           }}
                           className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
                           title="Mark Resolved"
@@ -465,9 +550,83 @@ export default function IssuesList({ issues: initialIssues }) {
                 </tr>
               );
             })}
+
           </tbody>
         </table>
       </div>
+      {modalIssue && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div
+            className={`p-6 rounded-lg w-96 shadow-lg ${isDark ? "bg-gray-700 text-white" : "bg-white text-gray-900"
+              }`}
+          >
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Assign Department & Employee
+            </h2>
+
+            {/* Department Dropdown */}
+            <label className="block text-sm mb-2 font-medium">Department</label>
+            <select
+              value={selectedDept}
+              onChange={(e) => handleDepartmentChange(e.target.value)}
+              className={`w-full px-3 py-2 text-sm rounded border ${inputClasses}`}
+            >
+              <option value="">Select Department</option>
+              {Departments.map((d) => (
+                <option key={d.name} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Employee Dropdown (visible after department selection) */}
+            {selectedDept && (
+              <>
+                <label className="block text-sm mt-4 mb-2 font-medium">
+                  Assign Employee
+                </label>
+                <select
+                  value={selectedEmployee}
+                  onChange={(e) => setSelectedEmployee(e.target.value)}
+                  className={`w-full px-3 py-2 text-sm rounded border ${inputClasses}`}
+                >
+                  <option value="">Select Employee</option>
+                  {Departments.find((d) =>
+                    d.name.toLowerCase().includes(selectedDept.toLowerCase())
+                  )?.employees?.map((emp) => (
+                    <option key={emp._id} value={emp.name}>
+                      {emp.name}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            {/* Buttons */}
+            <div className="flex justify-end mt-6 gap-3">
+              <button
+                onClick={() => {
+                  setModalIssue(null);
+                  setSelectedDept("");
+                  setSelectedEmployee("");
+                }}
+                className={`px-4 py-2 rounded-lg border ${isDark ? 'border-red-600 bg-red-600 hover:bg-red-400 text-white-700' : 'border-gray-400 hover:bg-gray-200 text-gray-700 '} `}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  await handleAssign();
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+              >
+                Set In Progress
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">

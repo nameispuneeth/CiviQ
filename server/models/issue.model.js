@@ -15,8 +15,9 @@ const issueSchema = new mongoose.Schema({
 
   assigned_department: { type: String, default: null },
   assigned_department_employee: { type: String, default: null },
-  assigned_department_number: { type: String, default: null },
   assigned_date: { type: Date, default: null },
+  assigned_employee_finished:{type:Boolean},
+  resolved_date: { type: Date, default: null },
   rating: { type: mongoose.Schema.Types.Decimal128, default: null },
 
   createdAt: { type: Date, default: Date.now },

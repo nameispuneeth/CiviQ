@@ -168,7 +168,7 @@ app.get("/api/AdminDetails", async (req, res) => {
             email: d.email,
             employees: d.employees,
 
-        })); 
+        }));
         res.send({ status: 'ok', Issues: issues, Departments: Departments });
     } catch (e) {
         res.send({ status: 'error', error: e });
@@ -225,7 +225,6 @@ app.delete("/api/admin/DeleteEmployee/:id", async (req, res) => {
         const admin = await Admin.findOne({ email: decoded.email });
         if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
 
-        // Iterate departments and remove the employee with matching _id
         admin.departments.forEach((dept) => {
             if (dept.employees && dept.employees.length > 0) {
                 dept.employees = dept.employees.filter(emp => emp._id.toString() !== empId);
@@ -241,6 +240,81 @@ app.delete("/api/admin/DeleteEmployee/:id", async (req, res) => {
     }
 });
 
+app.post("/api/issues/assign/:id", async (req, res) => {
+    console.log("CAME")
+    try {
+        const { departmentName, employeeEmail } = req.body;
+
+        // Find the issue by ID
+        const issue = await Issue.findById(req.params.id);
+        console.log(issue);
+        if (!issue) return res.status(404).json({ message: "Issue not found" });
+
+        // Find the employee by name (you can also match by email)
+        const employee = await Employee.findOne({ email: employeeEmail });
+        console.log(employee);
+        if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+        // Update issue fields
+        issue.status = "inprogress";
+        issue.assigned_department = departmentName;
+        issue.assigned_department_employee = employee.name;
+        issue.assigned_date = new Date();
+
+        await issue.save();
+
+        console.log(issue);
+
+        // Push issue to the employee’s issue list
+        if (!employee.issues.includes(issue._id)) {
+            employee.issues.push(issue._id);
+            await employee.save();
+        }
+
+        return res.status(200).json({
+            ok: true,
+            message: "Issue assigned successfully",
+            issue,
+        });
+    } catch (err) {
+
+        console.error("Error assigning issue:", err);
+        res.status(500).json({
+            message: "Internal server error", ok: false,
+        });
+    }
+});
+app.post("/api/issues/changeToResolved/:id",async(req,res)=>{
+    const issueId = req.params.id;
+  const { departmentName, employeeEmail } = req.body;
+  console.log(issueId,departmentName,employeeEmail)
+
+  try {
+    const issue = await Issue.findById(issueId);
+    if (!issue) return res.status(404).json({ ok: false, error: "Issue not found" });
+
+    // Check if assigned employee has finished
+    if (!issue.assigned_employee_finished) {
+      return res.status(400).json({
+        ok: false,
+        error: `${issue.assigned_employee} has not finished their job yet`,
+      });
+    }
+
+    
+
+    // Update issue status
+    issue.status = "resolved";
+    issue.resolved_date = new Date();
+
+    await issue.save();
+
+    res.json({ ok: true, message: "Issue marked as resolved", issue });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: "Server error" });
+  }
+})
 // ----------------------
 // Start server
 // ----------------------

@@ -126,7 +126,7 @@ export default function AdminDashboard() {
               <DashboardOverview stats={stats} issues={issues} setActiveView={setActiveView} setSelectedIssue={setSelectedIssue} />
             )}
             {activeView === "issues" && (
-              <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} />
+              <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} dept={departments} />
             )}
             {activeView === "departments" && <Departments dept={departments} />}
             {activeView === "map" && <MapIssues issues={issues} />}

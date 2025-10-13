@@ -121,16 +121,18 @@ export default function AdminDashboard() {
 </AppBar>
 
 
-          <Container sx={{ flex: 1, overflowY: "auto", py: 3, mb: isMobile ? "56px" : 0 }}>
-            {activeView === "dashboard" && (
-              <DashboardOverview stats={stats} issues={issues} setActiveView={setActiveView} setSelectedIssue={setSelectedIssue} />
-            )}
-            {activeView === "issues" && (
-              <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} />
-            )}
-            {activeView === "departments" && <Departments dept={departments} />}
-            {activeView === "map" && <MapIssues issues={issues} />}
-          </Container>
+        <Container sx={{ flex: 1, overflowY: "auto", py: 3, mb: isMobile ? "56px" : 0 }}>
+  {activeView === "dashboard" && (
+    <DashboardOverview stats={stats} issues={issues} setActiveView={setActiveView} setSelectedIssue={setSelectedIssue} />
+  )}
+  {activeView === "issues" && (
+    <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} />
+  )}
+  {activeView === "departments" && <Departments dept={departments} />}
+  {activeView === "map" && <MapIssues issues={issues} />}
+  {activeView === "approvals" && <ApprovalPage />} {/* New view */}
+</Container>
+
 
           {selectedIssue && <IssueModal issue={selectedIssue} onClose={() => setSelectedIssue(null)} departments={departments} />}
 

@@ -2,8 +2,6 @@
 
 import { useContext } from 'react';
 import { ThemeContext } from '../../../Context/ThemeContext';
-import { Button } from '@mui/material';
-import { AlertTriangle, Clock, RefreshCw, CheckCircle } from 'lucide-react';
 import {
   BarChart as ReBarChart,
   Bar,
@@ -16,9 +14,10 @@ import {
   Cell,
   LineChart as ReLineChart,
   Line,
+  ResponsiveContainer,
 } from 'recharts';
 
-export default function DashboardOverview({ stats, issues, setActiveView }) {
+export default function DashboardOverview({ issues }) {
   const { isDark } = useContext(ThemeContext);
 
   // ----- Statistics -----
@@ -26,11 +25,13 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
   const inProgress = issues.filter(i => i.status === 'inprogress').length;
   const completed = issues.filter(i => i.status === 'resolved').length;
 
-  const priorityCounts = {
-    high: issues.filter(i => i.priority === 'high').length,
-    medium: issues.filter(i => i.priority === 'medium').length,
-    low: issues.filter(i => i.priority === 'low').length,
-  };
+  // ----- Pie Chart Data from Issues -----
+  const priorities = ['high', 'medium', 'low'];
+  const pieData = priorities.map(priority => ({
+    name: priority.charAt(0).toUpperCase() + priority.slice(1),
+    value: issues.filter(i => i.priority === priority).length || 0,
+  }));
+  const pieColors = ['#EF4444', '#F59E0B', '#10B981'];
 
   // ----- Bar Chart Data -----
   const barData = [
@@ -38,14 +39,6 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
     { name: 'In Progress', value: inProgress },
     { name: 'Completed', value: completed },
   ];
-
-  // ----- Pie Chart Data -----
-  const pieData = [
-    { name: 'High', value: priorityCounts.high },
-    { name: 'Medium', value: priorityCounts.medium },
-    { name: 'Low', value: priorityCounts.low },
-  ];
-  const pieColors = ['#EF4444', '#F59E0B', '#10B981'];
 
   // ----- Line Chart Data -----
   const dateCounts = {};
@@ -58,9 +51,6 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
   return (
     <div className={`${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'} min-h-screen p-6 space-y-10`}>
       
-      {/* Header */}
-    
-
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md`}>
@@ -83,41 +73,56 @@ export default function DashboardOverview({ stats, issues, setActiveView }) {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
         {/* Bar Chart */}
         <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md`}>
           <h3 className="text-xl font-bold mb-4">Issues by Status</h3>
-          <ReBarChart width={400} height={300} data={barData}>
-            <CartesianGrid stroke={isDark ? '#333' : '#eee'} />
-            <XAxis dataKey="name" stroke={isDark ? '#ccc' : '#333'} />
-            <YAxis stroke={isDark ? '#ccc' : '#333'} />
-            <Tooltip />
-            <Bar dataKey="value" fill="#3B82F6" />
-          </ReBarChart>
+          <ResponsiveContainer width="100%" height={300}>
+            <ReBarChart data={barData}>
+              <CartesianGrid stroke={isDark ? '#333' : '#eee'} />
+              <XAxis dataKey="name" stroke={isDark ? '#ccc' : '#333'} />
+              <YAxis stroke={isDark ? '#ccc' : '#333'} />
+              <Tooltip />
+              <Bar dataKey="value" fill="#3B82F6" />
+            </ReBarChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Pie Chart */}
         <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md`}>
           <h3 className="text-xl font-bold mb-4">Issue Priority Distribution</h3>
-          <RePieChart width={400} height={300}>
-            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-              {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={pieColors[index]} />
-              ))}
-            </Pie>
-          </RePieChart>
+          <ResponsiveContainer width="100%" height={300}>
+            <RePieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={pieColors[index]} />
+                ))}
+              </Pie>
+            </RePieChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
       {/* Line Chart */}
       <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md`}>
         <h3 className="text-xl font-bold mb-4">Issues Created Over Time</h3>
-        <ReLineChart width={800} height={300} data={lineData}>
-          <CartesianGrid stroke={isDark ? '#333' : '#eee'} />
-          <XAxis dataKey="date" stroke={isDark ? '#ccc' : '#333'} />
-          <YAxis stroke={isDark ? '#ccc' : '#333'} />
-          <Tooltip />
-          <Line type="monotone" dataKey="issues" stroke="#10B981" />
-        </ReLineChart>
+        <ResponsiveContainer width="100%" height={300}>
+          <ReLineChart data={lineData}>
+            <CartesianGrid stroke={isDark ? '#333' : '#eee'} />
+            <XAxis dataKey="date" stroke={isDark ? '#ccc' : '#333'} />
+            <YAxis stroke={isDark ? '#ccc' : '#333'} />
+            <Tooltip />
+            <Line type="monotone" dataKey="issues" stroke="#10B981" />
+          </ReLineChart>
+        </ResponsiveContainer>
       </div>
 
     </div>

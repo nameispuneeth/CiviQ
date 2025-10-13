@@ -35,6 +35,7 @@ export default function Login() {
     if(data.status=="ok"){
       sessionStorage.setItem("token",data.token);
       if(data.role==="superadmin") navigate("/admin");
+      else if(data.role=="employee") navigate("/employee");
       else navigate("/user-home");
     }else{
       alert(data.error);

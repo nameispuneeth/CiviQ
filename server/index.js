@@ -67,7 +67,19 @@ app.post("/api/login", async (req, res) => {
                 message: "Admin login successful",
             });
         }
-
+        const employee = await Employee.findOne({ email, password });
+        if (employee) {
+            const token = jwt.sign(
+                { name: employee.name, email: employee.email, role: "employee" },
+                AdminSecretCode
+            );
+            return res.send({
+                status: "ok",
+                token,
+                role: "employee",
+                message: "Employee login successful",
+            });
+        }
         const user = await User.findOne({ email, password });
         if (user) {
             const token = jwt.sign(
@@ -94,7 +106,6 @@ app.post("/api/login", async (req, res) => {
 // Submit Issue
 // ----------------------
 app.post("/api/Generateissue", async (req, res) => {
-    console.log("CAME");
     const token = req.headers.authorization; // Bearer token
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
 
@@ -150,16 +161,16 @@ app.get("/api/user/issues", async (req, res) => {
 });
 
 app.get("/api/AdminDetails", async (req, res) => {
-    console.log("Came");
     const token = req.headers.authorization;
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
     try {
         const decoded = jwt.verify(token, AdminSecretCode);
         const admin = await Admin.findOne({ email: decoded.email }).populate({
-            path: "departments.employees", // populate employees array
+            path: "departments.employees",
             model: "Employee",
-            select: "name email phone password departmentName _id", // include _id
-        }); if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
+            select: "name email phone password departmentName _id",
+        }); 
+        if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
         const issues = await Issue.find();
         const Departments = admin.departments.map(d => ({
             name: d.name,
@@ -241,18 +252,15 @@ app.delete("/api/admin/DeleteEmployee/:id", async (req, res) => {
 });
 
 app.post("/api/issues/assign/:id", async (req, res) => {
-    console.log("CAME")
     try {
         const { departmentName, employeeEmail } = req.body;
 
         // Find the issue by ID
         const issue = await Issue.findById(req.params.id);
-        console.log(issue);
         if (!issue) return res.status(404).json({ message: "Issue not found" });
 
         // Find the employee by name (you can also match by email)
         const employee = await Employee.findOne({ email: employeeEmail });
-        console.log(employee);
         if (!employee) return res.status(404).json({ message: "Employee not found" });
 
         // Update issue fields
@@ -263,7 +271,6 @@ app.post("/api/issues/assign/:id", async (req, res) => {
 
         await issue.save();
 
-        console.log(issue);
 
         // Push issue to the employee’s issue list
         if (!employee.issues.includes(issue._id)) {
@@ -284,36 +291,63 @@ app.post("/api/issues/assign/:id", async (req, res) => {
         });
     }
 });
-app.post("/api/issues/changeToResolved/:id",async(req,res)=>{
+app.post("/api/issues/changeToResolved/:id", async (req, res) => {
     const issueId = req.params.id;
-  const { departmentName, employeeEmail } = req.body;
-  console.log(issueId,departmentName,employeeEmail)
+    const { departmentName, employeeEmail } = req.body;
 
-  try {
-    const issue = await Issue.findById(issueId);
-    if (!issue) return res.status(404).json({ ok: false, error: "Issue not found" });
+    try {
+        const issue = await Issue.findById(issueId);
+        if (!issue) return res.status(404).json({ ok: false, error: "Issue not found" });
 
-    // Check if assigned employee has finished
-    if (!issue.assigned_employee_finished) {
-      return res.status(400).json({
-        ok: false,
-        error: `${issue.assigned_employee} has not finished their job yet`,
-      });
+        // Check if assigned employee has finished
+        if (!issue.assigned_employee_finished) {
+            return res.status(400).json({
+                ok: false,
+                error: `${issue.assigned_employee} has not finished their job yet`,
+            });
+        }
+
+        // Update issue status
+        issue.status = "resolved";
+        issue.resolved_date = new Date();
+
+        await issue.save();
+
+        res.json({ ok: true, message: "Issue marked as resolved", issue });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ ok: false, error: "Server error" });
     }
+})
 
-    
+app.get("/api/employeeDetails", async (req, res) => {
+    const token = req.headers.authorization;
+    if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
+    try {
+        const decoded = jwt.verify(token, AdminSecretCode);
+        const employee=await Employee.findOne({email:decoded.email}).populate("issues");
 
-    // Update issue status
-    issue.status = "resolved";
-    issue.resolved_date = new Date();
+        if(!employee) return res.status(401).send({ ok: false, error: "No User Found" });
+        res.send({ok:true,details:employee});
+    } catch (e) {
+        return res.status(401).send({ ok: false, error: e });
+    }
+})
 
-    await issue.save();
-
-    res.json({ ok: true, message: "Issue marked as resolved", issue });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "Server error" });
-  }
+app.get("/api/EmployeeFinishedIssue/:id",async (req,res) => {
+    const token=req.headers.authorization;
+    if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
+    const id=req.params.id;
+    try{
+        const decoded = jwt.verify(token, AdminSecretCode);
+        const issue=await Issue.findById(id);
+        if(!issue) return res.status(401).send({ ok: false, error: "No Issue Found" });
+        issue.assigned_employee_finished=true;
+        await issue.save();
+        res.send({ok:true});
+    }catch(e){
+        res.status(401).send({ ok: false, error: "No User Found" })
+    }
 })
 // ----------------------
 // Start server

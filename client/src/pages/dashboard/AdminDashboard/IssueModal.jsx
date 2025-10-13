@@ -9,7 +9,7 @@ import { useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
 export default function IssueModal({ issue, onClose, departments }) {
-  const {isDark} = useContext(ThemeContext);
+  const { isDark } = useContext(ThemeContext);
 
   const style = {
     position: "absolute",
@@ -61,17 +61,29 @@ export default function IssueModal({ issue, onClose, departments }) {
             <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
               <strong>Priority:</strong> {issue?.priority}
             </Typography>
+            {issue?.assigned_department && (
+              <>
+                <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+                  <strong>Department:</strong> {issue?.assigned_department}
+                </Typography>
+                <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+                  <strong>Assigned Employee:</strong> {issue?.assigned_department_employee}
+                </Typography>
+              </>
+            )}
+
             <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
-              <strong>Department:</strong> {issue?.department}
+              <strong>Photo Evidence:</strong> <img src={issue?.photo}></img>
             </Typography>
-            {issue?.place && (
+            {issue?.address && (
               <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
-                <strong>Place:</strong> {issue?.place}
+                <strong>Place:</strong> {issue?.address}
               </Typography>
             )}
+            
             {issue?.latitude && issue?.longitude && (
               <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
-                <strong>Location:</strong> {issue?.latitude}, {issue?.longitude}
+                <strong>Co-Ordinates</strong> {issue?.latitude}, {issue?.longitude}
               </Typography>
             )}
           </Box>

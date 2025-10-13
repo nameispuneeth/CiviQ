@@ -70,7 +70,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
   // };
 
   const handleChangeStatus = async (issue) => {
-    if(!issue.assigned_department_employee){
+    if (!issue.assigned_department_employee) {
       alert("Dummy Data");
       return;
     }
@@ -104,20 +104,20 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
     const data = await res.json();
     console.log(data);
-    if(data.ok){
+    if (data.ok) {
       setIssues(prevIssues =>
-          prevIssues.map(previssue =>
-            previssue._id === issue._id
-              ? {
-                ...issue,
-                status: "resolved", 
-                updatedAt: new Date().toISOString(),
-              }
-              : previssue
-          )
-        );
+        prevIssues.map(previssue =>
+          previssue._id === issue._id
+            ? {
+              ...issue,
+              status: "resolved",
+              updatedAt: new Date().toISOString(),
+            }
+            : previssue
+        )
+      );
 
-    }else{
+    } else {
       alert("Netwrok Issues");
     }
   }
@@ -182,21 +182,21 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
   }
 
   const filteredIssues = issues.filter(issue => {
-  const search = filters.search.toLowerCase();
-  const matchesSearch =
-    (issue.title || "").toLowerCase().includes(search) ||
-    (issue.description || "").toLowerCase().includes(search) ||
-    (issue.location_address || "").toLowerCase().includes(search);
+    const search = filters.search.toLowerCase();
+    const matchesSearch =
+      (issue.title || "").toLowerCase().includes(search) ||
+      (issue.description || "").toLowerCase().includes(search) ||
+      (issue.location_address || "").toLowerCase().includes(search);
 
-  const matchesStatus =
-    statusFilter === "all" || issue.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || issue.status === statusFilter;
 
-  const matchesCategory =
-    categoryFilter === "all" ||
-    (issue.category || "").toLowerCase() === categoryFilter.toLowerCase();
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (issue.category || "").toLowerCase() === categoryFilter.toLowerCase();
 
-  return matchesSearch && matchesStatus && matchesCategory;
-});
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
 
 
 
@@ -366,18 +366,18 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
                   key={issue._id}
                   className={`border-b ${isDark ? "border-gray-700" : "border-gray-200"} ${hoverClasses} transition-colors duration-200 cursor-pointer`}
                 >
-                  <td className="px-6 py-4"                   onClick={() => setSelectedIssue(issue)}
->
+                  <td className="px-6 py-4" onClick={() => setSelectedIssue(issue)}
+                  >
                     <div className="space-y-1">
                       <h3 className="font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">{issue.title}</h3>
-                      {issue.description && <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"} line-clamp-2`}>{issue.description}</p>}
+                      {issue.description && <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"} line-clamp-2 w-40`}>{issue.description}</p>}
                       {issue.location_address && <div className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}><MapPin size={12} /><span>{issue.location_address}</span></div>}
                       <div className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}><Calendar size={12} /><span>#{issue._id?.slice(-5)} • {issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : "Unknown"}</span></div>
                     </div>
                   </td>
 
                   <td className="px-6 py-4">
-                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}>
+                    <div className={`inline-flex items-center gap-2  px-3 py-1  rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}>
                       <StatusIcon size={14} /> {statusInfo.label}
                     </div>
                   </td>
@@ -407,7 +407,8 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                          setModalIssue(issue);                          }}
+                            setModalIssue(issue);
+                          }}
                           className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
                           title="Start Progress"
                         >
@@ -440,99 +441,99 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
           </tbody>
         </table>
-      {modalIssue && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div
-            className={`p-6 rounded-lg w-96 shadow-lg ${isDark ? "bg-gray-700 text-white" : "bg-white text-gray-900"
-              }`}
-              
-          >
-            <h2 className="text-lg font-semibold mb-4 text-center">
-              Assign Department & Employee
-            </h2>
+        {modalIssue && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div
+              className={`p-6 rounded-lg w-96 shadow-lg ${isDark ? "bg-gray-700 text-white" : "bg-white text-gray-900"
+                }`}
 
-            {/* Department Dropdown */}
-            <label className="block text-sm mb-2 font-medium">Department</label>
-            <select
-              value={selectedDept}
-              onChange={(e) => handleDepartmentChange(e.target.value)}
-              className={`w-full px-3 py-2 text-sm rounded border ${inputClasses}`}
             >
-              <option value="">Select Department</option>
-              {Departments.map((d) => (
-                <option key={d.name} value={d.name}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
+              <h2 className="text-lg font-semibold mb-4 text-center">
+                Assign Department & Employee
+              </h2>
 
-            {/* Employee Dropdown (visible after department selection) */}
-            {selectedDept && (
-              <>
-                <label className="block text-sm mt-4 mb-2 font-medium">
-                  Assign Employee
-                </label>
-                <select
-                  value={selectedEmployee}
-                  onChange={(e) => setSelectedEmployee(e.target.value)}
-                  className={`w-full px-3 py-2 text-sm rounded border ${inputClasses}`}
+              {/* Department Dropdown */}
+              <label className="block text-sm mb-2 font-medium">Department</label>
+              <select
+                value={selectedDept}
+                onChange={(e) => handleDepartmentChange(e.target.value)}
+                className={`w-full px-3 py-2 text-sm rounded border ${inputClasses}`}
+              >
+                <option value="">Select Department</option>
+                {Departments.map((d) => (
+                  <option key={d.name} value={d.name}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Employee Dropdown (visible after department selection) */}
+              {selectedDept && (
+                <>
+                  <label className="block text-sm mt-4 mb-2 font-medium">
+                    Assign Employee
+                  </label>
+                  <select
+                    value={selectedEmployee}
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    className={`w-full px-3 py-2 text-sm rounded border ${inputClasses}`}
+                  >
+                    <option value="">Select Employee</option>
+                    {Departments.find((d) =>
+                      d.name.toLowerCase().includes(selectedDept.toLowerCase())
+                    )?.employees?.map((emp) => (
+                      <option key={emp._id} value={emp.name}>
+                        {emp.name}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+
+              {/* Buttons */}
+              <div className="flex justify-end mt-6 gap-3">
+                <button
+                  onClick={() => {
+                    setModalIssue(null);
+                    setSelectedDept("");
+                    setSelectedEmployee("");
+                  }}
+                  className={`px-4 py-2 rounded-lg border ${isDark ? 'border-red-600 bg-red-600 hover:bg-red-400 text-white-700' : 'border-gray-400 hover:bg-gray-200 text-gray-700 '} `}
                 >
-                  <option value="">Select Employee</option>
-                  {Departments.find((d) =>
-                    d.name.toLowerCase().includes(selectedDept.toLowerCase())
-                  )?.employees?.map((emp) => (
-                    <option key={emp._id} value={emp.name}>
-                      {emp.name}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
+                  Cancel
+                </button>
 
-            {/* Buttons */}
-            <div className="flex justify-end mt-6 gap-3">
-              <button
-                onClick={() => {
-                  setModalIssue(null);
-                  setSelectedDept("");
-                  setSelectedEmployee("");
-                }}
-                className={`px-4 py-2 rounded-lg border ${isDark ? 'border-red-600 bg-red-600 hover:bg-red-400 text-white-700' : 'border-gray-400 hover:bg-gray-200 text-gray-700 '} `}
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={async () => {
-                  await handleAssign();
-                }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-              >
-                Set In Progress
-              </button>
+                <button
+                  onClick={async () => {
+                    await handleAssign();
+                  }}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
+                  Set In Progress
+                </button>
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Pagination */}
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <button onClick={() => goToPage(page - 1)} className={`px-3 py-1 rounded-md border ${isDark ? "bg-[#1f1f1f] border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-800"}`} disabled={page === 0}>Prev</button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button key={i + 1} onClick={() => goToPage(i)} className={`px-3 py-1 rounded-md border ${page === i ? isDark ? "bg-[#4b4b4b] border-gray-700 text-white" : "bg-gray-300 border-gray-300 text-gray-800" : isDark ? "bg-[#1f1f1f] border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-800"}`}>
+              {i + 1}
+            </button>
+          ))}
+          <button onClick={() => goToPage(page + 1)} className={`px-3 py-1 rounded-md border ${isDark ? "bg-[#1f1f1f] border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-800"}`} disabled={page === totalPages - 1}>Next</button>
         </div>
-      )}
 
-      {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-4">
-        <button onClick={() => goToPage(page - 1)} className={`px-3 py-1 rounded-md border ${isDark ? "bg-[#1f1f1f] border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-800"}`} disabled={page === 0}>Prev</button>
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button key={i + 1} onClick={() => goToPage(i)} className={`px-3 py-1 rounded-md border ${page === i ? isDark ? "bg-[#4b4b4b] border-gray-700 text-white" : "bg-gray-300 border-gray-300 text-gray-800" : isDark ? "bg-[#1f1f1f] border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-800"}`}>
-            {i + 1}
-          </button>
-        ))}
-        <button onClick={() => goToPage(page + 1)} className={`px-3 py-1 rounded-md border ${isDark ? "bg-[#1f1f1f] border-gray-700 text-gray-200" : "bg-white border-gray-300 text-gray-800"}`} disabled={page === totalPages - 1}>Next</button>
+        {/* Issue Modal */}
+        <IssueModal
+          issue={selectedIssue}
+          onClose={() => setSelectedIssue(null)}
+          departments={departments}
+        />
       </div>
-
-      {/* Issue Modal */}
-      <IssueModal 
-        issue={selectedIssue}
-        onClose={() => setSelectedIssue(null)}
-        departments={departments}
-      />
-    </div>
     </div>
   );
 }

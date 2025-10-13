@@ -327,6 +327,29 @@ export default function TrackIssues() {
             </Link>
           </div>
         </div>
+        {selectedIssue && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className={`${isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"} p-6 rounded-xl max-w-lg w-full relative`}>
+      <button
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+        onClick={() => setSelectedIssue(null)}
+      >
+        ✕
+      </button>
+      <h2 className="text-xl font-bold mb-2">{selectedIssue.title}</h2>
+      <p className="mb-2">{selectedIssue.description}</p>
+      <p className="text-sm text-gray-400 mb-1">Category: {selectedIssue.category}</p>
+      <p className="text-sm text-gray-400 mb-1">Address: {selectedIssue.address}</p>
+      <p className="text-sm text-gray-400 mb-1">Status: {selectedIssue.status}</p>
+      {selectedIssue.assigned_department && <>
+      <p className="text-sm text-gray-400 mb-1">Assigned Department: {selectedIssue.assigned_department}</p>
+      <p className="text-sm text-gray-400 mb-1">Assigned Employee: {selectedIssue.assigned_department_employee}</p>
+      </>}
+      {selectedIssue.photo && <img src={selectedIssue.photo} alt={selectedIssue.title} className="mt-3 rounded" />}
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

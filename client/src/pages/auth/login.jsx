@@ -1,79 +1,129 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { ThemeContext } from "../../Context/ThemeContext";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useContext(ThemeContext);
 
-  useEffect(()=>{
-    // if(localStorage.getItem("token")!==undefined || sessionStorage.getItem("token")!==undefined){
+  useEffect(() => {
+    // If token exists, redirect (optional)
+    // if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
     //   navigate("/report-issues");
     // }
-  },[])
-  const handleSubmit = async(e) => {
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-     if(!email){
-      alert("Email Is Required");
-      return;
-    }
-    if(!password){
-      alert("Password Is Required");
-      return;
-    }
-    const response=await fetch("http://localhost:8000/api/login",{
-      method:"POST",
-      headers:{
-        'Content-Type':'application/json'
-      },body:JSON.stringify({
-        email:email,
-        password:password
-      })
-    })
-    const data=await response.json();
-    console.log(data);
-    if(data.status=="ok"){
-      sessionStorage.setItem("token",data.token);
-      if(data.role==="superadmin") navigate("/admin");
-      else if(data.role=="employee") navigate("/employee");
-      else navigate("/user-home");
-    }else{
-      alert(data.error);
+
+    if (!email) return toast.error("Email is required");
+    if (!password) return toast.error("Password is required");
+
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (data.status === "ok") {
+        sessionStorage.setItem("token", data.token);
+        toast.success("Login successful!");
+
+        if (data.role === "superadmin") navigate("/admin");
+        else if (data.role === "employee") navigate("/employee");
+        else navigate("/user-home");
+      } else {
+        toast.error(data.error);
+      }
+    } catch (err) {
+      toast.error("Server error. Try again later.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white rounded-2xl shadow-xl w-96 p-8 relative overflow-hidden">
-        {/* Decorative top-right gradient circle */}
-        <div className="absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full opacity-30"></div>
-        {/* Decorative bottom-left gradient circle */}
-        <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-full opacity-30"></div>
+    <div
+      className={`min-h-screen flex items-center justify-center transition-colors duration-500 ${
+        isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      <div
+        className={`relative w-96 p-8 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 ${
+          isDark ? "bg-gray-800" : "bg-white"
+        }`}
+      >
+        {/* Top-right gradient circle */}
+        <div
+          className={`absolute -top-16 -right-16 w-40 h-40 rounded-full opacity-30 ${
+            isDark
+              ? "bg-gradient-to-tr from-purple-400 to-blue-400"
+              : "bg-gradient-to-tr from-purple-500 to-blue-500"
+          }`}
+        ></div>
 
-        <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">Sign In</h2>
+        {/* Bottom-left gradient circle */}
+        <div
+          className={`absolute -bottom-16 -left-16 w-40 h-40 rounded-full opacity-30 ${
+            isDark
+              ? "bg-gradient-to-tr from-purple-400 to-blue-400"
+              : "bg-gradient-to-tr from-purple-500 to-blue-500"
+          }`}
+        ></div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
+        <h2
+          className={`text-4xl font-bold text-center mb-8 ${
+            isDark ? "text-white" : "text-gray-800"
+          }`}
+        >
+          Sign In
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Email</label>
+            <label
+              className={`block mb-2 font-medium ${
+                isDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Email
+            </label>
             <input
               type="email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              required
+              className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                isDark
+                  ? "bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border border-gray-300 text-gray-900"
+              }`}
             />
           </div>
+
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Password</label>
+            <label
+              className={`block mb-2 font-medium ${
+                isDark ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Password
+            </label>
             <input
               type="password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="********"
-              required
+              className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition ${
+                isDark
+                  ? "bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border border-gray-300 text-gray-900"
+              }`}
             />
           </div>
 
@@ -85,15 +135,29 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-gray-500">
-          Don't have an account?{" "}
-          <span
-            onClick={() => navigate("/signup")}
-            className="text-purple-500 font-semibold cursor-pointer"
+        <div className="mt-6 text-center text-base">
+          <p
+            className={`${
+              isDark ? "text-white" : "text-gray-500"
+            } transition`}
           >
-            Register
-          </span>
-        </p>
+            Don't have an account?{" "}
+            <span
+              onClick={() => navigate("/signup")}
+              className="text-purple-500 font-semibold cursor-pointer hover:underline"
+            >
+              Register
+            </span>
+          </p>
+        </div>
+
+        {/* 🔘 Dark Mode Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="absolute top-3 right-3 text-xl text-gray-500 hover:text-purple-500 transition"
+        >
+          {isDark ? "🌙" : "☀️"}
+        </button>
       </div>
     </div>
   );

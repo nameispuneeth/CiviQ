@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 import IssueModal from "./IssueModal";
+import toast from "react-hot-toast";
 
 export default function IssuesList({ issues: initialIssues, dept: dept }) {
   const { isDark } = useContext(ThemeContext);
@@ -70,25 +71,21 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
   // };
 
   const handleChangeStatus = async (issue) => {
-    if (!issue.assigned_department_employee) {
-      alert("Dummy Data");
-      return;
-    }
     if (!issue.assigned_employee_finished) {
-      alert(`${issue.assigned_department_employee} Didnt Finished His Job`);
+      toast.error(`${issue.assigned_department_employee} Didnt Finished His Job`);
       return;
     }
 
     const deptmt = Departments.find(dept => dept.name === issue.assigned_department);
     if (!deptmt) {
-      alert("Department not found!");
+      toast.error("Department not found!");
       return;
     }
 
     // 🔍 Find the employee inside that department
     const employee = deptmt.employees.find(emp => emp.name === issue.assigned_department_employee);
     if (!employee) {
-      alert("Employee not found!");
+      toast.error("Employee not found!");
       return;
     }
 
@@ -118,25 +115,25 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       );
 
     } else {
-      alert("Netwrok Issues");
+      toast.error("Network Issues");
     }
   }
   const handleAssign = async () => {
     if (!selectedDept || !selectedEmployee) {
-      alert("Please select both department and employee.");
+      toast.error("Please select both department and employee.");
       return;
     }
     console.log(Departments);
     const deptmt = Departments.find(dept => dept.name === selectedDept);
     if (!deptmt) {
-      alert("Department not found!");
+      toast.error("Department not found!");
       return;
     }
 
     // 🔍 Find the employee inside that department
     const employee = deptmt.employees.find(emp => emp.name === selectedEmployee);
     if (!employee) {
-      alert("Employee not found!");
+      toast.error("Employee not found!");
       return;
     }
 
@@ -153,7 +150,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
       const data = await res.json();
       if (data.ok) {
-        alert("Updated SuccesFully");
+        toast.success("Updated SuccesFully");
         setIssues(prevIssues =>
           prevIssues.map(issue =>
             issue._id === modalIssue._id
@@ -173,11 +170,11 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
         setSelectedDept("");
         setSelectedEmployee("");
       } else {
-        alert("Failed To Uplaod");
+        toast.error("Failed To Uplaod");
       }
       setModalIssue(null);
     } catch (e) {
-      alert("Network Issues");
+      toast.error("Network Issues");
     }
   }
 
@@ -287,7 +284,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
             {hasChanges && (
               <button
-                onClick={() => { alert("Changes saved locally"); setHasChanges(false); }}
+                onClick={() => { toast("Changes saved locally"); setHasChanges(false); }}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
               >
                 <Save size={16} /> Save Changes

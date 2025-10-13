@@ -518,6 +518,8 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import toast from "react-hot-toast";
+
 import Navigation from "../components/Navigation";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from '../Context/ThemeContext'; // using ThemeContext
@@ -644,7 +646,7 @@ export default function ReportPage() {
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       if (!token) {
-        alert("User Have To Login");
+        toast.error("User Have To Login");
         navigate("/login");
         return;
       }

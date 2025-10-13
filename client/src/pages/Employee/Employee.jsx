@@ -17,8 +17,11 @@ import {
   FileText,
   Flag,
 } from "lucide-react";
+import toast from "react-hot-toast";
+
 import { Modal, Box, Typography, Button, TextField, MenuItem, Tabs, Tab, CircularProgress } from "@mui/material";
 import { ThemeContext } from "../../Context/ThemeContext";
+import {useNavigate} from "react-router-dom"
 
 export default function EmployeeDashboard() {
   const [issues, setIssues] = useState([]);
@@ -30,10 +33,13 @@ export default function EmployeeDashboard() {
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [tabValue, setTabValue] = useState("all");
   const [modalloading, setModalLoading] = useState(false);
-
+  const navigate=useNavigate();
   useEffect(async () => {
     const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-
+    if(!token){
+      navigate("/login");
+      return;
+    }
     const response = await fetch("http://localhost:8000/api/employeeDetails", {
       method: "GET",
       headers: {
@@ -64,7 +70,7 @@ export default function EmployeeDashboard() {
       setIssues(mappedIssues);
     }
     else {
-      alert("Issues");
+      toast.error(data.error);
     }
     // setCurrentEmployee({
     //   id: 2,
@@ -132,7 +138,7 @@ export default function EmployeeDashboard() {
     console.log(data);
     if (!response.ok || !data.ok) {
       console.error("Error updating issue:", data.error || "Unknown error");
-      alert(data.error || "Failed to update issue");
+      toast.error(data.error || "Failed to update issue");
       setModalLoading(false);
       return;
     }
@@ -145,11 +151,11 @@ export default function EmployeeDashboard() {
           : issue
       )
     );
-
+    toast.success("Issue marked as finished!");
     setSelectedIssue(null);
   } catch (error) {
     console.error("Update failed:", error);
-    alert("Network error or invalid token");
+    toast.error("Network error or invalid token");
   } finally {
     // ✅ Always stop spinner
     setModalLoading(false);

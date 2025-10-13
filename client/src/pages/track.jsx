@@ -9,6 +9,8 @@ import {
   Star,
   MessageCircle,
 } from "lucide-react";
+import toast from "react-hot-toast";
+
 import Navigation from "../components/Navigation";
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeContext } from "../Context/ThemeContext"; // Import context
@@ -96,7 +98,7 @@ export default function TrackIssues() {
       ];
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       if (!token) {
-        alert("Login required");
+        toast.error("Login required");
         navigate("/login");
         return;
       }

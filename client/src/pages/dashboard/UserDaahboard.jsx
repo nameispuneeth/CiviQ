@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FilePlus, Eye, Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../../Context/ThemeContext";
+import toast from "react-hot-toast";
 
 const CitizenDashboard = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const CitizenDashboard = () => {
             onClick={() => {
               const token = localStorage.getItem("token") || sessionStorage.getItem("token");
               if (!token) {
-                alert(`User Have To Login To Access ${card.title}`);
+                toast.error(`User Have To Login To Access ${card.title}`);
                 navigate("/login");
               } else {
                 navigate(card.navigateTo);

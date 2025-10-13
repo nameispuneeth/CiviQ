@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 import { Trash2 } from "lucide-react"; // Trash icon
+import toast from "react-hot-toast";
 
 const departmentCategoryMap = new Map([
   ["Roads Department", ["roads", "traffic", "potholes", "sidewalks"]],
@@ -54,7 +55,7 @@ const Departments = ({ dept }) => {
       });
       if (!res.ok) throw new Error("Failed to add employee");
 
-      alert(`✅ ${employeeForm.name} added to ${selectedDept}`);
+      toast.success(`${employeeForm.name} added to ${selectedDept}`);
       setModalOpen(false);
 
       setDepartments(prev =>
@@ -66,7 +67,7 @@ const Departments = ({ dept }) => {
         })
       );
     } catch (err) {
-      alert("Error: " + err.message);
+      toast.error("Error: " + err.message);
     }
   };
 
@@ -93,7 +94,7 @@ const Departments = ({ dept }) => {
       setCurrentEmployees(prev => prev.filter(e => e._id !== confirmDelete.empId));
       setConfirmDelete({ open: false, empId: null, empName: "" });
     } catch (err) {
-      alert("Error: " + err.message);
+      toast.error("Error: " + err.message);
     }
   };
 
@@ -132,20 +133,29 @@ const Departments = ({ dept }) => {
               </div>
 
               <div className="mt-5 flex gap-2">
-                <button
-                  className={`p-2 border rounded ${isDark?'border-white bg-white text-black':'border-gray-700 bg-gray-700 text-white'}`}
-                  onClick={() => openAddEmployeeModal(dept.name)}
-                >
-                  ADD EMPLOYEE
-                </button>
+  <button
+    onClick={() => openAddEmployeeModal(dept.name)}
+    className={`flex-1 py-2 rounded-xl font-semibold text-white text-sm transition transform duration-300
+      ${isDark 
+        ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-purple-600 hover:to-indigo-500 shadow-lg" 
+        : "bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-blue-500 shadow-md"} 
+      hover:scale-105`}
+  >
+    ADD EMPLOYEE
+  </button>
 
-                <button
-                  className={`p-2 border rounded ${isDark?'border-white bg-white text-black':'border-gray-700 bg-gray-700 text-white'}`}
-                  onClick={() => openShowEmployeesModal(dept.employees)}
-                >
-                  SHOW EMPLOYEES
-                </button>
-              </div>
+  <button
+    onClick={() => openShowEmployeesModal(dept.employees)}
+    className={`flex-1 py-2 rounded-xl font-semibold text-white text-sm transition transform duration-300
+      ${isDark 
+        ?  
+        "bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-blue-500 shadow-md":"bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-purple-600 hover:to-indigo-500 shadow-lg"} 
+      hover:scale-105`}
+  >
+    SHOW EMPLOYEES
+  </button>
+</div>
+
             </div>
           </div>
         ))}

@@ -12,6 +12,8 @@ import {
   BottomNavigationAction,
   useMediaQuery,
 } from "@mui/material";
+import toast from "react-hot-toast";
+
 import { DarkMode, LightMode, Dashboard, ListAlt, Map, Apartment } from "@mui/icons-material";
 import Sidebar from "./Sidebar";
 import DashboardOverview from "./DashboardOverview";
@@ -41,7 +43,7 @@ const navigate=useNavigate();
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       if (!token) {
         setLoading(false);
-        alert("Login Required");
+        toast.error("Login Required");
         navigate("/login");
         return;
       }

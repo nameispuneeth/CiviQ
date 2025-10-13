@@ -22,10 +22,10 @@ import MapIssues from "./MapIssues";
 import { navigationItems } from "../AdminDashboard/backend/constant";
 import { calculateStats } from "../AdminDashboard/backend/hooks";
 import { ThemeContext } from "../../../Context/ThemeContext";
-
+import {useNavigate} from "react-router-dom";
 export default function AdminDashboard() {
   const { isDark, toggleTheme } = useContext(ThemeContext); // useContext for theme
-
+const navigate=useNavigate();
   const [issues, setIssues] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);

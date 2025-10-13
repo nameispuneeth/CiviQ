@@ -9,6 +9,7 @@ import CitizenDashboard from "./pages/dashboard/UserDaahboard";
 import Upload from "./pages/dashboard/track/ImageUpload";
 import { ThemeProvider } from "./Context/ThemeContext";
 import DepartmentDashboard from "./pages/dashboard/Department/DepartmentDashboard";
+import EmployeePage from "./pages/Employee/Employee";
 // import ThemeProvider
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
             <Route path="/signup" element={<SignUp />}/>
       <Route path="/citizen" element={<CitizenDashboard />} />
             <Route path="/department" element={<DepartmentDashboard />} />
-
+      <Route path="/employee" element={<EmployeePage />}/>
       </Routes>
      </ThemeProvider>
   );

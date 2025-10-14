@@ -51,7 +51,7 @@ const navigate=useNavigate();
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/AdminDetails", {
+      const response = await fetch("https://hackathon-r2yi.onrender.com/api/AdminDetails", {
         method: "GET",
         headers: {
           authorization: token,

@@ -350,6 +350,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
               <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+
             </tr>
           </thead>
 
@@ -374,10 +375,17 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
                   </td>
 
                   <td className="px-6 py-4">
-                    <div className={`inline-flex items-center gap-2  px-3 py-1  rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}>
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}>
                       <StatusIcon size={14} /> {statusInfo.label}
+                      {/* Show "Task Finished" tag if inprogress and assigned_employee_finished */}
+                      {issue.status === "inprogress" && issue.assigned_employee_finished && (
+                        <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-green-200 text-green-800 rounded-full">
+                          Task Finished
+                        </span>
+                      )}
                     </div>
                   </td>
+
 
                   <td className="px-6 py-4">
                     <span className="text-sm font-medium">{issue.category}</span>

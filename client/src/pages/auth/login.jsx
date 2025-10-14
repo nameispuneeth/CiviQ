@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useContext(ThemeContext);
 
@@ -33,7 +35,8 @@ export default function Login() {
       console.log(data);
 
       if (data.status === "ok") {
-        sessionStorage.setItem("token", data.token);
+        if(rememberMe) localStorage.setItem("token", data.token);
+        else sessionStorage.setItem("token", data.token);
         toast.success("Login successful!");
 
         if (data.role === "superadmin") navigate("/admin");
@@ -126,6 +129,18 @@ export default function Login() {
               }`}
             />
           </div>
+<div className="flex items-center gap-2">
+  <input
+    type="checkbox"
+    id="rememberMe"
+    checked={rememberMe}
+    onChange={(e) => setRememberMe(e.target.checked)}
+    className="w-4 h-4 rounded border-gray-300 focus:ring-purple-500"
+  />
+  <label htmlFor="rememberMe" className={`${isDark ? "text-gray-300" : "text-gray-700"} text-sm`}>
+    Remember Me
+  </label>
+</div>
 
           <button
             type="submit"

@@ -89,26 +89,66 @@ export default function DashboardOverview({ issues }) {
         </div>
 
         {/* Pie Chart */}
-        <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md`}>
-          <h3 className="text-xl font-bold mb-4">Issue Priority Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <RePieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={pieColors[index]} />
-                ))}
-              </Pie>
-            </RePieChart>
-          </ResponsiveContainer>
-        </div>
+       {/* Pie Chart */}
+{/* Pie Chart – Issues per Department */}
+<div
+  className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md flex flex-col items-center justify-center`}
+>
+  <h3 className="text-xl font-bold mb-4 text-center">Issues per Department</h3>
+
+  {(() => {
+    // --- Group issues by assigned_department ---
+    const deptCounts = {};
+    issues.forEach(i => {
+      const dept = i.assigned_department || 'Unassigned';
+      deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+    });
+
+    const pieData = Object.keys(deptCounts).map(name => ({
+      name,
+      value: deptCounts[name],
+    }));
+
+    const pieColors = [
+      '#3B82F6', // blue
+      '#10B981', // green
+      '#F59E0B', // amber
+      '#EF4444', // red
+      '#8B5CF6', // violet
+      '#06B6D4', // cyan
+      '#84CC16', // lime
+    ];
+
+    // --- Return chart or "no data" message ---
+    return pieData.length > 0 ? (
+      <div className="w-full h-[320px]">
+        <ResponsiveContainer>
+          <RePieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              innerRadius={40}
+              label={({ name, value }) => `${name}: ${value}`}
+            >
+              {pieData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </RePieChart>
+        </ResponsiveContainer>
+      </div>
+    ) : (
+      <p className="text-gray-400 text-center">No department data available</p>
+    );
+  })()}
+</div>
+
+
       </div>
 
       {/* Line Chart */}

@@ -726,18 +726,7 @@ export default function ReportPage() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
 
-      <Dialog open={showSuccess} onClose={() => setShowSuccess(false)} maxWidth="xs" fullWidth>
-        <DialogTitle style={{ textAlign: "center", fontWeight: "bold", color: isDark ? "#4ade80" : "green" }}>
-          🎉 Issue Submitted Successfully!
-        </DialogTitle>
-        <DialogContent style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px", color: isDark ? "white" : "black" }}>
-          <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" alt="Success" style={{ width: "160px", height: "160px" }} />
-          <p className="text-center">Thank you for reporting this issue. Our team will review it soon.</p>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-          <Button onClick={() => setShowSuccess(false)} variant="contained" color="success">OK</Button>
-        </DialogActions>
-      </Dialog>
+     
 
       <div className={`min-h-screen py-4 px-4 ${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"}`}>
         <div className="max-w-2xl mx-auto">

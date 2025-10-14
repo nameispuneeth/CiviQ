@@ -668,10 +668,9 @@ export default function ReportPage() {
 
       const data = new FormData();
       data.append("file", formData.photo);
-      data.append("upload_preset", "Javeed");
-      data.append("cloud_name", "djt3vedth");
-
-      const res = await fetch("https://api.cloudinary.com/v1_1/djt3vedth/image/upload", {
+      data.append("upload_preset", import.meta.env.VITE_APP_API_UPLOAD_NAME);
+      data.append("cloud_name", import.meta.env.VITE_APP_API_CLOUDINARY_NAME);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_APP_API_CLOUDINARY_NAME}/image/upload`, {
         method: "POST",
         body: data,
       });

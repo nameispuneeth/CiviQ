@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");
+require('dotenv').config();
 
 // Models
 const User = require("./models/user.model");
@@ -16,14 +17,11 @@ app.use(express.json());
 app.use(cors());
 
 // MongoDB connection
-mongoose.connect("mongodb://localhost:27017/Hackathon")
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("MongoDB connected"))
     .catch((err) => console.error("MongoDB connection error:", err));
-
-
-const UsersecretCode = "UserSecretCode";
-const AdminSecretCode = "AdminSecretCode"
-
+const UsersecretCode =process.env.UserScrtCode;
+const AdminSecretCode = process.env.AdminScrtCode
 // Test route
 app.get("/", (req, res) => {
     res.send("Hello World");
@@ -357,11 +355,9 @@ app.put("/api/user/setRating/:id",async(req,res)=>{
         const decoded = jwt.verify(token, UsersecretCode);
         const issue=await Issue.findById(req.params.id);
         if(!issue) return res.status(401).send({ ok: false, error: "No Issue Found" });
-        console.log(issue);
         issue.rating=rating;
         issue.user_feedback=feedback;
         await issue.save();
-        console.log("All Good")
         res.send({ok:true})
     }catch(e){
         res.status(401).send({ ok: false, error: "No User Found" })

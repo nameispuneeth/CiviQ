@@ -48,7 +48,7 @@ const Departments = ({ dept }) => {
     e.preventDefault();
     if (!selectedDept) return;
     try {
-      const res = await fetch("http://localhost:8000/api/admin/AddEmployees", {
+      const res = await fetch("https://hackathon-r2yi.onrender.com/api/admin/AddEmployees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...employeeForm, departmentName: selectedDept }),
@@ -74,7 +74,7 @@ const Departments = ({ dept }) => {
   const handleDeleteEmployee = async () => {
     const token=localStorage.getItem("token") || sessionStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/DeleteEmployee/${confirmDelete.empId}`, {
+      const res = await fetch(`https://hackathon-r2yi.onrender.com/api/admin/DeleteEmployee/${confirmDelete.empId}`, {
         method: "DELETE",
         headers:{
           'authorization':token

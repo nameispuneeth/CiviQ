@@ -209,7 +209,7 @@
 //     }
 
 //     // Submit the issue
-//     const response = await fetch("http://localhost:8000/api/Generateissue", {
+//     const response = await fetch("https://hackathon-r2yi.onrender.com/api/Generateissue", {
 //       method: "POST",
 //       headers: {
 //         "Content-Type": "application/json",
@@ -682,7 +682,7 @@ export default function ReportPage() {
         submitData.is_anonymous = true;
       }
 
-      const response = await fetch("http://localhost:8000/api/Generateissue", {
+      const response = await fetch("https://hackathon-r2yi.onrender.com/api/Generateissue", {
         method: "POST",
         headers: { "Content-Type": "application/json", authorization: token },
         body: JSON.stringify(submitData),

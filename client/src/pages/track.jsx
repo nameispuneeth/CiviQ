@@ -59,7 +59,7 @@ export default function TrackIssues() {
         navigate("/login");
         return;
       }
-      const response = await fetch("http://localhost:8000/api/user/issues", {
+      const response = await fetch("https://hackathon-r2yi.onrender.com/api/user/issues", {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export default function TrackIssues() {
   const token=localStorage.getItem("token") || sessionStorage.getItem("token");
   console.log(showRatingModal)
   try {
-    const response=await fetch(`http://localhost:8000/api/user/setRating/${showRatingModal._id}`,{
+    const response=await fetch(`https://hackathon-r2yi.onrender.com/api/user/setRating/${showRatingModal._id}`,{
       method:"PUT",
       headers:{
         'Content-Type':'application/json',

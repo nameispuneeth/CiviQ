@@ -29,7 +29,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
   //     const token = sessionStorage.getItem("token");
   //     if (!token) return alert("Please log in first.");
 
-  //     const res = await fetch("http://localhost:8000/api/AdminGetIssues", {
+  //     const res = await fetch("https://hackathon-r2yi.onrender.com/api/AdminGetIssues", {
   //       headers: { Authorization: token },
   //     });
   //     const data = await res.json();
@@ -90,7 +90,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
     }
 
     console.log(issue._id);
-    const res = await fetch(`http://localhost:8000/api/issues/changeToResolved/${issue._id}`, {
+    const res = await fetch(`https://hackathon-r2yi.onrender.com/api/issues/changeToResolved/${issue._id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -139,7 +139,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
     console.log("Assigning to:", employee.email, employee.phone);
     try {
-      const res = await fetch(`http://localhost:8000/api/issues/assign/${modalIssue._id}`, {
+      const res = await fetch(`https://hackathon-r2yi.onrender.com/api/issues/assign/${modalIssue._id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

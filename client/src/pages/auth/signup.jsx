@@ -20,7 +20,7 @@ export default function SignUp() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/register", {
+      const response = await fetch("https://hackathon-r2yi.onrender.com/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),

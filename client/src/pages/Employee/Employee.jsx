@@ -43,7 +43,7 @@ export default function EmployeeDashboard() {
       navigate("/login");
       return;
     }
-    const response = await fetch("http://localhost:8000/api/employeeDetails", {
+    const response = await fetch("https://hackathon-r2yi.onrender.com/api/employeeDetails", {
       method: "GET",
       headers: {
         'authorization': token,
@@ -132,7 +132,7 @@ export default function EmployeeDashboard() {
   setModalLoading(true);
   try {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const response = await fetch(`http://localhost:8000/api/EmployeeFinishedIssue/${issueId}`, {
+    const response = await fetch(`https://hackathon-r2yi.onrender.com/api/EmployeeFinishedIssue/${issueId}`, {
       method: "GET",
       headers: {
         'authorization': token,

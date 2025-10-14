@@ -189,8 +189,6 @@ app.get("/api/AdminDetails", async (req, res) => {
 app.post("/api/admin/AddEmployees", async (req, res) => {
     try {
         const { name, email, password, phone, departmentName } = req.body;
-
-
         // Create employee
         const employee = new Employee({
             name,
@@ -347,6 +345,27 @@ app.get("/api/EmployeeFinishedIssue/:id",async (req,res) => {
         res.send({ok:true});
     }catch(e){
         res.status(401).send({ ok: false, error: "No User Found" })
+    }
+})
+
+app.put("/api/user/setRating/:id",async(req,res)=>{
+    const rating=req.body.rating;
+    const feedback=req.body.feedback;
+    const token=req.headers.authorization;
+
+    try{
+        const decoded = jwt.verify(token, UsersecretCode);
+        const issue=await Issue.findById(req.params.id);
+        if(!issue) return res.status(401).send({ ok: false, error: "No Issue Found" });
+        console.log(issue);
+        issue.rating=rating;
+        issue.user_feedback=feedback;
+        await issue.save();
+        console.log("All Good")
+        res.send({ok:true})
+    }catch(e){
+        res.status(401).send({ ok: false, error: "No User Found" })
+
     }
 })
 // ----------------------

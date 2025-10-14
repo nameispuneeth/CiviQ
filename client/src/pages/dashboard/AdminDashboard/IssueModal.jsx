@@ -58,9 +58,7 @@ export default function IssueModal({ issue, onClose, departments }) {
             <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
               <strong>Status:</strong> {issue?.status}
             </Typography>
-            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
-              <strong>Priority:</strong> {issue?.priority}
-            </Typography>
+            
             {issue?.assigned_department && (
               <>
                 <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
@@ -72,9 +70,6 @@ export default function IssueModal({ issue, onClose, departments }) {
               </>
             )}
 
-            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
-              <strong>Photo Evidence:</strong> <img src={issue?.photo}></img>
-            </Typography>
             {issue?.address && (
               <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
                 <strong>Place:</strong> {issue?.address}
@@ -86,6 +81,9 @@ export default function IssueModal({ issue, onClose, departments }) {
                 <strong>Co-Ordinates</strong> {issue?.latitude}, {issue?.longitude}
               </Typography>
             )}
+            <Typography sx={{ color: isDark ? "#BBB" : "#444" }}>
+              <strong>Photo Evidence:</strong> <img src={issue?.photo}></img>
+            </Typography>
           </Box>
 
           <Button

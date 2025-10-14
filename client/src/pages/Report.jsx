@@ -465,7 +465,7 @@
 //             </div>
 
 //             {/* Reporter Info */}
-       
+
 //           </form>
 
 //           {/* Submit Button */}
@@ -542,7 +542,14 @@ export default function ReportPage() {
     reporter_phone: "",
     is_anonymous: false,
   });
-
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      toast.error("Login required");
+      navigate("/login");
+      return;
+    }
+  }, [])
   const [open, setOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -726,7 +733,7 @@ export default function ReportPage() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
 
-     
+
 
       <div className={`min-h-screen py-4 px-4 ${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"}`}>
         <div className="max-w-2xl mx-auto">
@@ -794,7 +801,7 @@ export default function ReportPage() {
               <div className={`border-2 border-dashed rounded-lg p-6 text-center ${isDark ? "border-[#404040]" : "border-[#D9D9D9]"}`}>
                 {formData.photoPreview ? (
                   <div className="space-y-4">
-                    <img src={formData.photoPreview} alt="Preview" className="max-w-full h-48 object-cover rounded-lg mx-auto"/>
+                    <img src={formData.photoPreview} alt="Preview" className="max-w-full h-48 object-cover rounded-lg mx-auto" />
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, photo: null, photoPreview: null }))}
@@ -805,7 +812,7 @@ export default function ReportPage() {
                   <label className="cursor-pointer">
                     <Camera size={32} className={`mx-auto mb-2 ${isDark ? "text-gray-500" : "text-gray-400"}`} />
                     <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>Click to capture or upload a photo</p>
-                    <input type="file" accept="image/*" capture="environment" onChange={handlePhotoCapture} className="hidden"/>
+                    <input type="file" accept="image/*" capture="environment" onChange={handlePhotoCapture} className="hidden" />
                   </label>
                 )}
               </div>
@@ -823,7 +830,7 @@ export default function ReportPage() {
                   className={`flex-1 p-3 border rounded-lg ${isDark ? "bg-[#262626] border-[#404040] text-white placeholder-gray-500" : "bg-white border-[#D9D9D9] text-black placeholder-gray-400"}`}
                 />
                 <button type="button" onClick={handleLocationRefresh} className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  <MapPin size={20}/>
+                  <MapPin size={20} />
                 </button>
               </div>
               {formData.latitude && formData.longitude && (
@@ -834,7 +841,7 @@ export default function ReportPage() {
             {/* Anonymous Toggle */}
             <div className={`flex items-center justify-between p-4 rounded-lg ${isDark ? "bg-[#262626]" : "bg-gray-50"}`}>
               <div className="flex items-center gap-3">
-                {isAnonymous ? <EyeOff size={20}/> : <Eye size={20}/>}
+                {isAnonymous ? <EyeOff size={20} /> : <Eye size={20} />}
                 <div>
                   <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>Anonymous Report</p>
                   <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Report without providing personal information</p>
@@ -845,7 +852,7 @@ export default function ReportPage() {
                 onClick={() => setIsAnonymous(!isAnonymous)}
                 className={`w-12 h-6 rounded-full transition-colors ${isAnonymous ? "bg-blue-600" : (isDark ? "bg-gray-600" : "bg-gray-300")}`}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-transform ${isAnonymous ? "translate-x-6" : "translate-x-0.5"}`}/>
+                <div className={`w-5 h-5 bg-white rounded-full transition-transform ${isAnonymous ? "translate-x-6" : "translate-x-0.5"}`} />
               </button>
             </div>
           </form>
@@ -860,12 +867,12 @@ export default function ReportPage() {
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Submitting...
                 </>
               ) : (
                 <>
-                  <Send size={20}/>
+                  <Send size={20} />
                   Submit Report
                 </>
               )}

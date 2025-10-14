@@ -23,7 +23,7 @@ export default function TrackIssues() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIssue, setSelectedIssue] = useState(null);
-  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(null);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
 
@@ -48,6 +48,7 @@ export default function TrackIssues() {
   useEffect(() => {
     fetchIssues();
   }, []);
+  {/* ⭐ Rating Modal */}
 
   const fetchIssues = async () => {
     setLoading(true);
@@ -92,8 +93,8 @@ export default function TrackIssues() {
           photo: "https://picsum.photos/400/200?random=3",
           ai_classification: "Waste Management",
           ai_priority_score: 0.72,
-          citizen_rating: 4,
-          citizen_feedback: "Cleaned well, but took some time.",
+          rating: 4,
+          user_feedback: "Cleaned well, but took some time.",
         },
       ];
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -119,23 +120,45 @@ export default function TrackIssues() {
   };
 
   const submitRating = async () => {
-    if (!selectedIssue || rating === 0) return;
+  if (!showRatingModal || rating === 0) return;
+  const token=localStorage.getItem("token") || sessionStorage.getItem("token");
+  console.log(showRatingModal)
+  try {
+    const response=await fetch(`http://localhost:8000/api/user/setRating/${showRatingModal._id}`,{
+      method:"PUT",
+      headers:{
+        'Content-Type':'application/json',
+        'authorization':token
+      },body:JSON.stringify({
+        rating:rating,
+        feedback:feedback
+      })
+    });
+    const data=await response.json();
+    if(data.ok){
+const updatedIssues = issues.map((issue) =>
+      showRatingModal._id === issue._id
+        ? { ...issue, rating: rating, user_feedback: feedback }
+        : issue
+    );
+        setIssues(updatedIssues);
 
-    try {
-      const updatedIssues = issues.map((issue) =>
-        issue.id === selectedIssue.id
-          ? { ...issue, citizen_rating: rating, citizen_feedback: feedback }
-          : issue
-      );
+    toast.success("Thanks for your feedback!");
 
-      setIssues(updatedIssues);
-      setShowRatingModal(false);
-      setRating(0);
-      setFeedback("");
-    } catch (error) {
-      console.error("Error submitting dummy rating:", error);
+    }else{
+      toast.error(data.error);
     }
-  };
+    
+
+    setShowRatingModal(null);
+    setRating(0);
+    setFeedback("");
+  } catch (error) {
+    console.error("Error submitting dummy rating:", error);
+    toast.error("Failed to submit rating");
+  }
+};
+
 
   const filteredIssues = issues.filter(
     (issue) =>
@@ -195,11 +218,10 @@ export default function TrackIssues() {
               Details
             </button>
 
-            {issue.status === "resolved" && !issue.citizen_rating && (
+            {issue.status === "resolved" && !issue.rating && (
               <button
                 onClick={() => {
-                  setSelectedIssue(issue);
-                  setShowRatingModal(true);
+                  setShowRatingModal(issue);
                 }}
                 className={`${isDark ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"} flex items-center gap-1 text-sm font-medium`}
               >
@@ -228,7 +250,7 @@ export default function TrackIssues() {
           <span>Resolved</span>
         </div>
 
-        {issue.citizen_rating && (
+        {issue.rating && (
           <div className={`${isDark ? "bg-green-900/20 text-green-400" : "bg-green-50 text-green-800"} mt-4 p-3 rounded-lg`}>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-medium">
@@ -240,7 +262,7 @@ export default function TrackIssues() {
                     key={i}
                     size={14}
                     className={
-                      i < issue.citizen_rating
+                      i < issue.rating
                         ? "text-yellow-400 fill-current"
                         : "text-gray-300"
                     }
@@ -248,9 +270,9 @@ export default function TrackIssues() {
                 ))}
               </div>
             </div>
-            {issue.citizen_feedback && (
+            {issue.user_feedback && (
               <p className={`${isDark ? "text-green-300" : "text-green-700"}`}>
-                "{issue.citizen_feedback}"
+                "{issue.user_feedback}"
               </p>
             )}
           </div>
@@ -329,6 +351,88 @@ export default function TrackIssues() {
             </Link>
           </div>
         </div>
+        
+{showRatingModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div
+      className={`${
+        isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
+      } p-6 rounded-xl w-full max-w-md relative shadow-xl`}
+    >
+      {/* Close Button */}
+      <button
+        onClick={() => setShowRatingModal(null)}
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+      >
+        ✕
+      </button>
+
+      {/* Title */}
+      <h2 className="text-xl font-bold mb-3">
+        Rate This Issue
+      </h2>
+      <p className="text-sm mb-4 text-gray-500">
+        How satisfied are you with the resolution?
+      </p>
+
+      {/* Star Rating */}
+      <div className="flex justify-center mb-4">
+        {[1, 2, 3, 4, 5].map((starValue) => (
+          <Star
+            key={starValue}
+            size={28}
+            className={`cursor-pointer transition-colors duration-200 ${
+              starValue <= rating
+                ? "text-yellow-400 fill-yellow-400"
+                : isDark
+                ? "text-gray-600"
+                : "text-gray-300"
+            }`}
+            onClick={() => setRating(starValue)}
+          />
+        ))}
+      </div>
+
+      {/* Feedback Input */}
+      <textarea
+        placeholder="Write your feedback..."
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        rows="4"
+        className={`w-full p-3 rounded-lg border text-sm focus:outline-none ${
+          isDark
+            ? "bg-[#262626] border-[#404040] text-white placeholder-gray-500"
+            : "bg-white border-[#D9D9D9] text-black placeholder-gray-400"
+        }`}
+      />
+
+      {/* Buttons */}
+      <div className="flex justify-end mt-5 gap-3">
+        <button
+          onClick={() => setShowRatingModal(null)}
+          className={`px-4 py-2 rounded-lg font-medium ${
+            isDark
+              ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+          }`}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={submitRating}
+          disabled={rating === 0}
+          className={`px-5 py-2 rounded-lg font-semibold transition-colors ${
+            rating === 0
+              ? "bg-blue-400 cursor-not-allowed text-white"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
         {selectedIssue && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
     <div className={`${isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"} p-6 rounded-xl max-w-lg w-full relative`}>

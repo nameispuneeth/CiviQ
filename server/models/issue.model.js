@@ -18,8 +18,8 @@ const issueSchema = new mongoose.Schema({
   assigned_date: { type: Date, default: null },
   assigned_employee_finished:{type:Boolean},
   resolved_date: { type: Date, default: null },
-  rating: { type: mongoose.Schema.Types.Decimal128, default: null },
-
+  rating: { type: Number, default: null },
+   user_feedback:{type:String,default:null},
   createdAt: { type: Date, default: Date.now },
 });
 

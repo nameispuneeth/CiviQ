@@ -38,29 +38,54 @@ const navigate=useNavigate();
 
   const isMobile = useMediaQuery("(max-width:768px)");
 
-  useEffect(async() => {
+ useEffect(() => {
+  const fetchData = async () => {
     setLoading(true);
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (!token) {
-        setLoading(false);
-        toast.error("Login Required");
-        navigate("/login");
-        return;
-      }
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    if (!token) {
+      setLoading(false);
+      toast.error("Login Required");
+      navigate("/login");
+      return;
+    }
+
+    try {
       const response = await fetch("http://localhost:8000/api/AdminDetails", {
         method: "GET",
         headers: {
-          'authorization': token,
-          'Content-Type': 'application/json'
-        }
-      })
+          authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+
       const data = await response.json();
       console.log(data);
-      setIssues(data.Issues);
-      setDepartments(data.Departments);
-      setLoading(false);
-  }, []);
 
+      setIssues(data.Issues || []);
+      setDepartments(data.Departments || []);
+    } catch (err) {
+      console.error("Error fetching admin details:", err);
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [navigate]);
+
+const handleLogout = () => {
+  // Remove tokens
+  localStorage.removeItem("token");
+  sessionStorage.removeItem("token");
+
+  // Optional: show a success toast
+  toast.success("Logged out successfully");
+
+  // Redirect to login
+  navigate("/login");
+};
   useEffect(() => {
     setStats(calculateStats(issues));
   }, [issues]);
@@ -111,6 +136,29 @@ const navigate=useNavigate();
     >
       {activeView}
     </Typography>
+    {/* <Button className="bg-red-600 p-5 ">
+      LogOut
+    </Button> */}
+    <IconButton
+  onClick={handleLogout}
+  color="inherit"
+  sx={{
+    mr: 1,
+    border: "1px solid",
+    borderColor: "red",
+    bgcolor:"red",
+    borderRadius: "8px",
+    px: 2,
+    py: 0.5,
+    color: "white",
+    fontSize: "0.9rem",
+    "&:hover": {
+      bgcolor: "red", // maintain same color on hover
+    },
+  }}
+>
+  Logout
+</IconButton>
 
     <IconButton onClick={toggleTheme} color="inherit">
       {isDark ? (

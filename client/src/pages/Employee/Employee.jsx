@@ -34,8 +34,11 @@ export default function EmployeeDashboard() {
   const [tabValue, setTabValue] = useState("all");
   const [modalloading, setModalLoading] = useState(false);
   const navigate=useNavigate();
-  useEffect(async () => {
-    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+ 
+
+  useEffect( () => {
+    const fetchData=async()=>{
+       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
     if(!token){
       navigate("/login");
       return;
@@ -72,6 +75,9 @@ export default function EmployeeDashboard() {
     else {
       toast.error(data.error);
     }
+    }
+    fetchData();
+   
     // setCurrentEmployee({
     //   id: 2,
     //   name: "Sarah Johnson",
@@ -211,6 +217,31 @@ export default function EmployeeDashboard() {
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+          <Button
+      onClick={() => {
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        toast.success("Logged out successfully");
+        navigate("/login");
+      }}
+      disableRipple
+      sx={{
+        textTransform: "none",
+        border: "1px solid red",
+        bgcolor: "red",
+        borderRadius: "8px",
+        px: 2.5,
+        py: 0.5,
+        color: "white",
+        fontSize: "0.9rem",
+        fontWeight: 600,
+        "&:hover": {
+          bgcolor: "#cc0000", // darker red hover
+        },
+      }}
+    >
+      Logout
+    </Button>
 
 
         </div>

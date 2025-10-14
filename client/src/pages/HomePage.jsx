@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext,useState } from "react";
 import { ThemeContext } from "../Context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
@@ -34,7 +34,7 @@ const reviews = [
 export default function HomePage() {
   const { isDark,toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
-
+  const [LoggedIn,setLoggedIn]=useState(localStorage.getItem("token")||sessionStorage.getItem("token"));
   // Example stats (replace with API data)
   const issuesStats = {
     reported: 1250,
@@ -56,12 +56,25 @@ export default function HomePage() {
           {isDark ? "🌙" : "☀️"}
         </button>
 
-        <button
+       {LoggedIn?(
+         <button
+          onClick={() => {
+            if(localStorage.getItem("token")) localStorage.removeItem("token");
+            else if(sessionStorage.getItem("token")) sessionStorage.removeItem("token");
+            setLoggedIn(null);
+          }}
+          className="px-4 py-2 rounded-xl border border-red-500 bg-red-500 text-white hover:bg-red-600 transform transition hover:scale-105"
+        >
+          Logout
+        </button>
+       ):(
+         <button
           onClick={() => navigate("/login")}
           className="px-4 py-2 rounded-xl border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 transform transition hover:scale-105"
         >
           Login
         </button>
+       )}
        </div>
       </header>
 

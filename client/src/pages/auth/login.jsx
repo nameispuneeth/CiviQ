@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../Context/ThemeContext";
 import toast from "react-hot-toast";
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function Login() {
+  const [loading,setLoading]=useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -25,6 +27,7 @@ export default function Login() {
     if (!password) return toast.error("Password is required");
 
     try {
+      setLoading(true);
       const response = await fetch("https://hackathon-r2yi.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,6 +51,7 @@ export default function Login() {
     } catch (err) {
       toast.error("Server error. Try again later.");
     }
+    setLoading(false);
   };
 
   return (
@@ -146,7 +150,8 @@ export default function Login() {
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-semibold text-lg shadow-md hover:scale-105 transform transition"
           >
-            Sign In
+          {loading ?      <CircularProgress size={18} color="success" />
+:"SignUp"}
           </button>
         </form>
 

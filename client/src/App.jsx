@@ -11,6 +11,7 @@ import { ThemeProvider } from "./Context/ThemeContext";
 import DepartmentDashboard from "./pages/dashboard/Department/DepartmentDashboard";
 import EmployeePage from "./pages/Employee/Employee";
 import HomePage from "./pages/HomePage"
+import NotFoundPage from "./pages/notfoundpage";
 // import ThemeProvider
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
       <Route path="/citizen" element={<CitizenDashboard />} />
             <Route path="/department" element={<DepartmentDashboard />} />
       <Route path="/employee" element={<EmployeePage />}/>
+      <Route path="*" element={<NotFoundPage/>}/>
       </Routes>
      </ThemeProvider>
   );

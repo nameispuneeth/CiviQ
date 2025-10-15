@@ -17,6 +17,7 @@
     "@mui/material": "^7.3.4",
     "@mui/system": "^7.3.3",
     "@mui/x-charts": "^8.13.1",
+    "@vercel/analytics": "^1.5.0",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.22",

@@ -6,6 +6,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Eye,
+  House,
   Star,
   MessageCircle,
 } from "lucide-react";
@@ -67,6 +68,7 @@ export default function TrackIssues() {
         }
       });
       const data = await response.json();
+      console.log(data.issues);
       setIssues(data.issues);
     } catch (error) {
       console.error("Error loading dummy data:", error);
@@ -131,6 +133,9 @@ const updatedIssues = issues.map((issue) =>
 
     return (
       <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-xl border p-6 hover:shadow-lg transition-all duration-200`}>
+        <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark?'border-white':'border-black'} rounded-full`}>
+                  <House color={`${isDark?'white':'black'}`} size={18} onClick={()=>navigate("/user-home")}/>
+              </div>
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1" key={issue.createdAt}>
             <h3 className={`${isDark ? "text-white" : "text-black"} text-lg font-semibold mb-2 font-sora`}>

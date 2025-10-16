@@ -8,6 +8,7 @@ import {
   Camera,
   MapPin,
   Mic,
+  House,
   Send,
   User,
   Phone,
@@ -193,8 +194,7 @@ export default function ReportPage() {
       });
       if (!response.ok) throw new Error("Failed to submit issue");
 
-      toast.success("✅ Issue successfully submitted!");
-      setOpen(true);
+      toast.success("Issue successfully submitted!");
       setShowSuccess(true);
 
       setTimeout(() => {
@@ -235,9 +235,9 @@ export default function ReportPage() {
         action={action}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
-
-
-
+      <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark?'border-white':'border-black'} rounded-full`}>
+          <House color={`${isDark?'white':'black'}`} size={18} onClick={()=>navigate("/user-home")}/>
+      </div>
       <div className={`min-h-screen py-4 px-4 ${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"}`}>
         <div className="max-w-2xl mx-auto">
           <div className={`rounded-t-2xl p-6 ${isDark ? "bg-[#1E1E1E] border-[#333]" : "bg-white border-[#E6E6E6]"} border`}>

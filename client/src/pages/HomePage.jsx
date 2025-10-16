@@ -131,6 +131,36 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      <section className="flex justify-center items-center gap-5">
+        <section className="flex flex-col sm:flex-row justify-center items-center gap-8 py-20">
+  {/* Report Issue Button */}
+  <button
+    onClick={() => navigate("/report-issues")}
+    className={`group relative px-10 py-6 rounded-2xl text-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg 
+      ${isDark ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white" : "bg-gradient-to-r from-green-400 to-emerald-500 text-white"}
+    `}
+  >
+    <span className="relative z-10">📝 Report an Issue</span>
+    <div
+      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 bg-white/20 transition duration-300"
+    ></div>
+  </button>
+
+  {/* Track Issues Button */}
+  <button
+    onClick={() => navigate("/track-issues")}
+    className={`group relative px-10 py-6 rounded-2xl text-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg 
+      ${isDark ? "bg-gradient-to-r from-blue-600 to-indigo-500 text-white" : "bg-gradient-to-r from-blue-400 to-indigo-500 text-white"}
+    `}
+  >
+    <span className="relative z-10">📊 Track My Issues</span>
+    <div
+      className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 bg-white/20 transition duration-300"
+    ></div>
+  </button>
+</section>
+
+      </section>
  <section className="px-6 py-20 max-w-6xl mx-auto">
         <h3 className="text-3xl font-bold text-center mb-12">What Citizens Say</h3>
         <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-6">

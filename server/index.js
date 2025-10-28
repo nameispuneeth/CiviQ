@@ -160,6 +160,7 @@ app.get("/api/user/issues", async (req, res) => {
 
 app.get("/api/AdminDetails", async (req, res) => {
     const token = req.headers.authorization;
+
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
     try {
         const decoded = jwt.verify(token, AdminSecretCode);

@@ -38,8 +38,16 @@ export default function Login() {
       console.log(data);
 
       if (data.status === "ok") {
-        if(rememberMe) localStorage.setItem("token", data.token);
-        else sessionStorage.setItem("token", data.token);
+        if(rememberMe){
+          localStorage.setItem("token", data.token);
+          if(data.role=="superadmin" || data.role === "employee") localStorage.setItem("role", data.role);
+
+        }
+        else{
+          sessionStorage.setItem("token", data.token);
+          if(data.role=="superadmin" || data.role === "employee") sessionStorage.setItem("role", data.role);
+
+        }
         toast.success("Login successful!");
 
         if (data.role === "superadmin") navigate("/admin");

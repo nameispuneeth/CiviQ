@@ -3,6 +3,7 @@ import { ThemeContext } from "../Context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
+import { useEffect } from "react";
 
 // Dummy carousel images
 const carouselImages = [
@@ -41,7 +42,13 @@ export default function HomePage() {
     resolved: 980,
     percentResolved: 78,
   };
-
+  useEffect(()=>{
+    const role=localStorage.getItem("role") || sessionStorage.getItem("role");
+    if(role){
+      if(role=="superadmin") navigate("/admin");
+      else if(role=="employee") navigate("/employee");
+    }
+  },[])
   return (
     <div className={`${isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} min-h-screen`}>
       {/* Header */}

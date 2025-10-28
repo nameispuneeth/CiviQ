@@ -8,6 +8,7 @@ import {
   Eye,
   House,
   Star,
+  RefreshCw,
   MessageCircle,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -68,7 +69,6 @@ export default function TrackIssues() {
         }
       });
       const data = await response.json();
-      console.log(data.issues);
       setIssues(data.issues);
     } catch (error) {
       console.error("Error loading dummy data:", error);
@@ -80,7 +80,6 @@ export default function TrackIssues() {
   const submitRating = async () => {
   if (!showRatingModal || rating === 0) return;
   const token=localStorage.getItem("token") || sessionStorage.getItem("token");
-  console.log(showRatingModal)
   try {
     const response=await fetch(`https://hackathon-r2yi.onrender.com/api/user/setRating/${showRatingModal._id}`,{
       method:"PUT",
@@ -141,9 +140,18 @@ const updatedIssues = issues.map((issue) =>
             <h3 className={`${isDark ? "text-white" : "text-black"} text-lg font-semibold mb-2 font-sora`}>
               {issue.title}
             </h3>
-            <p className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-3 font-inter`}>
-              {issue.description}
-            </p>
+            <p
+  className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-3 font-inter line-clamp-3`}
+  style={{
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+  }}
+>
+  {issue.description}
+</p>
+
 
             <div className={`${isDark ? "text-gray-400" : "text-gray-500"} flex items-center gap-4 text-sm mb-3`}>
               <span className="flex items-center gap-1">
@@ -258,10 +266,10 @@ const updatedIssues = issues.map((issue) =>
           <h1 className={`${isDark ? "text-white" : "text-black"} text-3xl font-bold mb-2 font-sora`}>
             Track Your Issues
           </h1>
+          <RefreshCw color={`${isDark?'white':'black'}`} className="float-right cursor-pointer" onClick={()=>fetchIssues()}/>
           <p className={`${isDark ? "text-gray-300" : "text-gray-600"} font-inter mb-6`}>
             Monitor the progress of your reported civic issues
           </p>
-
           {/* Search */}
           <div className="relative">
             <Search
@@ -314,7 +322,7 @@ const updatedIssues = issues.map((issue) =>
         </div>
         
 {showRatingModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto">
     <div
       className={`${
         isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
@@ -395,15 +403,24 @@ const updatedIssues = issues.map((issue) =>
   </div>
 )}
         {selectedIssue && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className={`${isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"} p-6 rounded-xl max-w-lg w-full relative`}>
-      <button
-        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-        onClick={() => setSelectedIssue(null)}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto scrllbar-hide">
+      <div
+        className={`${
+          isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
+        } p-6 rounded-xl max-w-lg w-full relative my-10 overflow-y-auto max-h-[85vh] `}
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
       >
-        ✕
-      </button>
-      <h2 className="text-xl font-bold mb-2">{selectedIssue.title}</h2>
+        <button
+          className={`sticky top-3 right-3 float-right ${isDark?'text-white hover:text-gray-300':'text-gray-500 hover:text-gray-700'} z-50`}
+          onClick={() => setSelectedIssue(null)}
+        >
+          ✕
+        </button>
+  
+      <h2 className="text-xl font-bold mb-2 ">{selectedIssue.title}</h2>
       <p className="mb-2">{selectedIssue.description}</p>
       <p className="text-sm text-gray-400 mb-1">Category: {selectedIssue.category}</p>
       <p className="text-sm text-gray-400 mb-1">Address: {selectedIssue.address}</p>

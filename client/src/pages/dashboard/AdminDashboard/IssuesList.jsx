@@ -48,7 +48,33 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
   // useEffect(() => {
   //   fetchIssues();
   // }, []);
+  const fetchData = async () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
+    if (!token) {
+      setLoading(false);
+      toast.error("Login Required");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://hackathon-r2yi.onrender.com/api/AdminDetails", {
+        method: "GET",
+        headers: {
+          authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+      setIssues(data.Issues || []);
+    } catch (err) {
+      console.error("Error fetching admin details:", err);
+      toast.error("Failed to load data");
+    } 
+  };
   const handleRefresh = () => setHasChanges(false);
 
   // const updateStatus = (id, newStatus) => {
@@ -279,7 +305,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
               className={`p-2 rounded-lg ${hoverClasses} transition-colors duration-200`}
               title="Refresh Data"
             >
-              <RefreshCw size={20} className={isDark ? "text-gray-400" : "text-gray-600"} />
+              <RefreshCw size={20} className={isDark ? "text-gray-400" : "text-gray-600"} onClick={()=>fetchData()}/>
             </button>
 
             {hasChanges && (

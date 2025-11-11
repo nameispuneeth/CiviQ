@@ -141,7 +141,6 @@ export default function EmployeeDashboard() {
     });
 
     const data = await response.json();
-    console.log(data);
     if (!response.ok || !data.ok) {
       console.error("Error updating issue:", data.error || "Unknown error");
       toast.error(data.error || "Failed to update issue");

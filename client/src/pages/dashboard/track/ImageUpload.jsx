@@ -23,8 +23,7 @@ function Upload() {
     })
 
     const uploadImage=await res.json()
-    console.log(uploadImage)
-    console.log(uploadImage.url)
+
   };
 
   return (

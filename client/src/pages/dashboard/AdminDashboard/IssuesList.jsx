@@ -68,7 +68,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       });
 
       const data = await response.json();
-      console.log(data);
       setIssues(data.Issues || []);
     } catch (err) {
       console.error("Error fetching admin details:", err);
@@ -115,7 +114,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       return;
     }
 
-    console.log(issue._id);
     const res = await fetch(`https://hackathon-r2yi.onrender.com/api/issues/changeToResolved/${issue._id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -126,7 +124,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
     });
 
     const data = await res.json();
-    console.log(data);
     if (data.ok) {
       setIssues(prevIssues =>
         prevIssues.map(previssue =>
@@ -149,7 +146,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       toast.error("Please select both department and employee.");
       return;
     }
-    console.log(Departments);
     const deptmt = Departments.find(dept => dept.name === selectedDept);
     if (!deptmt) {
       toast.error("Department not found!");
@@ -163,7 +159,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       return;
     }
 
-    console.log("Assigning to:", employee.email, employee.phone);
     try {
       const res = await fetch(`https://hackathon-r2yi.onrender.com/api/issues/assign/${modalIssue._id}`, {
         method: "POST",

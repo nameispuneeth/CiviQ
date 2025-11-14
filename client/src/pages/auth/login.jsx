@@ -158,7 +158,7 @@ export default function Login() {
             className="w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-semibold text-lg shadow-md hover:scale-105 transform transition"
           >
           {loading ?      <CircularProgress size={18} color="success" />
-:"SignUp"}
+:"SignIn"}
           </button>
         </form>
 

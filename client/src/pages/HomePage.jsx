@@ -38,9 +38,9 @@ export default function HomePage() {
   const [LoggedIn,setLoggedIn]=useState(localStorage.getItem("token")||sessionStorage.getItem("token"));
   // Example stats (replace with API data)
   const issuesStats = {
-    reported: 1250,
-    resolved: 980,
-    percentResolved: 78,
+    reported: "1250+",
+    resolved: "980+",
+    percentResolved: "78+",
   };
   useEffect(()=>{
     const role=localStorage.getItem("role") || sessionStorage.getItem("role");

@@ -17,7 +17,6 @@ It provides dedicated dashboards for **Users**, **Admins**, and **Employees** to
 | 🖼️ **Project Screenshots** | [Screenshots](./screenshots/) |
 | 🎥 **Demo Video** | [Watch Demo](https://your-demo-link.com) |
 
-> Replace the paths with your actual uploaded files in the repo.
 
 ---
 

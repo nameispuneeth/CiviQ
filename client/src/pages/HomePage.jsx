@@ -40,7 +40,7 @@ export default function HomePage() {
   const issuesStats = {
     reported: "1250+",
     resolved: "980+",
-    percentResolved: "78+",
+    percentResolved: "78",
   };
   useEffect(()=>{
     const role=localStorage.getItem("role") || sessionStorage.getItem("role");

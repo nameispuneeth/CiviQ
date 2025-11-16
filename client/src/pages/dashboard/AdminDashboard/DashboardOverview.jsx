@@ -89,7 +89,6 @@ export default function DashboardOverview({ issues }) {
         </div>
 
         {/* Pie Chart */}
-       {/* Pie Chart */}
 {/* Pie Chart – Issues per Department */}
 <div
   className={`${isDark ? 'bg-gray-800' : 'bg-white'} p-6 rounded-xl shadow-md flex flex-col items-center justify-center`}

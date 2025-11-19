@@ -14,6 +14,7 @@ import {
   Phone,
   Mail,
   Eye,
+  Sun,Moon,
   EyeOff,
   CheckCircle,
 } from "lucide-react";
@@ -31,7 +32,7 @@ import { ThemeContext } from '../Context/ThemeContext'; // using ThemeContext
 
 export default function ReportPage() {
   const navigate = useNavigate();
-  const { isDark } = useContext(ThemeContext);
+  const { isDark ,toggleTheme} = useContext(ThemeContext);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -111,7 +112,7 @@ export default function ReportPage() {
   const reverseGeocode = async (lat, lng) => {
     try {
       const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`,
+        `${import.meta.env.VITE_APP_API_GEOCODEAPI}`,
       );
       const data = await response.json();
       if (data.locality) {
@@ -187,9 +188,9 @@ export default function ReportPage() {
         submitData.is_anonymous = true;
       }
 
-      const response = await fetch("https://hackathon-r2yi.onrender.com/api/Generateissue", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/Generateissue`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", authorization: token },
+        headers: { "Content-Type": "application/json", authorization: token},
         body: JSON.stringify(submitData),
       });
       if (!response.ok) throw new Error("Failed to submit issue");
@@ -238,6 +239,12 @@ export default function ReportPage() {
       <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark?'border-white':'border-black'} rounded-full`}>
           <House color={`${isDark?'white':'black'}`} size={18} onClick={()=>navigate("/user-home")}/>
       </div>
+      <button
+        onClick={() => toggleTheme(!isDark)}
+        className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-md hover:shadow-lg transition"
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
       <div className={`min-h-screen py-4 px-4 ${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"}`}>
         <div className="max-w-2xl mx-auto">
           <div className={`rounded-t-2xl p-6 ${isDark ? "bg-[#1E1E1E] border-[#333]" : "bg-white border-[#E6E6E6]"} border`}>

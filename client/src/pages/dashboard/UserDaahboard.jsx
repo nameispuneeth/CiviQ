@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FilePlus, Eye, Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../../Context/ThemeContext";
@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 const CitizenDashboard = () => {
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useContext(ThemeContext);
-
+  const [LoggedIn,setLoggedIn]=useState(localStorage.getItem("token") || sessionStorage.getItem("token"))
   const cards = [
     {
       title: "Report New Issue",
@@ -37,10 +37,31 @@ const CitizenDashboard = () => {
       {/* Theme Toggle Button */}
       <button
         onClick={() => toggleTheme(!isDark)}
-        className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-md hover:shadow-lg transition"
+        className="absolute top-4 right-28 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-md hover:shadow-lg transition"
       >
         {isDark ? <Sun size={20} /> : <Moon size={20} />}
       </button>
+      <div className="absolute top-4 right-4">
+      {LoggedIn?(
+         <button
+          onClick={() => {
+            if(localStorage.getItem("token")) localStorage.removeItem("token");
+            else if(sessionStorage.getItem("token")) sessionStorage.removeItem("token");
+            setLoggedIn(null);
+          }}
+          className="px-4 py-1 rounded-xl border border-red-500 bg-red-500 text-white hover:bg-red-600 transform transition hover:scale-105"
+        >
+          Logout
+        </button>
+       ):(
+         <button
+          onClick={() => navigate("/login")}
+          className="px-4 py-1 rounded-xl border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 transform transition hover:scale-105"
+        >
+          Login
+        </button>
+       )}
+       </div>
 
       {/* Hero Section */}
       <div className="max-w-3xl text-center mb-12 mt-[150px]">

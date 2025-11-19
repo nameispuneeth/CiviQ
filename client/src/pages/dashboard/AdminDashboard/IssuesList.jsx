@@ -22,14 +22,12 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
   const [modalIssue, setModalIssue] = useState(null);
   const [selectedDept, setSelectedDept] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
-
   // ✅ Fetch issues from backend
   // const fetchIssues = async () => {
   //   try {
   //     const token = sessionStorage.getItem("token");
   //     if (!token) return alert("Please log in first.");
 
-  //     const res = await fetch("https://hackathon-r2yi.onrender.com/api/AdminGetIssues", {
   //       headers: { Authorization: token },
   //     });
   //     const data = await res.json();
@@ -59,7 +57,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
     }
 
     try {
-      const response = await fetch("https://hackathon-r2yi.onrender.com/api/AdminDetails", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/AdminDetails`, {
         method: "GET",
         headers: {
           authorization: token,
@@ -114,7 +112,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       return;
     }
 
-    const res = await fetch(`https://hackathon-r2yi.onrender.com/api/issues/changeToResolved/${issue._id}`, {
+    const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/issues/changeToResolved/${issue._id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -152,7 +150,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       return;
     }
 
-    // 🔍 Find the employee inside that department
     const employee = deptmt.employees.find(emp => emp.name === selectedEmployee);
     if (!employee) {
       toast.error("Employee not found!");
@@ -160,7 +157,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
     }
 
     try {
-      const res = await fetch(`https://hackathon-r2yi.onrender.com/api/issues/assign/${modalIssue._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/issues/assign/${modalIssue._id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

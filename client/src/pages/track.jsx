@@ -8,6 +8,7 @@ import {
   Eye,
   House,
   Star,
+  Sun,Moon,
   RefreshCw,
   MessageCircle,
 } from "lucide-react";
@@ -19,7 +20,7 @@ import { ThemeContext } from "../Context/ThemeContext"; // Import context
 
 export default function TrackIssues() {
   const navigate = useNavigate();
-  const { isDark } = useContext(ThemeContext); // use isDark variable
+  const { isDark,toggleTheme } = useContext(ThemeContext); // use isDark variable
 
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +51,7 @@ export default function TrackIssues() {
   useEffect(() => {
     fetchIssues();
   }, []);
-  {/* ⭐ Rating Modal */}
+  {/* ⭐ Rating Modal */ }
 
   const fetchIssues = async () => {
     setLoading(true);
@@ -61,7 +62,7 @@ export default function TrackIssues() {
         navigate("/login");
         return;
       }
-      const response = await fetch("https://hackathon-r2yi.onrender.com/api/user/issues", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/issues`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ export default function TrackIssues() {
         }
       });
       const data = await response.json();
-      setIssues(data.issues);
+      setIssues([...(data.issues || [])].reverse());
     } catch (error) {
       console.error("Error loading dummy data:", error);
     } finally {
@@ -78,43 +79,43 @@ export default function TrackIssues() {
   };
 
   const submitRating = async () => {
-  if (!showRatingModal || rating === 0) return;
-  const token=localStorage.getItem("token") || sessionStorage.getItem("token");
-  try {
-    const response=await fetch(`https://hackathon-r2yi.onrender.com/api/user/setRating/${showRatingModal._id}`,{
-      method:"PUT",
-      headers:{
-        'Content-Type':'application/json',
-        'authorization':token
-      },body:JSON.stringify({
-        rating:rating,
-        feedback:feedback
-      })
-    });
-    const data=await response.json();
-    if(data.ok){
-const updatedIssues = issues.map((issue) =>
-      showRatingModal._id === issue._id
-        ? { ...issue, rating: rating, user_feedback: feedback }
-        : issue
-    );
+    if (!showRatingModal || rating === 0) return;
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    try {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/setRating/${showRatingModal._id}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': token
+        }, body: JSON.stringify({
+          rating: rating,
+          feedback: feedback
+        })
+      });
+      const data = await response.json();
+      if (data.ok) {
+        const updatedIssues = issues.map((issue) =>
+          showRatingModal._id === issue._id
+            ? { ...issue, rating: rating, user_feedback: feedback }
+            : issue
+        );
         setIssues(updatedIssues);
 
-    toast.success("Thanks for your feedback!");
+        toast.success("Thanks for your feedback!");
 
-    }else{
-      toast.error(data.error);
+      } else {
+        toast.error(data.error);
+      }
+
+
+      setShowRatingModal(null);
+      setRating(0);
+      setFeedback("");
+    } catch (error) {
+      console.error("Error submitting dummy rating:", error);
+      toast.error("Failed to submit rating");
     }
-    
-
-    setShowRatingModal(null);
-    setRating(0);
-    setFeedback("");
-  } catch (error) {
-    console.error("Error submitting dummy rating:", error);
-    toast.error("Failed to submit rating");
-  }
-};
+  };
 
 
   const filteredIssues = issues.filter(
@@ -129,28 +130,38 @@ const updatedIssues = issues.map((issue) =>
     const daysSinceReported = Math.floor(
       (new Date() - new Date(issue.createdAt)) / (1000 * 60 * 60 * 24)
     );
+    const hoursSinceReported = Math.floor(
+      (new Date() - new Date(issue.createdAt)) / (1000 * 60 * 60)
+    );
+    const minutesSinceReported = Math.floor(
+      (new Date() - new Date(issue.createdAt)) / (1000 * 60)
+    );
+    const secondsSinceReported = Math.floor(
+      (new Date() - new Date(issue.createdAt)) / (1000)
+    );
+
 
     return (
       <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-xl border p-6 hover:shadow-lg transition-all duration-200`}>
-        <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark?'border-white':'border-black'} rounded-full`}>
-                  <House color={`${isDark?'white':'black'}`} size={18} onClick={()=>navigate("/user-home")}/>
-              </div>
+        <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark ? 'border-white' : 'border-black'} rounded-full`}>
+          <House color={`${isDark ? 'white' : 'black'}`} size={18} onClick={() => navigate("/user-home")} />
+        </div>
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1" key={issue.createdAt}>
             <h3 className={`${isDark ? "text-white" : "text-black"} text-lg font-semibold mb-2 font-sora`}>
               {issue.title}
             </h3>
             <p
-  className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-3 font-inter line-clamp-3`}
-  style={{
-    display: "-webkit-box",
-    WebkitLineClamp: 3,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-  }}
->
-  {issue.description}
-</p>
+              className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-3 font-inter line-clamp-3`}
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {issue.description}
+            </p>
 
 
             <div className={`${isDark ? "text-gray-400" : "text-gray-500"} flex items-center gap-4 text-sm mb-3`}>
@@ -159,7 +170,11 @@ const updatedIssues = issues.map((issue) =>
                 {issue.address || "Location not provided"}
               </span>
               <span>📁 {issue.category}</span>
-              <span>{daysSinceReported} days ago</span>
+              {daysSinceReported > 0 ? <span>{daysSinceReported} days ago</span> : (
+                hoursSinceReported > 0 ? <span>{hoursSinceReported} hours ago</span> :
+                  minutesSinceReported > 0 ? <span>{minutesSinceReported} minutes ago</span> :
+                    <span>{secondsSinceReported} seconds ago</span>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -205,10 +220,10 @@ const updatedIssues = issues.map((issue) =>
         <div className={`${isDark ? "bg-gray-700" : "bg-gray-200"} w-full rounded-full h-2 mb-3`}>
           <div
             className={`h-2 rounded-full transition-all duration-300 ${issue.status === "pending"
-                ? "bg-red-500 w-1/3"
-                : issue.status === "inprogress"
-                  ? "bg-yellow-500 w-2/3" 
-                  : "bg-green-500 w-full"
+              ? "bg-red-500 w-1/3"
+              : issue.status === "inprogress"
+                ? "bg-yellow-500 w-2/3"
+                : "bg-green-500 w-full"
               }`}
           />
         </div>
@@ -250,23 +265,22 @@ const updatedIssues = issues.map((issue) =>
     );
   };
 
-  if (loading) {
-    return (
-      <div className={`${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"} min-h-screen flex items-center justify-center`}>
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   return (
     <div className={`${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"} min-h-screen py-6 px-4`}>
+       <button
+        onClick={() => toggleTheme(!isDark)}
+        className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-md hover:shadow-lg transition"
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-t-2xl border p-6`}>
           <h1 className={`${isDark ? "text-white" : "text-black"} text-3xl font-bold mb-2 font-sora`}>
             Track Your Issues
           </h1>
-          <RefreshCw color={`${isDark?'white':'black'}`} className="float-right cursor-pointer" onClick={()=>fetchIssues()}/>
+          <RefreshCw color={`${isDark ? 'white' : 'black'}`} className="float-right cursor-pointer" onClick={() => fetchIssues()} />
           <p className={`${isDark ? "text-gray-300" : "text-gray-600"} font-inter mb-6`}>
             Monitor the progress of your reported civic issues
           </p>
@@ -285,29 +299,33 @@ const updatedIssues = issues.map((issue) =>
             />
           </div>
         </div>
-
+        {loading && <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"}  min-h-screen flex items-center justify-center`}>
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>}
         {/* Issues List */}
-        <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} border-x p-6`}>
-          {filteredIssues.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageCircle size={48} className={`${isDark ? "text-gray-600" : "text-gray-400"} mx-auto mb-4`} />
-              <h3 className={`${isDark ? "text-gray-400" : "text-gray-600"} text-xl font-semibold mb-2`}>
-                No issues found
-              </h3>
-              <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                {searchQuery
-                  ? "Try adjusting your search"
-                  : "You haven't reported any issues yet"}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {filteredIssues.map((issue) => (
-                <IssueCard key={issue.id} issue={issue} />
-              ))}
-            </div>
-          )}
-        </div>
+        {!loading && (
+          <div>
+          <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} border-x p-6`}>
+            {filteredIssues.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageCircle size={48} className={`${isDark ? "text-gray-600" : "text-gray-400"} mx-auto mb-4`} />
+                <h3 className={`${isDark ? "text-gray-400" : "text-gray-600"} text-xl font-semibold mb-2`}>
+                  No issues found
+                </h3>
+                <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                  {searchQuery
+                    ? "Try adjusting your search"
+                    : "You haven't reported any issues yet"}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {filteredIssues.map((issue) => (
+                  <IssueCard key={issue.id} issue={issue} />
+                ))}
+              </div>
+            )}
+          </div>
 
         {/* Footer */}
         <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-b-2xl border p-6`}>
@@ -320,119 +338,118 @@ const updatedIssues = issues.map((issue) =>
             </Link>
           </div>
         </div>
-        
-{showRatingModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto">
-    <div
-      className={`${
-        isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
-      } p-6 rounded-xl w-full max-w-md relative shadow-xl`}
-    >
-      {/* Close Button */}
-      <button
-        onClick={() => setShowRatingModal(null)}
-        className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
-      >
-        ✕
-      </button>
+        </div>
 
-      {/* Title */}
-      <h2 className="text-xl font-bold mb-3">
-        Rate This Issue
-      </h2>
-      <p className="text-sm mb-4 text-gray-500">
-        How satisfied are you with the resolution?
-      </p>
+        )
+}
 
-      {/* Star Rating */}
-      <div className="flex justify-center mb-4">
-        {[1, 2, 3, 4, 5].map((starValue) => (
-          <Star
-            key={starValue}
-            size={28}
-            className={`cursor-pointer transition-colors duration-200 ${
-              starValue <= rating
-                ? "text-yellow-400 fill-yellow-400"
-                : isDark
-                ? "text-gray-600"
-                : "text-gray-300"
-            }`}
-            onClick={() => setRating(starValue)}
-          />
-        ))}
-      </div>
+        {showRatingModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto">
+            <div
+              className={`${isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
+                } p-6 rounded-xl w-full max-w-md relative shadow-xl`}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowRatingModal(null)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+              >
+                ✕
+              </button>
 
-      {/* Feedback Input */}
-      <textarea
-        placeholder="Write your feedback..."
-        value={feedback}
-        onChange={(e) => setFeedback(e.target.value)}
-        rows="4"
-        className={`w-full p-3 rounded-lg border text-sm focus:outline-none ${
-          isDark
-            ? "bg-[#262626] border-[#404040] text-white placeholder-gray-500"
-            : "bg-white border-[#D9D9D9] text-black placeholder-gray-400"
-        }`}
-      />
+              {/* Title */}
+              <h2 className="text-xl font-bold mb-3">
+                Rate This Issue
+              </h2>
+              <p className="text-sm mb-4 text-gray-500">
+                How satisfied are you with the resolution?
+              </p>
 
-      {/* Buttons */}
-      <div className="flex justify-end mt-5 gap-3">
-        <button
-          onClick={() => setShowRatingModal(null)}
-          className={`px-4 py-2 rounded-lg font-medium ${
-            isDark
-              ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-              : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-          }`}
-        >
-          Cancel
-        </button>
-        <button
-          onClick={submitRating}
-          disabled={rating === 0}
-          className={`px-5 py-2 rounded-lg font-semibold transition-colors ${
-            rating === 0
-              ? "bg-blue-400 cursor-not-allowed text-white"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
-        >
-          Submit
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              {/* Star Rating */}
+              <div className="flex justify-center mb-4">
+                {[1, 2, 3, 4, 5].map((starValue) => (
+                  <Star
+                    key={starValue}
+                    size={28}
+                    className={`cursor-pointer transition-colors duration-200 ${starValue <= rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : isDark
+                          ? "text-gray-600"
+                          : "text-gray-300"
+                      }`}
+                    onClick={() => setRating(starValue)}
+                  />
+                ))}
+              </div>
+
+              {/* Feedback Input */}
+              <textarea
+                placeholder="Write your feedback..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows="4"
+                className={`w-full p-3 rounded-lg border text-sm focus:outline-none ${isDark
+                    ? "bg-[#262626] border-[#404040] text-white placeholder-gray-500"
+                    : "bg-white border-[#D9D9D9] text-black placeholder-gray-400"
+                  }`}
+              />
+
+              {/* Buttons */}
+              <div className="flex justify-end mt-5 gap-3">
+                <button
+                  onClick={() => setShowRatingModal(null)}
+                  className={`px-4 py-2 rounded-lg font-medium ${isDark
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                    }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitRating}
+                  disabled={rating === 0}
+                  className={`px-5 py-2 rounded-lg font-semibold transition-colors ${rating === 0
+                      ? "bg-blue-400 cursor-not-allowed text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {selectedIssue && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto scrllbar-hide">
-      <div
-        className={`${
-          isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
-        } p-6 rounded-xl max-w-lg w-full relative my-10 overflow-y-auto max-h-[85vh] `}
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <button
-          className={`sticky top-3 right-3 float-right ${isDark?'text-white hover:text-gray-300':'text-gray-500 hover:text-gray-700'} z-50`}
-          onClick={() => setSelectedIssue(null)}
-        >
-          ✕
-        </button>
-  
-      <h2 className="text-xl font-bold mb-2 ">{selectedIssue.title}</h2>
-      <p className="mb-2">{selectedIssue.description}</p>
-      <p className="text-sm text-gray-400 mb-1">Category: {selectedIssue.category}</p>
-      <p className="text-sm text-gray-400 mb-1">Address: {selectedIssue.address}</p>
-      <p className="text-sm text-gray-400 mb-1">Status: {selectedIssue.status}</p>
-      {selectedIssue.assigned_department && <>
-      <p className="text-sm text-gray-400 mb-1">Assigned Department: {selectedIssue.assigned_department}</p>
-      <p className="text-sm text-gray-400 mb-1">Assigned Employee: {selectedIssue.assigned_department_employee}</p>
-      </>}
-      {selectedIssue.photo && <img src={selectedIssue.photo} alt={selectedIssue.title} className="mt-3 rounded" />}
-    </div>
-  </div>
-)}
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto scrllbar-hide">
+            <div
+              className={`${isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
+                } p-6 rounded-xl max-w-lg w-full relative my-10 overflow-y-auto max-h-[85vh] `}
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              <button
+                className={`sticky top-3 right-3 float-right ${isDark ? 'text-white hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'} z-50`}
+                onClick={() => setSelectedIssue(null)}
+              >
+                ✕
+              </button>
+
+              <h2 className="text-xl font-bold mb-2 ">{selectedIssue.title}</h2>
+              <p className="mb-2">{selectedIssue.description}</p>
+              <p className="text-sm text-gray-400 mb-1">Category: {selectedIssue.category}</p>
+              <p className="text-sm text-gray-400 mb-1">Address: {selectedIssue.address}</p>
+              <p className="text-sm text-gray-400 mb-1">Status: {selectedIssue.status}</p>
+              {selectedIssue.assigned_department && <>
+                <p className="text-sm text-gray-400 mb-1">Assigned Department: {selectedIssue.assigned_department}</p>
+                <p className="text-sm text-gray-400 mb-1">Assigned Employee: {selectedIssue.assigned_department_employee}</p>
+              </>}
+              {selectedIssue.photo && <img src={selectedIssue.photo} alt={selectedIssue.title} className="mt-3 rounded" />}
+            </div>
+          </div>
+        )}
+
 
       </div>
     </div>

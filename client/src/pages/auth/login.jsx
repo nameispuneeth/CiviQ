@@ -28,7 +28,7 @@ export default function Login() {
 
     try {
       setLoading(true);
-      const response = await fetch("https://hackathon-r2yi.onrender.com/api/login", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -21,12 +21,10 @@ import IssuesList from "./IssuesList";
 import IssueModal from "./IssueModal";
 import Departments from "./Departments";
 import MapIssues from "./MapIssues";
-import { navigationItems } from "../AdminDashboard/backend/constant";
-import { calculateStats } from "../AdminDashboard/backend/hooks";
 import { ThemeContext } from "../../../Context/ThemeContext";
 import {useNavigate} from "react-router-dom";
 export default function AdminDashboard() {
-  const { isDark, toggleTheme } = useContext(ThemeContext); // useContext for theme
+  const { isDark, toggleTheme } = useContext(ThemeContext);
 const navigate=useNavigate();
   const [issues, setIssues] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -37,7 +35,13 @@ const navigate=useNavigate();
   const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0, todayReports: 0 });
 
   const isMobile = useMediaQuery("(max-width:768px)");
-
+  const navigationItems=[
+    { id: "dashboard", label: "Dashboard" },
+    { id: "issues", label: "Issues" },
+    { id: "map", label: "Map" },
+    {id:"departments",label:"Department"}
+  ];
+  
  useEffect(() => {
   const fetchData = async () => {
     setLoading(true);
@@ -85,9 +89,7 @@ const handleLogout = () => {
   // Redirect to login
   navigate("/login");
 };
-  useEffect(() => {
-    setStats(calculateStats(issues));
-  }, [issues]);
+
 
   if (loading)
     return (

@@ -8,7 +8,6 @@ import SignUp from "./pages/auth/signup"
 import CitizenDashboard from "./pages/dashboard/UserDaahboard";
 import Upload from "./pages/dashboard/track/ImageUpload";
 import { ThemeProvider } from "./Context/ThemeContext";
-import DepartmentDashboard from "./pages/dashboard/Department/DepartmentDashboard";
 import EmployeePage from "./pages/Employee/Employee";
 import HomePage from "./pages/HomePage"
 import NotFoundPage from "./pages/notfoundpage";
@@ -26,7 +25,6 @@ function App() {
       <Route path="/login" element={<Login />}/>
             <Route path="/signup" element={<SignUp />}/>
       <Route path="/citizen" element={<CitizenDashboard />} />
-            <Route path="/department" element={<DepartmentDashboard />} />
       <Route path="/employee" element={<EmployeePage />}/>
       <Route path="*" element={<NotFoundPage/>}/>
       </Routes>

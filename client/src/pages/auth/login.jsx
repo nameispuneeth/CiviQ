@@ -56,7 +56,7 @@ export default function Login() {
         toast.error(data.error);
       }
     } catch (err) {
-      toast.error("Server error. Try again later.");
+      toast.error("Network error. Try again later.");
     }
     setLoading(false);
   };

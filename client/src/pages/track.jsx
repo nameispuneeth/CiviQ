@@ -9,19 +9,19 @@ import {
   House,
   Star,
   Sun,Moon,
+  Trash,
   RefreshCw,
   MessageCircle,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-import Navigation from "../components/Navigation";
 import { Link, useNavigate } from "react-router-dom";
-import { ThemeContext } from "../Context/ThemeContext"; // Import context
+import { ThemeContext } from "../Context/ThemeContext";
 
 export default function TrackIssues() {
   const navigate = useNavigate();
-  const { isDark,toggleTheme } = useContext(ThemeContext); // use isDark variable
-
+  const { isDark,toggleTheme } = useContext(ThemeContext);
+  const [deleteIssue,setdeleteissue]=useState(null);
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,6 +29,7 @@ export default function TrackIssues() {
   const [showRatingModal, setShowRatingModal] = useState(null);
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [deleteLoading,setDeleteLoading]=useState(false);
 
   const statusColors = {
     pending: isDark
@@ -42,6 +43,18 @@ export default function TrackIssues() {
       : "bg-green-100 text-green-800 border-green-200",
   };
 
+  const Spinner=()=>{
+    return(
+      <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"}  min-h-screen flex items-center justify-center`}>
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  const SmallSpinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+  );
+  
+
   const statusIcons = {
     pending: Clock,
     inprogress: AlertTriangle,
@@ -51,7 +64,6 @@ export default function TrackIssues() {
   useEffect(() => {
     fetchIssues();
   }, []);
-  {/* ⭐ Rating Modal */ }
 
   const fetchIssues = async () => {
     setLoading(true);
@@ -117,7 +129,28 @@ export default function TrackIssues() {
     }
   };
 
+const deleteSelectedIssue=async()=>{
+  setDeleteLoading(true);
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
+  
+  const response=await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/DeleteIssue/${deleteIssue._id}`,{
+    method:"POST",
+    headers:{
+      'Content-Type':'application/json',
+      authorization:token,
+    }
+  });
+  const data=await response.json();
+  if(data.status=="ok"){
+    toast.success("Error Deleted Succesfully");
+  }else{
+    toast.error("Unable To Delete The Issue");
+  }
+  fetchIssues();
+  setDeleteLoading(false);
+  setdeleteissue(null);
+}
   const filteredIssues = issues.filter(
     (issue) =>
       issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -139,7 +172,7 @@ export default function TrackIssues() {
     const secondsSinceReported = Math.floor(
       (new Date() - new Date(issue.createdAt)) / (1000)
     );
-
+    
 
     return (
       <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"} rounded-xl border p-6 hover:shadow-lg transition-all duration-200`}>
@@ -201,6 +234,14 @@ export default function TrackIssues() {
               <Eye size={16} />
               Details
             </button>
+            {issue.status=="pending" && 
+            <button
+              onClick={() => setdeleteissue(issue)}
+              className={`text-red-600 hover:text-red-400 flex items-center gap-1 text-sm font-medium`}
+            >
+              <Trash size={16} color="red"/>
+              Delete
+            </button>}
 
             {issue.status === "resolved" && !issue.rating && (
               <button
@@ -299,9 +340,7 @@ export default function TrackIssues() {
             />
           </div>
         </div>
-        {loading && <div className={`${isDark ? "bg-[#1E1E1E] border-[#333333]" : "bg-white border-[#E6E6E6]"}  min-h-screen flex items-center justify-center`}>
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        </div>}
+        {loading && <Spinner/>}
         {/* Issues List */}
         {!loading && (
           <div>
@@ -321,7 +360,7 @@ export default function TrackIssues() {
             ) : (
               <div className="space-y-6">
                 {filteredIssues.map((issue) => (
-                  <IssueCard key={issue.id} issue={issue} />
+                  <IssueCard key={issue._id} issue={issue} />
                 ))}
               </div>
             )}
@@ -419,6 +458,29 @@ export default function TrackIssues() {
             </div>
           </div>
         )}
+        {deleteIssue && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto scrllbar-hide">
+            <div
+              className={`${isDark ? "bg-[#1E1E1E] text-white" : "bg-white text-black"
+                } p-6 rounded-xl max-w-lg w-full relative my-10 overflow-y-auto max-h-[85vh] `}
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
+              <p className="text-2xl font-bold mb-3">Are you sure?</p>
+              <p className="text-sm">This action will permanently delete the issue.</p>
+              <div className="flex gap-4 mt-10 ml-4">
+              <button onClick={()=>{
+                setdeleteissue(null);
+                setDeleteLoading(false);
+              }} className="text-white bg-gray-700 p-2">Cancel</button>
+              <button onClick={()=>deleteSelectedIssue()} className=" bg-red-500 text-white p-2">{deleteLoading?<SmallSpinner/>:"Delete"}</button>
+              </div>
+              </div>
+              </div>
+          )
+        }
         {selectedIssue && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto scrllbar-hide">
             <div

@@ -11,6 +11,7 @@ const User = require("./models/user.model");
 const Admin = require("./models/admin.model");
 const Issue = require("./models/issue.model");
 const Employee = require("./models/employee.model");
+const issueModel = require("./models/issue.model");
 
 // Middleware
 app.use(express.json());
@@ -365,7 +366,24 @@ app.put("/api/user/setRating/:id",async(req,res)=>{
 
     }
 })
-// ----------------------
+
+    app.post("/api/DeleteIssue/:id",async(req,res)=>{
+        const token=req.headers.authorization;
+        try{
+            const decoded = jwt.verify(token, UsersecretCode);
+            const user=await User.findOne({email:decoded.email});
+            if(!user) res.send({status:'error'});
+            const id=req.params.id;
+            const response=await Issue.deleteOne({_id:id});
+            user.issues = user.issues.filter(issueId => issueId.toString() !== id);
+            console.log("dwaidu");
+            await user.save();
+            res.send({status:"ok"}); 
+        }catch(e){
+            res.send({status:"error"});
+        }
+    })
+    // ----------------------
 // Start server
 // ----------------------
 app.listen(8000, () => {

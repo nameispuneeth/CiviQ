@@ -1,32 +1,19 @@
 import * as React from 'react';
 import { useState, useEffect, useContext } from "react";
-import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Camera,
   MapPin,
-  Mic,
   House,
   Send,
-  User,
-  Phone,
-  Mail,
   Eye,
   Sun,Moon,
   EyeOff,
-  CheckCircle,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
 import toast from "react-hot-toast";
 
-import Navigation from "../components/Navigation";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from '../Context/ThemeContext'; // using ThemeContext
 

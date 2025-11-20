@@ -10,44 +10,32 @@ import toast from "react-hot-toast";
 export default function IssuesList({ issues: initialIssues, dept: dept }) {
   const { isDark } = useContext(ThemeContext);
   const [Departments, setDepartments] = useState(dept);
-  const [issues, setIssues] = useState(initialIssues);
+  const [loading, setLoading] = useState(false);
+  const [issues, setIssues] = useState([...initialIssues].reverse());
   const [filters, setFilters] = useState({ search: "" });
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(10);
-  const [hasChanges, setHasChanges] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
-
+  const [InProgressLoading,setInProgressLoading]=useState(false);
   const [modalIssue, setModalIssue] = useState(null);
   const [selectedDept, setSelectedDept] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
-  // ✅ Fetch issues from backend
-  // const fetchIssues = async () => {
-  //   try {
-  //     const token = sessionStorage.getItem("token");
-  //     if (!token) return alert("Please log in first.");
-
-  //       headers: { Authorization: token },
-  //     });
-  //     const data = await res.json();
-
-  //     if (data.ok) 
-  //     {
-  //       setIssues(data.issues);
-  //       console.log(data);
-  //     }
-  //     else console.error("Failed to load issues:", data.error);
-  //   } catch (err) {
-  //     console.error("Error fetching issues:", err);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchIssues();
-  // }, []);
+  
+  const Spinner = () => {
+    return (
+      <div className={`${isDark ? "bg-gray-800 border-[#333333]" : "bg-white border-[#E6E6E6]"}  min-h-screen flex items-center justify-center`}>
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  const SmallSpinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+  );
   const fetchData = async () => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    setLoading(true);
 
     if (!token) {
       setLoading(false);
@@ -66,32 +54,15 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       });
 
       const data = await response.json();
-      setIssues(data.Issues || []);
+      setIssues([...(data.Issues || [])].reverse());
+
     } catch (err) {
       console.error("Error fetching admin details:", err);
       toast.error("Failed to load data");
-    } 
+    }
+    setLoading(false);
   };
-  const handleRefresh = () => setHasChanges(false);
 
-  // const updateStatus = (id, newStatus) => {
-  //   setIssues(prev =>
-  //     prev.map(i =>
-  //       i._id === id
-  //         ? {
-  //           ...i,
-  //           status: newStatus,
-  //           updated_at: new Date().toISOString(),
-  //           ...(newStatus === "resolved" && {
-  //             resolved_at: new Date().toISOString(),
-  //           }),
-  //         }
-  //         : i
-  //     )
-  //   );
-  //   console.log(issues);
-  //   setHasChanges(true);
-  // };
 
   const handleChangeStatus = async (issue) => {
     if (!issue.assigned_employee_finished) {
@@ -183,7 +154,6 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
           )
         );
 
-        // ✅ Close modal
         setModalIssue(null);
         setSelectedDept("");
         setSelectedEmployee("");
@@ -293,21 +263,13 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={handleRefresh}
+              onClick={() => handleRefresh()}
               className={`p-2 rounded-lg ${hoverClasses} transition-colors duration-200`}
               title="Refresh Data"
             >
-              <RefreshCw size={20} className={isDark ? "text-gray-400" : "text-gray-600"} onClick={()=>fetchData()}/>
+              <RefreshCw size={20} className={isDark ? "text-gray-400" : "text-gray-600"} onClick={() => fetchData()} />
             </button>
 
-            {hasChanges && (
-              <button
-                onClick={() => { toast("Changes saved locally"); setHasChanges(false); }}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
-              >
-                <Save size={16} /> Save Changes
-              </button>
-            )}
           </div>
         </div>
 
@@ -358,112 +320,101 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
           </div>
         </div>
       </div>
-
       {/* Table */}
+
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className={`${isDark ? "bg-gray-700" : "bg-gray-50"}`}>
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Issue Details</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+        {loading ? <Spinner /> : (
 
-            </tr>
-          </thead>
+          <table className="w-full">
+            <thead className={`${isDark ? "bg-gray-700" : "bg-gray-50"}`}>
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Issue Details</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Category</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Actions</th>
 
-          <tbody>
-            {paginatedIssues.map(issue => {
-              const statusInfo = getStatusInfo(issue.status);
-              const StatusIcon = statusInfo.icon;
+              </tr>
+            </thead>
 
-              return (
-                <tr
-                  key={issue._id}
-                  className={`border-b ${isDark ? "border-gray-700" : "border-gray-200"} ${hoverClasses} transition-colors duration-200 cursor-pointer`}
-                >
-                  <td className="px-6 py-4" onClick={() => setSelectedIssue(issue)}
+            <tbody>
+              {paginatedIssues.map(issue => {
+                const statusInfo = getStatusInfo(issue.status);
+                const StatusIcon = statusInfo.icon;
+
+                return (
+                  <tr
+                    key={issue._id}
+                    className={`border-b ${isDark ? "border-gray-700" : "border-gray-200"} ${hoverClasses} transition-colors duration-200 cursor-pointer`}
                   >
-                    <div className="space-y-1">
-                      <h3 className="font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">{issue.title}</h3>
-                      {issue.description && <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"} line-clamp-2 w-40`}>{issue.description}</p>}
-                      {issue.location_address && <div className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}><MapPin size={12} /><span>{issue.location_address}</span></div>}
-                      <div className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}><Calendar size={12} /><span>#{issue._id?.slice(-5)} • {issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : "Unknown"}</span></div>
-                    </div>
-                  </td>
+                    <td className="px-6 py-4" onClick={() => setSelectedIssue(issue)}
+                    >
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">{issue.title}</h3>
+                        {issue.description && <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"} line-clamp-2 w-40`}>{issue.description}</p>}
+                        {issue.location_address && <div className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}><MapPin size={12} /><span>{issue.location_address}</span></div>}
+                        <div className={`flex items-center gap-1 text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}><Calendar size={12} /><span>#{issue._id?.slice(-5)} • {issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : "Unknown"}</span></div>
+                      </div>
+                    </td>
 
-                  <td className="px-6 py-4">
-                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}>
-                      <StatusIcon size={14} /> {statusInfo.label}
-                      {/* Show "Task Finished" tag if inprogress and assigned_employee_finished */}
-                      {issue.status === "inprogress" && issue.assigned_employee_finished && (
-                        <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-green-200 text-green-800 rounded-full">
-                          Task Finished
-                        </span>
-                      )}
-                    </div>
-                  </td>
-
-
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-medium">{issue.category}</span>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1">
-                      {/* <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          setSelectedIssue(issue);
-                        }}
-                        className={`p-1 rounded ${hoverClasses} transition-colors duration-200`}
-                        title="View Details"
-                      >
-                        <Eye
-                          size={16}
-                          className={isDark ? "text-gray-400" : "text-gray-600"}
-                        />
-                      </button>
-                      */}
-
-                      {issue.status === "pending" && (
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            setModalIssue(issue);
-                          }}
-                          className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
-                          title="Start Progress"
-                        >
-                          <Play size={16} />
-                        </button>
-                      )}
-
-                      {issue.status === "inprogress" && (
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleChangeStatus(issue);
-                          }}
-                          className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
-                          title="Mark Resolved"
-                        >
-                          <CheckCircle size={16} color="yellow" />
-                        </button>
-                      )}
-
-                      {issue.status === "resolved" && (
-                        <CheckCircle size={18} color="green" />
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    <td className="px-6 py-4">
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}>
+                        <StatusIcon size={14} /> {statusInfo.label}
+                        {/* Show "Task Finished" tag if inprogress and assigned_employee_finished */}
+                        {issue.status === "inprogress" && issue.assigned_employee_finished && (
+                          <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-green-200 text-green-800 rounded-full">
+                            Task Finished
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
 
-          </tbody>
-        </table>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-medium">{issue.category}</span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1">
+                        {issue.status === "pending" && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              setModalIssue(issue);
+                            }}
+                            className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors duration-200"
+                            title="Start Progress"
+                          >
+                            <Play size={16} />
+                          </button>
+                        )}
+
+                        {issue.status === "inprogress" && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleChangeStatus(issue);
+                            }}
+                            className="p-1 rounded hover:bg-green-100 text-green-600 transition-colors duration-200"
+                            title="Mark Resolved"
+                          >
+                            <CheckCircle size={16} color="yellow" />
+                          </button>
+                        )}
+
+                        {issue.status === "resolved" && (
+                          <CheckCircle size={18} color="green" />
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+
+
+            </tbody>
+          </table>
+        )}
+
         {modalIssue && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div
@@ -517,6 +468,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
               <div className="flex justify-end mt-6 gap-3">
                 <button
                   onClick={() => {
+                    setInProgressLoading(false);
                     setModalIssue(null);
                     setSelectedDept("");
                     setSelectedEmployee("");
@@ -528,11 +480,13 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
                 <button
                   onClick={async () => {
+                    setInProgressLoading(true);
                     await handleAssign();
+                    setInProgressLoading(false);
                   }}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                 >
-                  Set In Progress
+                  {InProgressLoading?<SmallSpinner/>: "Set In Progress"}
                 </button>
               </div>
             </div>
@@ -556,6 +510,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
           onClose={() => setSelectedIssue(null)}
           departments={departments}
         />
+
       </div>
     </div>
   );

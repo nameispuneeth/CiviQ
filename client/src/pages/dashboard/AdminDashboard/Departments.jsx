@@ -18,7 +18,8 @@ const Departments = ({ dept }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState(null);
   const [employeeForm, setEmployeeForm] = useState({ name: "", email: "", password: "", phone: "" });
-
+  const [addEmployeeLoading,setaddEmployeeLoading]=useState(false);
+  const [deleteEmployeeLoading,setdeleteEmployeeLoading]=useState(false);
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [currentEmployees, setCurrentEmployees] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, empId: null, empName: "" });
@@ -29,6 +30,9 @@ const Departments = ({ dept }) => {
     setDepartments(dept);
   }, [dept]);
 
+  const SmallSpinner = () => (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+  );
   const openAddEmployeeModal = (deptName) => {
     setSelectedDept(deptName);
     setEmployeeForm({ name: "", email: "", password: "", phone: "" });
@@ -45,8 +49,12 @@ const Departments = ({ dept }) => {
   };
 
   const handleSubmit = async (e) => {
+    setaddEmployeeLoading(true);
     e.preventDefault();
-    if (!selectedDept) return;
+    if (!selectedDept){
+      setaddEmployeeLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/AddEmployees`, {
         method: "POST",
@@ -69,15 +77,17 @@ const Departments = ({ dept }) => {
     } catch (err) {
       toast.error("Error: " + err.message);
     }
+    setaddEmployeeLoading(false);
+
   };
 
   const handleDeleteEmployee = async () => {
-    const token=localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     try {
       const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/DeleteEmployee/${confirmDelete.empId}`, {
         method: "DELETE",
-        headers:{
-          'authorization':token
+        headers: {
+          'authorization': token
         }
       });
       if (!res.ok) throw new Error("Failed to delete employee");
@@ -133,28 +143,28 @@ const Departments = ({ dept }) => {
               </div>
 
               <div className="mt-5 flex gap-2">
-  <button
-    onClick={() => openAddEmployeeModal(dept.name)}
-    className={`flex-1 py-2 rounded-xl font-semibold text-white text-sm transition transform duration-300
-      ${isDark 
-        ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-purple-600 hover:to-indigo-500 shadow-lg" 
-        : "bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-blue-500 shadow-md"} 
+                <button
+                  onClick={() => openAddEmployeeModal(dept.name)}
+                  className={`flex-1 py-2 rounded-xl font-semibold text-white text-sm transition transform duration-300
+      ${isDark
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-purple-600 hover:to-indigo-500 shadow-lg"
+                      : "bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-blue-500 shadow-md"} 
       hover:scale-105`}
-  >
-    ADD EMPLOYEE
-  </button>
+                >
+                  ADD EMPLOYEE
+                </button>
 
-  <button
-    onClick={() => openShowEmployeesModal(dept.employees)}
-    className={`flex-1 py-2 rounded-xl font-semibold text-white text-sm transition transform duration-300
-      ${isDark 
-        ?  
-        "bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-blue-500 shadow-md":"bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-purple-600 hover:to-indigo-500 shadow-lg"} 
+                <button
+                  onClick={() => openShowEmployeesModal(dept.employees)}
+                  className={`flex-1 py-2 rounded-xl font-semibold text-white text-sm transition transform duration-300
+      ${isDark
+                      ?
+                      "bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-blue-500 shadow-md" : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-purple-600 hover:to-indigo-500 shadow-lg"} 
       hover:scale-105`}
-  >
-    SHOW EMPLOYEES
-  </button>
-</div>
+                >
+                  SHOW EMPLOYEES
+                </button>
+              </div>
 
             </div>
           </div>
@@ -167,13 +177,16 @@ const Departments = ({ dept }) => {
           <div className={`p-6 rounded-lg w-96 ${isDark ? "bg-gray-600 text-white" : "bg-white text-black"}`}>
             <h3 className="text-xl font-bold mb-4">Add Employee to {selectedDept}</h3>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input type="text" name="name" placeholder="Name" value={employeeForm.name} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
-              <input type="email" name="email" placeholder="Email" value={employeeForm.email} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
-              <input type="password" name="password" placeholder="Password" value={employeeForm.password} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
-              <input type="text" name="phone" placeholder="Phone" value={employeeForm.phone} onChange={handleChange} className={`p-2 border rounded ${isDark?'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]':''}`} required />
+              <input type="text" name="name" placeholder="Name" value={employeeForm.name} onChange={handleChange} className={`p-2 border rounded ${isDark ? 'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]' : ''}`} required />
+              <input type="email" name="email" placeholder="Email" value={employeeForm.email} onChange={handleChange} className={`p-2 border rounded ${isDark ? 'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]' : ''}`} required />
+              <input type="password" name="password" placeholder="Password" value={employeeForm.password} onChange={handleChange} className={`p-2 border rounded ${isDark ? 'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]' : ''}`} required />
+              <input type="text" name="phone" placeholder="Phone" value={employeeForm.phone} onChange={handleChange} className={`p-2 border rounded ${isDark ? 'bg-[rgba(51,51,51,1)] border-[rgba(51,51,51,1)]' : ''}`} required />
               <div className="flex justify-end gap-2 mt-3">
-                <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">Cancel</button>
-                <button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">Add</button>
+                <button type="button" onClick={() =>{
+                  setaddEmployeeLoading(false);
+                  setModalOpen(false)
+                }} className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white" >{addEmployeeLoading ? <SmallSpinner/>: "Add"}</button>
               </div>
             </form>
           </div>
@@ -217,11 +230,19 @@ const Departments = ({ dept }) => {
             <h3 className="text-lg font-bold mb-4">Remove Employee</h3>
             <p>Are you sure you want to remove <strong>{confirmDelete.empName}</strong> from duty?</p>
             <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setConfirmDelete({ open: false, empId: null, empName: "" })} className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">
+              <button onClick={() => {
+                setdeleteEmployeeLoading(false);
+                setConfirmDelete({ open: false, empId: null, empName: "" })
+              }} 
+              className="px-4 py-2 rounded bg-gray-400 hover:bg-gray-500">
                 Cancel
               </button>
-              <button onClick={handleDeleteEmployee} className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white">
-                Yes, Remove
+              <button onClick={async ()=>{
+                setdeleteEmployeeLoading(true);
+                await handleDeleteEmployee();
+                setdeleteEmployeeLoading(false);
+              }} className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white">
+                {deleteEmployeeLoading ? <SmallSpinner/> : "Yes, Remove"}
               </button>
             </div>
           </div>

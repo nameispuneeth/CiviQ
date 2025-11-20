@@ -184,7 +184,7 @@ export default function ReportPage() {
 
       toast.success("Issue successfully submitted!");
       setShowSuccess(true);
-
+      navigate("/track-issues");
       setTimeout(() => {
         setFormData({
           title: "",

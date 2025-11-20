@@ -181,7 +181,7 @@ export default function HomePage() {
       </section>
       {/* Footer */}
       <footer className={`py-6 text-center ${isDark ? "bg-gray-900 text-gray-400" : "bg-white text-gray-700"}`}>
-        © 2025 CiviQ. All rights reserved.
+        Made With {isDark?'🤍':'🖤'} By <b>Javeed</b> and <b>Puneeth</b>. 
       </footer>
     </div>
   );

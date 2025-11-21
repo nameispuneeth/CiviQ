@@ -99,9 +99,3 @@ npm run dev
 
   
 ---
-
-If you want, I can also:
-
-✅ Generate a **GitHub-style full documentation folder**  
-✅ Write a **CONTRIBUTING.md**, **LICENSE**, or **API docs**  
-Just tell me!

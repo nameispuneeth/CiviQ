@@ -95,7 +95,7 @@ npm run dev
 
   ### 🤝 Contributors
 - Puneeth.
-- Zaweed.
+- Javeed.
 
   
 ---

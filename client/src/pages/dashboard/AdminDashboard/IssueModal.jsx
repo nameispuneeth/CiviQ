@@ -17,7 +17,7 @@ export default function IssueModal({ issue, onClose, departments }) {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "90%",
-    maxWidth: 650, // ✅ wider modal
+    maxWidth: 650,
     bgcolor: isDark ? "#1E1E1E" : "background.paper",
     border: `2px solid ${isDark ? "#333333" : "#000"}`,
     boxShadow: 24,

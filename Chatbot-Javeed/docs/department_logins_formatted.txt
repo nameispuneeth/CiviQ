@@ -1,0 +1,67 @@
+Name: Puneeth (Roads Department)
+email:puneeth@citygov.in
+password:1234567890
+
+Name: Rajesh (Roads Department)
+email:rajesh@citygov.in
+password:1234567890
+
+Name: Shiva (Roads Department)
+email:shiva@citygov.in
+password:1234567890
+
+Name: David (Street Lighting Department)
+email:david@citygov.in
+password:1234567890
+
+Name: Rathod (Street Lighting Department)
+email:rathod@citygov.in
+password:1234567890
+
+Name: Koushal (Street Lighting Department)
+email:koushal@citygov.in
+password:1234567890
+
+Name: Javeed (Sanitation Department)
+email:javeed@citygov.in
+password:1234567890
+
+Name: Bharani (Sanitation Department)
+email:bharani@citygov.in
+password:1234567890
+
+Name: Vishnu (Parks & Recreation Department)
+email:vishnu@citygov.in
+password:1234567890
+
+Name: Harsha (Parks & Recreation Department)
+email:harsha@citygov.in
+password:1234567890
+
+Name: Ram (Traffic Management Department)
+email:ram@citygov.in
+password:1234567890
+
+Name: Vikramarthand (Traffic Management Department)
+email:vikram@citygov.in
+password:1234567890
+
+Name: Khalid (Water & Utilities Department)
+email:khalid@citygov.in
+password:1234567890
+
+Name: Khalesha (Water & Utilities Department)
+email:kalthesa@citygov.in
+password:1234567890
+
+Name: Rama (General Issues Department)
+email:rama@citygov.in
+password:1234567890
+
+Name: Sambadu (General Issues Department)
+email:sambadu@citygov.in
+password:1234567890
+
+Name: Micheal (General Issues Department)
+email:micheal@citygov.in
+password:1234567890

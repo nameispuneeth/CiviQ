@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeContext } from "../Context/ThemeContext";
+import Chatbot from "../components/Chatbot";
 
 export default function TrackIssues() {
   const navigate = useNavigate();
@@ -514,6 +515,7 @@ const deleteSelectedIssue=async()=>{
 
 
       </div>
+      <Chatbot />
     </div>
   );
 }

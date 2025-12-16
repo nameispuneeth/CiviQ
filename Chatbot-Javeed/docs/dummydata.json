@@ -1,0 +1,57 @@
+{
+  "name": "CityGov Admin",
+  "email": "admin@citygov.in",
+  "password": "$2b$10$abcdefghijk1234567890hashedpassword",
+  "role": "admin",
+  "departments": [
+    {
+      "name": "Roads Department",
+      "description": "Handles road construction, maintenance, traffic flow, and sidewalks.",
+      "head":"Rajesh Kumar",
+      "email":"roads@citygov.in",
+      "employees": []
+    },
+    {
+      "name": "Street Lighting Department",
+      "description": "Maintains streetlights, public lamps, and signal lights across the city.",
+      "head":"Anitha Sharma",
+      "email":"lighting@citygov.in",
+      "employees": []
+    },
+    {
+      "name": "Sanitation Department",
+      "description": "Responsible for garbage collection, waste management, and city cleanliness.",
+      "head":"Vikram Singh",
+      "email":"sanitatiom@citygov.in",
+      "employees": []
+    },
+    {
+      "name": "Parks & Recreation Department",
+      "description": "Manages public parks, gardens, recreation areas, and playgrounds.",
+      "head":"Priya Reddy",
+      "email":"parks@citygov.in",
+      "employees": []
+    },
+    {
+      "name": "Traffic Management Department",
+      "description": "Oversees road safety, traffic signals, parking, and congestion control.",
+      "head":"Suresh Patel",
+      "email":"traffic@citygov.in",
+      "employees": []
+    },
+    {
+      "name": "Water & Utilities Department",
+      "description": "Manages water supply, sewage systems, and public utility maintenance.",
+      "head":"Meena Iyer",
+      "email":"water@citygov.in",
+      "employees": []
+    },
+    {
+      "name": "General Issues Department",
+      "description": "Handles miscellaneous issues and general public grievances.",
+      "head":"Arun Chatterjee",
+      "email":"other@citygov.in",
+      "employees": []
+    }
+  ]
+}

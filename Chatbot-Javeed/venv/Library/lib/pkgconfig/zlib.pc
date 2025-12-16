@@ -1,0 +1,13 @@
+prefix=D:/Projects/CiviQ/Chatbot-Javeed/venv/Library
+exec_prefix=D:/Projects/CiviQ/Chatbot-Javeed/venv/Library
+libdir=D:/Projects/CiviQ/Chatbot-Javeed/venv/Library/lib
+sharedlibdir=D:/Projects/CiviQ/Chatbot-Javeed/venv/Library/lib
+includedir=D:/Projects/CiviQ/Chatbot-Javeed/venv/Library/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.3.1
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

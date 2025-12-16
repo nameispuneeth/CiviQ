@@ -1,0 +1,30 @@
+Roads Department
+Puneeth, puneeth@citygov.in, 1234567890
+Rajesh, rajesh@citygov.in, 1234567890
+Shiva, shiva@citygov.in, 1234567890
+
+Street Lighting Department
+David, david@citygov.in, 1234567890
+Rathod, rathod@citygov.in, 1234567890
+Koushal, koushal@citygov.in, 1234567890
+
+Sanitation Department
+Javeed, javeed@citygov.in, 1234567890
+Bharani, bharani@citygov.in, 1234567890
+
+Parks & Recreation Department
+Vishnu, vishnu@citygov.in, 1234567890
+Harsha, harsha@citygov.in, 1234567890
+
+Traffic Management Department
+Ram, ram@citygov.in, 1234567890
+Vikramarthand, vikram@citygov.in, 1234567890
+
+Water & Utilities Department
+Khalid, khalid@citygov.in, 1234567890
+Khalesha, kalthesa@citygov.in, 1234567890
+
+General Issues Department
+Rama, rama@citygov.in, 1234567890
+Sambadu, sambadu@citygov.in, 1234567890
+Micheal, micheal@citygov.in, 1234567890

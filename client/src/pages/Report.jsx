@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from '../Context/ThemeContext'; // using ThemeContext
+import Chatbot from '../components/Chatbot';
 
 export default function ReportPage() {
   const navigate = useNavigate();
@@ -376,6 +377,7 @@ export default function ReportPage() {
             </button>
           </div>
         </div>
+        <Chatbot  />
       </div>
     </>
   );

@@ -144,7 +144,7 @@ const deleteSelectedIssue=async()=>{
   });
   const data=await response.json();
   if(data.status=="ok"){
-    toast.success("Error Deleted Succesfully");
+    toast.success("Issue Deleted Succesfully");
   }else{
     toast.error("Unable To Delete The Issue");
   }

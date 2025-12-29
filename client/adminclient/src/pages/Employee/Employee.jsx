@@ -43,7 +43,7 @@ export default function EmployeeDashboard() {
       navigate("/login");
       return;
     }
-    const response = await fetch(`http://localhost:8000/api/employeeDetails`, {
+    const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/employeeDetails`, {
       method: "GET",
       headers: {
         'authorization': token,
@@ -132,7 +132,7 @@ export default function EmployeeDashboard() {
   setModalLoading(true);
   try {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const response = await fetch(`http://localhost:8000/api/EmployeeFinishedIssue/${issueId}`, {
+    const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/EmployeeFinishedIssue/${issueId}`, {
       method: "GET",
       headers: {
         'authorization': token,

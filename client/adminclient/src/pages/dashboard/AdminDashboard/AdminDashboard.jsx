@@ -55,7 +55,7 @@ const navigate=useNavigate();
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/AdminDetails`, {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/AdminDetails`, {
         method: "GET",
         headers: {
           authorization: token,

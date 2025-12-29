@@ -75,7 +75,7 @@ export default function TrackIssues() {
         navigate("/login");
         return;
       }
-      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/issues`, {
+      const response = await fetch(`http://localhost:8000/api/user/issues`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ export default function TrackIssues() {
     if (!showRatingModal || rating === 0) return;
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     try {
-      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/setRating/${showRatingModal._id}`, {
+      const response = await fetch(`http://localhost:8000/api/user/setRating/${showRatingModal._id}`, {
         method: "PUT",
         headers: {
           'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ const deleteSelectedIssue=async()=>{
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   
-  const response=await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/DeleteIssue/${deleteIssue._id}`,{
+  const response=await fetch(`http://localhost:8000/api/DeleteIssue/${deleteIssue._id}`,{
     method:"POST",
     headers:{
       'Content-Type':'application/json',

@@ -1,0 +1,25 @@
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+
+  /* Light mode */
+.light ::-webkit-scrollbar-thumb {
+  background-color: #3b82f6;
+}
+.light ::-webkit-scrollbar-track {
+  background-color: #e5e7eb;
+}
+
+/* Dark mode */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #60a5fa;
+}
+.dark ::-webkit-scrollbar-track {
+  background-color: #1f2937;
+}

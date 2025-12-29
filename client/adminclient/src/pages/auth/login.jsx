@@ -14,10 +14,6 @@ export default function Login() {
   const { isDark, toggleTheme } = useContext(ThemeContext);
 
   useEffect(() => {
-    // If token exists, redirect (optional)
-    // if (localStorage.getItem("token") || sessionStorage.getItem("token")) {
-    //   navigate("/report-issues");
-    // }
   }, []);
 
   const handleSubmit = async (e) => {
@@ -28,7 +24,7 @@ export default function Login() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/login`, {
+      const response = await fetch(`http://localhost:8000/api/login/admin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -39,19 +35,19 @@ export default function Login() {
       if (data.status === "ok") {
         if(rememberMe){
           localStorage.setItem("token", data.token);
-          if(data.role=="superadmin" || data.role === "employee") localStorage.setItem("role", data.role);
+          localStorage.setItem("role", data.role);
 
         }
         else{
           sessionStorage.setItem("token", data.token);
-          if(data.role=="superadmin" || data.role === "employee") sessionStorage.setItem("role", data.role);
+          sessionStorage.setItem("role", data.role);
 
         }
         toast.success("Login successful!");
 
         if (data.role === "superadmin") navigate("/admin");
-        else if (data.role === "employee") navigate("/employee");
-        else navigate("/user-home");
+        else navigate("/employee");
+
       } else {
         toast.error(data.error);
       }
@@ -158,7 +154,7 @@ export default function Login() {
             className="w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-semibold text-lg shadow-md hover:scale-105 transform transition"
           >
           {loading ?      <CircularProgress size={18} color="success" />
-:"SignIn"}
+:"Sign In"}
           </button>
         </form>
 
@@ -168,13 +164,31 @@ export default function Login() {
               isDark ? "text-white" : "text-gray-500"
             } transition`}
           >
-            Don't have an account?{" "}
-            <span
-              onClick={() => navigate("/signup")}
+            Login/Register as {"  "}
+            <a
+              href="https://civiqconnectbypj.vercel.app/login"
+              target="_blank"
               className="text-purple-500 font-semibold cursor-pointer hover:underline"
             >
-              Register
-            </span>
+              Citizen
+            </a>
+          </p>
+        </div>
+
+        <div className="mt-2 text-center text-base">
+          <p
+            className={`${
+              isDark ? "text-white" : "text-gray-500"
+            } transition`}
+          >
+            Get Admin & Employees {"  "}
+            <a
+              href="https://drive.google.com/file/d/1x3LpgjZr6p8KiY7EqIk3PiPeBn3cQVsR/view?usp=sharing"
+              target="_blank"
+              className="text-purple-500 font-semibold cursor-pointer hover:underline"
+            >
+              Credentials
+            </a>
           </p>
         </div>
 

@@ -51,6 +51,31 @@ app.post("/api/register", async (req, res) => {
 // ----------------------
 app.post("/api/login", async (req, res) => {
     const { email, password } = req.body
+    try {
+        const user = await User.findOne({ email, password });
+        if (user) {
+            const token = jwt.sign(
+                { name: user.name, email: user.email, role: "user" },
+                UsersecretCode
+            );
+            return res.send({
+                status: "ok",
+                token,
+                role: "user",
+                message: "User login successful",
+            });
+        }
+
+        res.status(401).send({ status: "error", error: "Invalid credentials" });
+
+    } catch (e) {
+        console.error(e);
+        res.send({ status: "error", error: "Network Issues" });
+    }
+});
+
+app.post("/api/login/admin", async (req, res) => {
+    const { email, password } = req.body
 
     try {
         const admin = await Admin.findOne({ email, password });
@@ -79,19 +104,6 @@ app.post("/api/login", async (req, res) => {
                 message: "Employee login successful",
             });
         }
-        const user = await User.findOne({ email, password });
-        if (user) {
-            const token = jwt.sign(
-                { name: user.name, email: user.email, role: "user" },
-                UsersecretCode
-            );
-            return res.send({
-                status: "ok",
-                token,
-                role: "user",
-                message: "User login successful",
-            });
-        }
 
         res.status(401).send({ status: "error", error: "Invalid credentials" });
 
@@ -100,6 +112,7 @@ app.post("/api/login", async (req, res) => {
         res.send({ status: "error", error: "Network Issues" });
     }
 });
+
 
 // ----------------------
 // Submit Issue

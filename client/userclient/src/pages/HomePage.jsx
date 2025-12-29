@@ -298,7 +298,7 @@ export default function HomePage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 w-full px-4 max-w-7xl mx-auto">
+        <div className="relative z-10 w-full px-4 max-w-7xl mx-auto mb-10 mt-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
             <div className="animate-fade-in-up text-center lg:text-left">

@@ -52,7 +52,7 @@ It provides dedicated dashboards for **Users**, **Admins**, and **Employees** to
 
 ---
 
-## 🛠️ Installation
+## Installation
 
 ### Clone Repo
 ```bash
@@ -73,14 +73,14 @@ npm install
 npm run dev
 ```
 
-## 🧪 Future Enhancements
+## Future Enhancements
 
 - Push notifications
 - Chat system
 - AI-based issue classification
 - Multi-language support
 
-  ### 🤝 Contributors
+  ### Contributors
 - Puneeth.
 - Zaweed.
 

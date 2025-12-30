@@ -64,6 +64,7 @@ const navigate=useNavigate();
       });
 
       const data = await response.json();
+      console.log(data);
       setIssues(data.Issues || []);
       setDepartments(data.Departments || []);
     } catch (err) {

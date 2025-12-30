@@ -14,7 +14,6 @@ router.get("/AdminDetails", async (req, res) => {
 
     if (!token) return res.status(401).send({ ok: false, error: "Unauthorized" });
     try {
-        const decoded = jwt.verify(token, AdminSecretCode);
         const admin = await Admin.findOne({ email: decoded.email }).populate({
             path: "departments.employees",
             model: "Employee",

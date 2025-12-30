@@ -45,7 +45,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/AdminDetails`, {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/AdminDetails`, {
         method: "GET",
         headers: {
           authorization: token,
@@ -83,7 +83,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
       return;
     }
 
-    const res = await fetch(`http://localhost:8000/api/admin/issues/changeToResolved/${issue._id}`, {
+    const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/issues/changeToResolved/${issue._id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -128,7 +128,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/issues/assign/${modalIssue._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/issues/assign/${modalIssue._id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

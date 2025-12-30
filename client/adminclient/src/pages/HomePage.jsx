@@ -212,7 +212,12 @@ export default function HomePage() {
     onClick={() => {
       // If logged in, go to report page
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (token) navigate("/user-home");
+      if (token){
+        const role=sessionStorage.getItem("role") || localStorage.getItem("role");
+        if(role=="superadmin") navigate("/admin");
+        else if(role=="employee") navigate("/employee");
+        else navigate("/login")
+      }
       else navigate("/login");
     }}
     className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 text-white 

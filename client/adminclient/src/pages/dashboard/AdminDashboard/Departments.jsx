@@ -56,7 +56,7 @@ const Departments = ({ dept }) => {
       return;
     }
     try {
-      const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/AddEmployees`, {
+      const res = await fetch(`http://localhost:8000/api/admin/AddEmployees`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...employeeForm, departmentName: selectedDept }),
@@ -84,7 +84,7 @@ const Departments = ({ dept }) => {
   const handleDeleteEmployee = async () => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     try {
-      const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/admin/DeleteEmployee/${confirmDelete.empId}`, {
+      const res = await fetch(`http://localhost:8000/api/admin/DeleteEmployee/${confirmDelete.empId}`, {
         method: "DELETE",
         headers: {
           'authorization': token

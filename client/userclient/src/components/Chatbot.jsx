@@ -52,9 +52,8 @@ export default function Chatbot() {
       userName: "Ravi Kumar",
       issues: dummyUserIssues,
     };
-
     try {
-      const res = await fetch("https://chatbot-javeed-1.onrender.com/ask", {
+      const res = await fetch(`${import.meta.env.VITE_APP_CHATBOT_API_URL}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: payloadMessages, userData }),

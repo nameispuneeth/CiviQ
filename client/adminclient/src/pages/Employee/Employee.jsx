@@ -73,8 +73,10 @@ export default function EmployeeDashboard() {
       setIssues(mappedIssues);
     }
     else {
+      setError(data.error || "Failed to load your assigned issues.");
       toast.error(data.error);
     }
+    setLoading(false);
     }
     fetchData();
    
@@ -86,47 +88,6 @@ export default function EmployeeDashboard() {
     //   department: "Electrical",
     // });
   }, []);
-
-  useEffect(() => {
-    if (currentEmployee) loadDummyIssues();
-  }, [currentEmployee]);
-
-  const loadDummyIssues = () => {
-    const dummyIssues = [
-      {
-        id: 1,
-        issue_id: "ISS001",
-        title: "Light not working in Lab 3",
-        description: "Ceiling light in lab 3 is not working since morning.",
-        category: "Electrical",
-        status: "assigned",
-        flagged_status: "assigned",
-        reported_at: "2025-10-12T08:30:00Z",
-      },
-      {
-        id: 2,
-        issue_id: "ISS002",
-        title: "Projector issue in Seminar Hall",
-        description: "Projector flickering during operation.",
-        category: "Electrical",
-        status: "assigned",
-        flagged_status: "assigned",
-        reported_at: "2025-10-10T10:45:00Z",
-      },
-      {
-        id: 3,
-        issue_id: "ISS003",
-        title: "AC not cooling properly",
-        description: "AC in staff room not cooling below 25°C.",
-        category: "Maintenance",
-        status: "finished",
-        flagged_status: "finished",
-        reported_at: "2025-10-08T11:00:00Z",
-      },
-    ];
-    // setIssues(dummyIssues);
-    setLoading(false);
-  };
 
   const updateIssueStatus = async (issueId, flaggedStatus, notes = "") => {
   setModalLoading(true);

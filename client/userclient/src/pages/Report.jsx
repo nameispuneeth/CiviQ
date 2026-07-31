@@ -46,6 +46,7 @@ export default function ReportPage() {
   }, [])
   const [open, setOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [duplicateMatches, setDuplicateMatches] = useState(null);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') return;
@@ -66,7 +67,6 @@ export default function ReportPage() {
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(true);
 
@@ -134,7 +134,7 @@ export default function ReportPage() {
           }));
           reverseGeocode(position.coords.latitude, position.coords.longitude);
         },
-        (error) => setError("Could not get your location. Please enable location services."),
+        () => setError("Could not get your location. Please enable location services."),
       );
     }
   };
@@ -156,9 +156,39 @@ export default function ReportPage() {
       if (!formData.category) { setSnackbarMessage("⚠️ Category is required!"); setOpen(true); return; }
       if (!formData.photo) { setSnackbarMessage("📷 Please upload a photo!"); setOpen(true); return; }
 
-      const submitData = { ...formData };
-      const file = submitData.photo;
+      const file = formData.photo;
       if (!file.type.startsWith("image/")) { setSnackbarMessage("❌ Please upload a valid image file (jpg, png, jpeg)"); setOpen(true); return; }
+
+      const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/checkDuplicate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: token },
+        body: JSON.stringify({
+          category: formData.category,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
+        }),
+      });
+      const result = await res.json();
+      if (result.ok && result.matches.length) {
+        setDuplicateMatches(result.matches);
+        return;
+      }
+
+      await submitIssue(false);
+    } catch (error) {
+      console.error("Error submitting issue:", error);
+      setSnackbarMessage("❌ " + error.message);
+      setOpen(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const submitIssue = async (confirmedUnique) => {
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const submitData = { ...formData, confirmed_unique: confirmedUnique };
 
       const data = new FormData();
       data.append("file", formData.photo);
@@ -182,9 +212,14 @@ export default function ReportPage() {
         body: JSON.stringify(submitData),
       });
       if (!response.ok) throw new Error("Failed to submit issue");
+      const result = await response.json();
 
-      toast.success("Issue successfully submitted!");
-      setShowSuccess(true);
+      setDuplicateMatches(null);
+      toast.success(
+        result.duplicate_of
+          ? `Linked to an existing report — ${result.report_count} people have reported this`
+          : "Issue successfully submitted!"
+      );
       navigate("/track-issues");
       setTimeout(() => {
         setFormData({
@@ -201,7 +236,6 @@ export default function ReportPage() {
           reporter_phone: "",
           is_anonymous: false,
         });
-        setShowSuccess(false);
         setIsAnonymous(false);
       }, 3000);
 
@@ -224,6 +258,55 @@ export default function ReportPage() {
         action={action}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
+      {duplicateMatches && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className={`w-full max-w-lg rounded-2xl p-6 shadow-2xl ${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+            <h3 className="text-xl font-bold mb-2">Similar issue already reported</h3>
+            <p className={`text-sm mb-4 ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+              {duplicateMatches.length} report{duplicateMatches.length > 1 ? "s" : ""} of the same category near this location.
+              Adding yours to an existing report helps it get prioritised faster.
+            </p>
+
+            <div className="space-y-3 max-h-64 overflow-y-auto mb-5">
+              {duplicateMatches.map((match) => (
+                <div key={match.id} className={`p-3 rounded-xl border ${isDark ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-gray-50"}`}>
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-semibold">{match.title}</span>
+                    <span className={`text-xs whitespace-nowrap ${isDark ? "text-gray-400" : "text-gray-500"}`}>{match.distance}m away</span>
+                  </div>
+                  <p className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>{match.description}</p>
+                  <div className={`text-xs mt-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                    {match.status} · {match.report_count} report{match.report_count > 1 ? "s" : ""}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={() => submitIssue(false)}
+                disabled={isSubmitting}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold disabled:opacity-60"
+              >
+                This is the same issue
+              </button>
+              <button
+                onClick={() => submitIssue(true)}
+                disabled={isSubmitting}
+                className={`flex-1 py-3 rounded-xl font-semibold border disabled:opacity-60 ${isDark ? "border-gray-600 text-white" : "border-gray-300 text-gray-700"}`}
+              >
+                Report separately
+              </button>
+            </div>
+            <button
+              onClick={() => setDuplicateMatches(null)}
+              className={`w-full mt-2 py-2 text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark?'border-white':'border-black'} rounded-full`}>
           <House color={`${isDark?'white':'black'}`} size={18} onClick={()=>navigate("/user-home")}/>
       </div>

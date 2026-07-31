@@ -32,7 +32,6 @@ const navigate=useNavigate();
   const [activeView, setActiveView] = useState("dashboard");
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [filters, setFilters] = useState({ status: "all", category: "all", priority: "all", search: "" });
-  const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0, todayReports: 0 });
 
   const isMobile = useMediaQuery("(max-width:768px)");
   const navigationItems=[
@@ -174,7 +173,7 @@ const handleLogout = () => {
 
           <Container sx={{ flex: 1, overflowY: "auto", py: 3, mb: isMobile ? "56px" : 0 }}>
             {activeView === "dashboard" && (
-              <DashboardOverview stats={stats} issues={issues} setActiveView={setActiveView} setSelectedIssue={setSelectedIssue} />
+              <DashboardOverview issues={issues} setActiveView={setActiveView} setSelectedIssue={setSelectedIssue} />
             )}
             {activeView === "issues" && (
               <IssuesList issues={issues} filters={filters} setFilters={setFilters} setSelectedIssue={setSelectedIssue} dept={departments} />

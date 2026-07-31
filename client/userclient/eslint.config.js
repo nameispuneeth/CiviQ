@@ -23,7 +23,22 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^[A-Z_]', caughtErrors: 'none' },
+      ],
+      // HMR ergonomics, not correctness — a context + provider in one file is fine.
+      'react-refresh/only-export-components': 'warn',
     },
+  },
+  {
+    // Config files run in Node, not the browser.
+    files: ['*.config.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    // tailwind.config.js is the only CommonJS config here.
+    files: ['tailwind.config.js'],
+    languageOptions: { sourceType: 'commonjs' },
   },
 ])

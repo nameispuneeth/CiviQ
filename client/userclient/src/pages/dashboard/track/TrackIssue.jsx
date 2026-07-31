@@ -24,7 +24,10 @@ export default function TrackIssues() {
   const statusIcons = { pending: Clock, inprogress: AlertTriangle, resolved: CheckCircle };
 
   useEffect(() => {
-    setTimeout(() => setIssues(dummyIssues), 1000);
+    setTimeout(() => {
+      setIssues(dummyIssues);
+      setLoading(false);
+    }, 1000);
   }, []);
 
   const filteredIssues = issues.filter(

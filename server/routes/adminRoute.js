@@ -20,7 +20,7 @@ router.get("/AdminDetails", async (req, res) => {
             select: "name email phone password departmentName _id",
         }); 
         if (!admin) return res.status(404).send({ ok: false, error: "Admin not found" });
-        const issues = await Issue.find();
+        const issues = await Issue.find({ duplicate_of: null });
         const Departments = admin.departments.map(d => ({
             name: d.name,
             description: d.description,

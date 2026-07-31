@@ -25,14 +25,6 @@ export default function DashboardOverview({ issues }) {
   const inProgress = issues.filter(i => i.status === 'inprogress').length;
   const completed = issues.filter(i => i.status === 'resolved').length;
 
-  // ----- Pie Chart Data from Issues -----
-  const priorities = ['high', 'medium', 'low'];
-  const pieData = priorities.map(priority => ({
-    name: priority.charAt(0).toUpperCase() + priority.slice(1),
-    value: issues.filter(i => i.priority === priority).length || 0,
-  }));
-  const pieColors = ['#EF4444', '#F59E0B', '#10B981'];
-
   // ----- Bar Chart Data -----
   const barData = [
     { name: 'Pending', value: pending },

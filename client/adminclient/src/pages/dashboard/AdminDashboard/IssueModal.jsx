@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import { useContext } from "react";
 import { ThemeContext } from "../../../Context/ThemeContext";
 
-export default function IssueModal({ issue, onClose, departments }) {
+export default function IssueModal({ issue, onClose }) {
   const { isDark } = useContext(ThemeContext);
 
   const style = {

@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search, Eye, Save, RefreshCw, Play, CheckCircle,
   Clock, AlertTriangle, MapPin, Calendar
@@ -9,7 +10,8 @@ import toast from "react-hot-toast";
 
 export default function IssuesList({ issues: initialIssues, dept: dept }) {
   const { isDark } = useContext(ThemeContext);
-  const [Departments, setDepartments] = useState(dept);
+  const navigate = useNavigate();
+  const [Departments] = useState(dept);
   const [loading, setLoading] = useState(false);
   const [issues, setIssues] = useState([...initialIssues].reverse());
   const [filters, setFilters] = useState({ search: "" });
@@ -263,7 +265,7 @@ export default function IssuesList({ issues: initialIssues, dept: dept }) {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => handleRefresh()}
+              onClick={() => fetchData()}
               className={`p-2 rounded-lg ${hoverClasses} transition-colors duration-200`}
               title="Refresh Data"
             >

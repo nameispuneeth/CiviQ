@@ -1,23 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from dotenv import load_dotenv
 
 from langchain_groq import ChatGroq
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_community.vectorstores import FAISS
-from langchain_mistralai import MistralAIEmbeddings
+
+from civicq.config.settings import require_env
+from civicq.prompts.templates import prompt
+from civicq.rag.vectorstore import connect_vectorstore
+from civicq.utils.formatting import format_user_data
+from civicq.vision import analyze_image
 
 # ---------------- ENV ----------------
-load_dotenv()
+# MistralAIEmbeddings loads a HuggingFace tokenizer purely to pack *multi-text*
+# embedding requests under a token budget. This process only ever embeds one
+# query at a time, so it never packs anything — and Render's free tier has no
+# persistent disk, so the 1.8 MB download is paid on every cold start. Skipping
+# it is a no-op for output (verified: still 1024-dim vectors) and saves ~0.7s.
+# ingest.py deliberately does NOT set this: batching real work needs the tokenizer.
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-
-DATA_DIR = "../GEMMA/docs"
-FAISS_DIR = "faiss_index"
+GROQ_API_KEY = require_env("GROQ_API_KEY")
 
 # ---------------- APP ----------------
 app = Flask(__name__)
@@ -29,92 +31,33 @@ llm = ChatGroq(
     model_name="llama-3.1-8b-instant"
 )
 
-# ---------------- PROMPT ----------------
-prompt = ChatPromptTemplate.from_template(
-    """
-You are a CivicQ assistant.
-
-Rules:
-- Use ONLY the context provided below.
-- If exact information is missing, say "I don't know".
-
-Context:
-{context}
-
-Question:
-{question}
-"""
-)
-
 # ---------------- VECTOR STORE (STATIC KNOWLEDGE) ----------------
-def load_or_create_vectors():
-    embeddings = MistralAIEmbeddings(
-        model="mistral-embed",
-        api_key=MISTRAL_API_KEY
-    )
-
-    if os.path.exists(FAISS_DIR):
-        return FAISS.load_local(
-            FAISS_DIR,
-            embeddings,
-            allow_dangerous_deserialization=True
-        )
-
-    loader = PyPDFDirectoryLoader(DATA_DIR)
-    documents = loader.load()
-
-    if not documents:
-        raise RuntimeError("No PDFs found in DATA_DIR")
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
-
-    chunks = splitter.split_documents(documents)
-    vectorstore = FAISS.from_documents(chunks, embeddings)
-    vectorstore.save_local(FAISS_DIR)
-
-    return vectorstore
-
-
-vectorstore = load_or_create_vectors()
+vectorstore = connect_vectorstore()
 retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
-
-# ---------------- USER DATA → TEXT (NO VECTORS) ----------------
-def format_user_data(user_data: dict) -> str:
-    if not user_data:
-        return "No user-specific issue data available."
-
-    issues = user_data.get("issues", [])
-
-    if not issues:
-        return "User has not raised any issues."
-
-    text = f"User has raised {len(issues)} issues.\n"
-
-    for idx, issue in enumerate(issues, start=1):
-        text += (
-            f"Issue {idx}: {issue.get('title')} | "
-            f"Location: {issue.get('location')} | "
-            f"Status: {issue.get('status')} | "
-            f"Created: {issue.get('createdAt')}\n"
-        )
-
-    last_issue = issues[-1]
-    text += (
-        f"\nLast raised issue: {last_issue.get('title')} "
-        f"at {last_issue.get('location')} "
-        f"with status {last_issue.get('status')}."
-    )
-
-    return text
-
 
 @app.route("/", methods=["GET", "HEAD"])
 def home():
     return {"status": "running"}
 
+
+
+# ---------------- IMAGE ANALYSIS ----------------
+# Called from Report.jsx the moment a photo finishes uploading to Cloudinary,
+# so the form can fill itself in for someone who cannot type it.
+@app.route("/analyze-image", methods=["POST"])
+def analyze():
+    try:
+        data = request.get_json(force=True) or {}
+        url = data.get("url")
+
+        if not url:
+            return jsonify({"error": "url missing"}), 400
+
+        return jsonify(analyze_image(url))
+
+    except Exception as e:
+        print("🔥 VISION ERROR:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- API ROUTE ----------------

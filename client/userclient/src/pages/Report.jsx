@@ -67,6 +67,17 @@ export default function ReportPage() {
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiFilled, setAiFilled] = useState([]);
+
+  // Marks a field as filled from the photo rather than typed, so nobody submits
+  // a machine's wording believing they wrote it.
+  const SuggestedBadge = ({ field }) =>
+    aiFilled.includes(field) ? (
+      <span className={`ml-2 text-xs font-normal ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+        ✨ suggested from your photo
+      </span>
+    ) : null;
   const [error, setError] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(true);
 
@@ -112,14 +123,65 @@ export default function ReportPage() {
     }
   };
 
-  const handlePhotoCapture = (event) => {
+  // The Cloudinary upload that used to live inline in submitIssue. It now runs
+  // when the photo is chosen instead of at submit, because the vision API needs
+  // a URL to read — and submitIssue reuses the result rather than re-uploading.
+  const uploadPhoto = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", import.meta.env.VITE_APP_API_UPLOAD_NAME);
+    data.append("cloud_name", import.meta.env.VITE_APP_API_CLOUDINARY_NAME);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_APP_API_CLOUDINARY_NAME}/image/upload`, {
+      method: "POST",
+      body: data,
+    });
+    const uploadImage = await res.json();
+    if (!uploadImage.url) throw new Error("Image upload failed");
+
+    return uploadImage.url;
+  };
+
+  const handlePhotoCapture = async (event) => {
     const file = event.target.files[0];
-    if (file) {
+    if (!file) return;
+
+    setFormData(prev => ({
+      ...prev,
+      photo: file,
+      photoPreview: URL.createObjectURL(file),
+    }));
+
+    setAnalyzing(true);
+    try {
+      const photoUrl = await uploadPhoto(file);
+      const res = await fetch(`${import.meta.env.VITE_APP_CHATBOT_API_URL}/analyze-image`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: photoUrl }),
+      });
+      const ai = await res.json();
+      if (ai.error) throw new Error(ai.error);
+
+      // Anything already typed wins — the AI only fills what is still blank.
       setFormData(prev => ({
         ...prev,
-        photo: file,
-        photoPreview: URL.createObjectURL(file),
+        photoUrl,
+        title: prev.title || ai.title,
+        description: prev.description || ai.description,
+        category: prev.category || ai.category,
       }));
+      setAiFilled(["title", "description", "category"]);
+
+      if (ai.is_civic_issue === false) {
+        setSnackbarMessage("⚠️ This may not be a civic issue — please check the details before submitting.");
+        setOpen(true);
+      }
+    } catch (error) {
+      // Fail open: the form still works exactly as it did before, by hand.
+      console.error("Photo analysis failed:", error);
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -190,17 +252,9 @@ export default function ReportPage() {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       const submitData = { ...formData, confirmed_unique: confirmedUnique };
 
-      const data = new FormData();
-      data.append("file", formData.photo);
-      data.append("upload_preset", import.meta.env.VITE_APP_API_UPLOAD_NAME);
-      data.append("cloud_name", import.meta.env.VITE_APP_API_CLOUDINARY_NAME);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_APP_API_CLOUDINARY_NAME}/image/upload`, {
-        method: "POST",
-        body: data,
-      });
-      const uploadImage = await res.json();
-      if (!uploadImage.url) throw new Error("Image upload failed");
-      submitData.photo = uploadImage.url;
+      // Already uploaded when the photo was picked; only re-upload if that failed.
+      submitData.photo = formData.photoUrl || (await uploadPhoto(formData.photo));
+      delete submitData.photoUrl;
 
       if (isAnonymous) {
         submitData.is_anonymous = true;
@@ -331,7 +385,7 @@ export default function ReportPage() {
 
             {/* Title */}
             <div>
-              <label className={`block text-sm font-semibold mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Issue Title *</label>
+              <label className={`block text-sm font-semibold mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Issue Title *<SuggestedBadge field="title" /></label>
               <input
                 type="text"
                 required
@@ -344,7 +398,7 @@ export default function ReportPage() {
 
             {/* Category */}
             <div>
-              <label className={`block text-sm font-semibold mb-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Category *</label>
+              <label className={`block text-sm font-semibold mb-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Category *<SuggestedBadge field="category" /></label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {categories.map(cat => (
                   <button
@@ -365,7 +419,7 @@ export default function ReportPage() {
 
             {/* Description */}
             <div>
-              <label className={`block text-sm font-semibold mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Description *</label>
+              <label className={`block text-sm font-semibold mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Description *<SuggestedBadge field="description" /></label>
               <textarea
                 required
                 value={formData.description}
@@ -383,9 +437,14 @@ export default function ReportPage() {
                 {formData.photoPreview ? (
                   <div className="space-y-4">
                     <img src={formData.photoPreview} alt="Preview" className="max-w-full h-48 object-cover rounded-lg mx-auto" />
+                    {analyzing && (
+                      <p className={`text-sm animate-pulse ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                        📷 Reading your photo — the form will fill itself in…
+                      </p>
+                    )}
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, photo: null, photoPreview: null }))}
+                      onClick={() => { setAiFilled([]); setFormData(prev => ({ ...prev, photo: null, photoPreview: null, photoUrl: null })); }}
                       className={`font-medium ${isDark ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-800"}`}
                     >Remove Photo</button>
                   </div>

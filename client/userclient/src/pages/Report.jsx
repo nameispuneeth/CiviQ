@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ThemeContext } from '../Context/ThemeContext'; // using ThemeContext
 import Chatbot from '../components/Chatbot';
 
@@ -67,8 +67,31 @@ export default function ReportPage() {
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
   const [aiFilled, setAiFilled] = useState([]);
+
+  // Arrives from /image-report, which uploaded the photo and had the vision API
+  // read it. Nothing here is mandatory — reaching this page directly just leaves
+  // the form blank, exactly as before.
+  const handoff = useLocation().state;
+
+  useEffect(() => {
+    if (!handoff?.photoUrl) return;
+
+    setFormData(prev => ({
+      ...prev,
+      photoUrl: handoff.photoUrl,
+      photoPreview: handoff.photoUrl,
+      title: handoff.title || prev.title,
+      description: handoff.description || prev.description,
+      category: handoff.category || prev.category,
+    }));
+    setAiFilled(["title", "description", "category"].filter(field => handoff[field]));
+
+    if (handoff.isCivicIssue === false) {
+      setSnackbarMessage("⚠️ This may not be a civic issue — please check the details before submitting.");
+      setOpen(true);
+    }
+  }, [handoff]);
 
   // Marks a field as filled from the photo rather than typed, so nobody submits
   // a machine's wording believing they wrote it.
@@ -142,46 +165,16 @@ export default function ReportPage() {
     return uploadImage.url;
   };
 
-  const handlePhotoCapture = async (event) => {
+  const handlePhotoCapture = (event) => {
     const file = event.target.files[0];
-    if (!file) return;
-
-    setFormData(prev => ({
-      ...prev,
-      photo: file,
-      photoPreview: URL.createObjectURL(file),
-    }));
-
-    setAnalyzing(true);
-    try {
-      const photoUrl = await uploadPhoto(file);
-      const res = await fetch(`${import.meta.env.VITE_APP_CHATBOT_API_URL}/analyze-image`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: photoUrl }),
-      });
-      const ai = await res.json();
-      if (ai.error) throw new Error(ai.error);
-
-      // Anything already typed wins — the AI only fills what is still blank.
+    if (file) {
       setFormData(prev => ({
         ...prev,
-        photoUrl,
-        title: prev.title || ai.title,
-        description: prev.description || ai.description,
-        category: prev.category || ai.category,
+        photo: file,
+        photoPreview: URL.createObjectURL(file),
+        photoUrl: null, // a hand-picked photo replaces whatever /image-report uploaded
       }));
-      setAiFilled(["title", "description", "category"]);
-
-      if (ai.is_civic_issue === false) {
-        setSnackbarMessage("⚠️ This may not be a civic issue — please check the details before submitting.");
-        setOpen(true);
-      }
-    } catch (error) {
-      // Fail open: the form still works exactly as it did before, by hand.
-      console.error("Photo analysis failed:", error);
-    } finally {
-      setAnalyzing(false);
+      setAiFilled([]);
     }
   };
 
@@ -216,10 +209,11 @@ export default function ReportPage() {
       if (!formData.title) { setSnackbarMessage("⚠️ Title is required!"); setOpen(true); return; }
       if (!formData.description) { setSnackbarMessage("⚠️ Description is required!"); setOpen(true); return; }
       if (!formData.category) { setSnackbarMessage("⚠️ Category is required!"); setOpen(true); return; }
-      if (!formData.photo) { setSnackbarMessage("📷 Please upload a photo!"); setOpen(true); return; }
+      // photoUrl covers the /image-report handoff, where the photo is already on
+      // Cloudinary and no File object was ever created on this page.
+      if (!formData.photo && !formData.photoUrl) { setSnackbarMessage("📷 Please upload a photo!"); setOpen(true); return; }
 
-      const file = formData.photo;
-      if (!file.type.startsWith("image/")) { setSnackbarMessage("❌ Please upload a valid image file (jpg, png, jpeg)"); setOpen(true); return; }
+      if (formData.photo && !formData.photo.type.startsWith("image/")) { setSnackbarMessage("❌ Please upload a valid image file (jpg, png, jpeg)"); setOpen(true); return; }
 
       const res = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/checkDuplicate`, {
         method: "POST",
@@ -437,11 +431,6 @@ export default function ReportPage() {
                 {formData.photoPreview ? (
                   <div className="space-y-4">
                     <img src={formData.photoPreview} alt="Preview" className="max-w-full h-48 object-cover rounded-lg mx-auto" />
-                    {analyzing && (
-                      <p className={`text-sm animate-pulse ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
-                        📷 Reading your photo — the form will fill itself in…
-                      </p>
-                    )}
                     <button
                       type="button"
                       onClick={() => { setAiFilled([]); setFormData(prev => ({ ...prev, photo: null, photoPreview: null, photoUrl: null })); }}

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import ReportPage from "./pages/Report";
+import ImageReport from "./pages/ImageReport";
 import TrackIssues from "./pages/track";
 import Login from "./pages/auth/login";
 import SignUp from "./pages/auth/signup"
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<HomePage/>}/>
               <Route path="/user-home" element={<CitizenDashboard />} />
         <Route path="/report-issues" element={<ReportPage />} />
+        <Route path="/image-report" element={<ImageReport />} />
         <Route path="/track-issues" element={<TrackIssues />} />
       <Route path="/upload" element={<Upload  />}  />
       <Route path="/login" element={<Login />}/>

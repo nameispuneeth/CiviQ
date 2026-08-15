@@ -1,3 +1,3 @@
-from civicq.vision.analyzer import analyze_image
+from civicq.vision.analyzer import analyze_image, to_data_uri
 
-__all__ = ["analyze_image"]
+__all__ = ["analyze_image", "to_data_uri"]

@@ -8,7 +8,7 @@ from civicq.config.settings import require_env
 from civicq.prompts.templates import prompt
 from civicq.rag.vectorstore import connect_vectorstore
 from civicq.utils.formatting import format_user_data
-from civicq.vision import analyze_image
+from civicq.vision import analyze_image, to_data_uri
 
 # ---------------- ENV ----------------
 # MistralAIEmbeddings loads a HuggingFace tokenizer purely to pack *multi-text*
@@ -42,18 +42,30 @@ def home():
 
 
 # ---------------- IMAGE ANALYSIS ----------------
-# Called from Report.jsx the moment a photo finishes uploading to Cloudinary,
-# so the form can fill itself in for someone who cannot type it.
+# Called from Report.jsx as soon as a photo is chosen, so the form fills itself
+# in for someone who cannot type it.
+#
+# Accepts the photo either way:
+#   multipart  image=<file>              — the file itself
+#   json       {"url": "https://..."}    — an already-uploaded Cloudinary URL
+#
+# Report.jsx sends the URL, because the photo has to reach Cloudinary regardless
+# (issue.photo stores that URL) and re-sending the bytes here would upload the
+# same picture twice.
 @app.route("/analyze-image", methods=["POST"])
 def analyze():
     try:
-        data = request.get_json(force=True) or {}
-        url = data.get("url")
+        upload = request.files.get("image")
 
-        if not url:
-            return jsonify({"error": "url missing"}), 400
+        if upload:
+            source = to_data_uri(upload.read(), upload.mimetype)
+        else:
+            source = (request.get_json(silent=True) or {}).get("url")
 
-        return jsonify(analyze_image(url))
+        if not source:
+            return jsonify({"error": "send an `image` file or a `url`"}), 400
+
+        return jsonify(analyze_image(source))
 
     except Exception as e:
         print("🔥 VISION ERROR:", e)

@@ -9,13 +9,15 @@ the problem and these three fields (category, title, description) arrive
 pre-filled. Everything returned is a suggestion the user can overwrite.
 """
 
+import base64
 import json
 import re
 
-from groq import Groq
+from groq import BadRequestError, Groq
 
 from civicq.config.settings import (
     ISSUE_CATEGORIES,
+    VISION_ATTEMPTS,
     VISION_MAX_TOKENS,
     VISION_MODEL,
     require_env,
@@ -75,6 +77,19 @@ _CONFIDENCE_WORDS = {
 }
 
 
+def to_data_uri(payload: bytes, mimetype: str | None = None) -> str:
+    """Wrap raw image bytes so they can go in the same field as a URL.
+
+    The vision API's `image_url` accepts a `data:` URI wherever it accepts an
+    `https://` one, so callers holding a file rather than a link need no
+    separate code path.
+    """
+    if not mimetype or not mimetype.startswith("image/"):
+        mimetype = "image/jpeg"
+
+    return f"data:{mimetype};base64,{base64.b64encode(payload).decode()}"
+
+
 def _downscale(url: str) -> str:
     if _CLOUDINARY_UPLOAD not in url or _TRANSFORM in url:
         return url
@@ -121,12 +136,7 @@ def _to_text(value, limit: int) -> str:
     return text[:limit].rstrip()
 
 
-def analyze_image(url: str) -> dict:
-    """Return {category, title, description, is_civic_issue, confidence}.
-
-    Every field is normalised before it leaves here, so callers never see a
-    category the form cannot render or a confidence that isn't a float.
-    """
+def _ask_model(url: str) -> str:
     response = _get_client().chat.completions.create(
         model=VISION_MODEL,
         max_completion_tokens=VISION_MAX_TOKENS,
@@ -144,7 +154,29 @@ def analyze_image(url: str) -> dict:
         ],
     )
 
-    raw = json.loads(response.choices[0].message.content)
+    return response.choices[0].message.content
+
+
+def analyze_image(url: str) -> dict:
+    """Return {category, title, description, is_civic_issue, confidence}.
+
+    Every field is normalised before it leaves here, so callers never see a
+    category the form cannot render or a confidence that isn't a float.
+    """
+    # Measured against a live Cloudinary image: json_object mode on this model
+    # intermittently 400s with `json_validate_failed` and an empty
+    # failed_generation, then succeeds on an identical retry. One retry turns a
+    # visible "nothing filled in" into a slightly slower success.
+    last_error = None
+
+    for _ in range(VISION_ATTEMPTS):
+        try:
+            raw = json.loads(_ask_model(url))
+            break
+        except (BadRequestError, json.JSONDecodeError) as error:
+            last_error = error
+    else:
+        raise last_error
 
     return {
         "category": _to_category(raw.get("category")),

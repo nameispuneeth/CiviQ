@@ -74,6 +74,12 @@ VISION_MODEL = "qwen/qwen3.6-27b"
 # sized for the JSON alone gets truncated mid-object.
 VISION_MAX_TOKENS = 900
 
+# Measured: json_object mode on this model 400s with `json_validate_failed` on
+# roughly 3 of 8 identical calls, then succeeds on retry. Three attempts puts
+# the residual failure near 6%. Dropping json_object mode instead was tested and
+# is worse — the model then sometimes replies with no JSON object at all.
+VISION_ATTEMPTS = 3
+
 # Must mirror the category buttons in client/userclient/src/pages/Report.jsx.
 # A model that invents a category outside this list is coerced to "Other" rather
 # than passed through — the form has no button to render an unknown value.

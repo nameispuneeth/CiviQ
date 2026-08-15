@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FilePlus, Eye, Sun, Moon } from "lucide-react";
+import { FilePlus, Eye, Sun, Moon, Camera } from "lucide-react";
 import { ThemeContext } from "../../Context/ThemeContext";
 import toast from "react-hot-toast";
 
@@ -16,6 +16,16 @@ const CitizenDashboard = () => {
       bg: "from-blue-500 to-blue-700",
       darkBg: "from-blue-700 to-blue-900",
       navigateTo: "/report-issues",
+      iconColor: "text-white",
+      darkIconColor: "text-white",
+    },
+    {
+      title: "Report with a Photo",
+      description: "Just take a picture — we read it and fill in the report for you.",
+      icon: <Camera size={48} />,
+      bg: "from-cyan-500 to-teal-600",
+      darkBg: "from-cyan-700 to-teal-900",
+      navigateTo: "/image-report",
       iconColor: "text-white",
       darkIconColor: "text-white",
     },

@@ -1,17 +1,15 @@
 """Reads a civic-issue photo and returns the values the report form needs.
 
-The photo itself never passes through this process. The browser uploads it to
-Cloudinary first and sends only the resulting URL; Groq fetches the image from
-that URL. So the payload here is a string, whatever the size of the photo.
+The photo never passes through this process. The browser uploads it to
+Cloudinary and sends only the resulting URL; Groq fetches the image from that
+URL itself. Everything here operates on a string, whatever the size of the photo.
 
 Written for people who cannot fill the form themselves — a citizen photographs
-the problem and these three fields (category, title, description) arrive
-pre-filled. Everything returned is a suggestion the user can overwrite.
+the problem and category, title and description arrive pre-filled. All of it is
+a suggestion the user can overwrite.
 """
 
-import base64
 import json
-import re
 
 from groq import BadRequestError, Groq
 
@@ -50,7 +48,6 @@ Return ONLY a JSON object with exactly these keys:
 - "is_civic_issue": true if this shows a public problem a city department could
   fix. false for selfies, screenshots, documents, indoor scenes, private
   property, or anything unrelated to public infrastructure.
-- "confidence": a number between 0 and 1 for how sure you are of the category
 
 Rules:
 - Describe only what you can see. Never invent street names, dates, dimensions,
@@ -59,38 +56,16 @@ Rules:
   is_civic_issue to false.
 """
 
-# Cloudinary applies transformations named in the URL path. Asking for a 1024px
-# wide, auto-quality copy costs the model far fewer tokens than a 12 MP phone
-# photo, and a pothole is equally identifiable at either size.
+# Cloudinary reads transformations out of the URL path, so asking for a smaller
+# copy is a string edit rather than any image processing here. 1024px costs the
+# model far fewer tokens than a 12 MP phone photo, and a pothole is equally
+# identifiable at either size.
 _CLOUDINARY_UPLOAD = "/image/upload/"
 _TRANSFORM = "w_1024,q_auto/"
 
-# The model answers "high"/"medium"/"low" as often as it answers a number, even
-# when the prompt asks for a float.
-_CONFIDENCE_WORDS = {
-    "very high": 0.95,
-    "high": 0.9,
-    "medium": 0.6,
-    "moderate": 0.6,
-    "low": 0.3,
-    "very low": 0.15,
-}
-
-
-def to_data_uri(payload: bytes, mimetype: str | None = None) -> str:
-    """Wrap raw image bytes so they can go in the same field as a URL.
-
-    The vision API's `image_url` accepts a `data:` URI wherever it accepts an
-    `https://` one, so callers holding a file rather than a link need no
-    separate code path.
-    """
-    if not mimetype or not mimetype.startswith("image/"):
-        mimetype = "image/jpeg"
-
-    return f"data:{mimetype};base64,{base64.b64encode(payload).decode()}"
-
 
 def _downscale(url: str) -> str:
+    # Left alone if it isn't a Cloudinary URL, or already carries the transform.
     if _CLOUDINARY_UPLOAD not in url or _TRANSFORM in url:
         return url
 
@@ -98,6 +73,8 @@ def _downscale(url: str) -> str:
 
 
 def _to_category(value) -> str:
+    # The form renders seven fixed buttons, so a category it has never heard of
+    # would silently select nothing. Anything unrecognised becomes "Other".
     if isinstance(value, str):
         for category in ISSUE_CATEGORIES:
             if value.strip().lower() == category.lower():
@@ -106,34 +83,11 @@ def _to_category(value) -> str:
     return "Other"
 
 
-def _to_confidence(value) -> float:
-    if isinstance(value, bool):
-        return 0.5
-
-    if isinstance(value, (int, float)):
-        # Some replies use a 0-100 scale despite the prompt.
-        number = float(value) / 100 if value > 1 else float(value)
-        return round(max(0.0, min(1.0, number)), 2)
-
-    if isinstance(value, str):
-        text = value.strip().lower()
-
-        if text in _CONFIDENCE_WORDS:
-            return _CONFIDENCE_WORDS[text]
-
-        match = re.search(r"\d*\.?\d+", text)
-        if match:
-            return _to_confidence(float(match.group()))
-
-    return 0.5
-
-
 def _to_text(value, limit: int) -> str:
     if not isinstance(value, str):
         return ""
 
-    text = " ".join(value.split())
-    return text[:limit].rstrip()
+    return " ".join(value.split())[:limit].rstrip()
 
 
 def _ask_model(url: str) -> str:
@@ -148,6 +102,8 @@ def _ask_model(url: str) -> str:
                 "role": "user",
                 "content": [
                     {"type": "text", "text": PROMPT},
+                    # The image, as a URL Groq will fetch. This one entry is the
+                    # only difference between a vision call and a text one.
                     {"type": "image_url", "image_url": {"url": _downscale(url)}},
                 ],
             }
@@ -158,15 +114,10 @@ def _ask_model(url: str) -> str:
 
 
 def analyze_image(url: str) -> dict:
-    """Return {category, title, description, is_civic_issue, confidence}.
-
-    Every field is normalised before it leaves here, so callers never see a
-    category the form cannot render or a confidence that isn't a float.
-    """
+    """Return {category, title, description, is_civic_issue} for a photo URL."""
     # Measured against a live Cloudinary image: json_object mode on this model
-    # intermittently 400s with `json_validate_failed` and an empty
-    # failed_generation, then succeeds on an identical retry. One retry turns a
-    # visible "nothing filled in" into a slightly slower success.
+    # intermittently 400s with an empty `failed_generation`, then succeeds on an
+    # identical retry.
     last_error = None
 
     for _ in range(VISION_ATTEMPTS):
@@ -183,5 +134,4 @@ def analyze_image(url: str) -> dict:
         "title": _to_text(raw.get("title"), 60),
         "description": _to_text(raw.get("description"), 400),
         "is_civic_issue": bool(raw.get("is_civic_issue", True)),
-        "confidence": _to_confidence(raw.get("confidence")),
     }

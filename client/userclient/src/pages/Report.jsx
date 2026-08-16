@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Camera,
+  Image as ImageIcon,
   MapPin,
   House,
   Send,
@@ -68,6 +69,18 @@ export default function ReportPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiFilled, setAiFilled] = useState([]);
+
+  // Two inputs rather than one: `capture` is all-or-nothing, so a single input
+  // can offer the camera or the gallery but never both.
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+
+  // `capture` is honoured on phones and silently ignored on desktop, where a
+  // "Take a photo" button would just reopen the same file dialog. Hide it there
+  // instead of lying about what it does.
+  const hasCamera =
+    typeof navigator !== "undefined" &&
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   // Arrives from /image-report, which uploaded the photo and had the vision API
   // read it. Nothing here is mandatory — reaching this page directly just leaves
@@ -167,6 +180,11 @@ export default function ReportPage() {
 
   const handlePhotoCapture = (event) => {
     const file = event.target.files[0];
+
+    // Clearing the value lets the same file be picked twice in a row — without
+    // it the second pick fires no change event and nothing happens.
+    event.target.value = "";
+
     if (file) {
       setFormData(prev => ({
         ...prev,
@@ -380,7 +398,11 @@ export default function ReportPage() {
       >
         {isDark ? <Sun size={20} /> : <Moon size={20} />}
       </button>
-      <div className={`min-h-screen py-4 px-4 ${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"}`}>
+      {/* The two buttons above are fixed at top-4 and are 40px tall, so they
+          cover the first 56px of the viewport. Wide screens hide that: the
+          max-w-2xl card is centred and the buttons sit in the side gutters.
+          Below lg there is no gutter, so the card has to start beneath them. */}
+      <div className={`min-h-screen pt-20 pb-4 lg:py-4 px-4 ${isDark ? "bg-[#0A0A0A]" : "bg-[#F3F3F3]"}`}>
         <div className="max-w-2xl mx-auto">
           <div className={`rounded-t-2xl p-6 ${isDark ? "bg-[#1E1E1E] border-[#333]" : "bg-white border-[#E6E6E6]"} border`}>
             <h1 className={`text-3xl font-bold mb-2 ${isDark ? "text-white" : "text-black"}`}>Report Civic Issue</h1>
@@ -454,14 +476,50 @@ export default function ReportPage() {
                     >Remove Photo</button>
                   </div>
                 ) : (
-                  <label className="cursor-pointer">
-                    <Camera size={32} className={`mx-auto mb-2 ${isDark ? "text-gray-500" : "text-gray-400"}`} />
-                    <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>Click to capture or upload a photo</p>
-                    {/* No `capture` attribute: it would force the rear camera and
-                        hide the gallery. Without it the OS shows its own chooser,
-                        which already offers camera, photos and files. */}
-                    <input type="file" accept="image/*" onChange={handlePhotoCapture} className="hidden" />
-                  </label>
+                  <div>
+                    <Camera size={32} className={`mx-auto mb-4 ${isDark ? "text-gray-500" : "text-gray-400"}`} />
+                    <div className="space-y-3 max-w-xs mx-auto">
+                      {hasCamera && (
+                        <button
+                          type="button"
+                          onClick={() => cameraInputRef.current?.click()}
+                          className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90"
+                        >
+                          <Camera size={20} /> Take a photo
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => galleryInputRef.current?.click()}
+                        className={`w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-semibold border-2 ${
+                          isDark
+                            ? "border-[#404040] text-gray-200 hover:bg-[#262626]"
+                            : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <ImageIcon size={20} /> Choose from gallery
+                      </button>
+                    </div>
+
+                    {/* `capture` asks for the rear camera directly; the second
+                        input omits it so the OS opens the photo library. */}
+                    <input
+                      ref={cameraInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handlePhotoCapture}
+                      className="hidden"
+                    />
+                    <input
+                      ref={galleryInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoCapture}
+                      className="hidden"
+                    />
+                  </div>
                 )}
               </div>
             </div>

@@ -16,9 +16,8 @@ export default function ImageReport() {
   const [status, setStatus] = useState("idle"); // idle | uploading | reading
   const [preview, setPreview] = useState(null);
 
-  // Two inputs rather than one: the OS chooser differs on every device, and on
-  // some Android builds it opens straight into the camera with no way back to
-  // the gallery. Giving each source its own button makes the choice ours.
+  // Two inputs rather than one: `capture` is all-or-nothing, so a single input
+  // can offer the camera or the gallery but never both.
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
 

@@ -197,14 +197,15 @@ export default function Chatbot() {
   if (!user) return null;
 
   return (
-    /* items-end: the panel is 384px wide and the bubble 64px, so without it the
-       bubble aligns to the panel's left edge instead of sitting under its
-       right-hand corner. */
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       {/* CHAT WINDOW */}
       {open && (
         <div
-          className={`w-96 h-[520px] mb-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col transform transition-all duration-300 ${
+          /* A flat w-96 (384px) plus the right-4 offset needs ~400px, so on a
+             narrow phone the panel ran off both edges. Cap it to the viewport
+             minus the gutters, and to a share of the height so the composer is
+             never pushed below the fold. */
+          className={`w-[calc(100vw-2rem)] sm:w-96 h-[70vh] max-h-[520px] mb-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col transform transition-all duration-300 ${
             isDark
               ? "bg-[#1c1c1c] text-white"
               : "bg-white text-gray-900"
@@ -305,7 +306,7 @@ export default function Chatbot() {
                   aria-label={listening ? "Stop voice input" : "Start voice input"}
                   aria-pressed={listening}
                   title={listening ? "Stop listening" : "Speak your question"}
-                  className={`shrink-0 w-10 h-10 grid place-items-center rounded-xl transition ${
+                  className={`px-4 rounded-xl transition ${
                     listening
                       ? "bg-red-500 text-white animate-pulse"
                       : isDark
@@ -319,7 +320,7 @@ export default function Chatbot() {
               <button
                 onClick={sendMessage}
                 disabled={loading}
-                className={`shrink-0 w-10 h-10 grid place-items-center rounded-xl text-white transition ${
+                className={`px-5 rounded-xl text-white transition ${
                   loading
                     ? "bg-blue-400"
                     : "bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90"

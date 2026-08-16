@@ -355,12 +355,28 @@ export default function ReportPage() {
           </div>
         </div>
       )}
-      <div className={`absolute top-5 left-5 cursor-pointer p-2 border ${isDark?'border-white':'border-black'} rounded-full`}>
-          <House color={`${isDark?'white':'black'}`} size={18} onClick={()=>navigate("/user-home")}/>
-      </div>
+      {/* Both fixed, same offset, same size, same styling — they were absolute
+          at different offsets with different treatments, so they sat at
+          different heights and scrolled away with the page. */}
+      <button
+        onClick={() => navigate("/user-home")}
+        aria-label="Go to dashboard"
+        className={`fixed top-4 left-4 z-40 grid place-items-center w-10 h-10 rounded-full border shadow-md hover:shadow-lg transition ${
+          isDark
+            ? "bg-[#1E1E1E] border-[#333] text-white"
+            : "bg-white border-gray-300 text-gray-800"
+        }`}
+      >
+        <House size={20} />
+      </button>
       <button
         onClick={() => toggleTheme(!isDark)}
-        className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white shadow-md hover:shadow-lg transition"
+        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        className={`fixed top-4 right-4 z-40 grid place-items-center w-10 h-10 rounded-full border shadow-md hover:shadow-lg transition ${
+          isDark
+            ? "bg-[#1E1E1E] border-[#333] text-white"
+            : "bg-white border-gray-300 text-gray-800"
+        }`}
       >
         {isDark ? <Sun size={20} /> : <Moon size={20} />}
       </button>

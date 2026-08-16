@@ -19,8 +19,22 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
   const listRef = useRef(null);
+  const inputRef = useRef(null);
   const recognizerRef = useRef(null);
   const speechSupported = isSpeechSupported();
+
+  // Grow the composer with its content, up to a ceiling. Driven off `input`
+  // rather than onChange so dictated text resizes the box too — the mic writes
+  // straight to state without ever firing a change event.
+  const MAX_INPUT_HEIGHT = 128;
+
+  useEffect(() => {
+    const box = inputRef.current;
+    if (!box) return;
+
+    box.style.height = "auto"; // shrink first, or it can only ever get taller
+    box.style.height = `${Math.min(box.scrollHeight, MAX_INPUT_HEIGHT)}px`;
+  }, [input, open]);
 
   useEffect(() => {
     if (listRef.current) {
@@ -151,11 +165,14 @@ export default function Chatbot() {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    /* items-end: the panel is 384px wide and the bubble 64px, so without it the
+       bubble aligns to the panel's left edge instead of sitting under its
+       right-hand corner. */
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {/* CHAT WINDOW */}
       {open && (
         <div
-          className={`w-96 h-[520px] mb-4 rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 ${
+          className={`w-96 h-[520px] mb-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col transform transition-all duration-300 ${
             isDark
               ? "bg-[#1c1c1c] text-white"
               : "bg-white text-gray-900"
@@ -172,7 +189,10 @@ export default function Chatbot() {
           {/* MESSAGES */}
           <div
             ref={listRef}
-            className="p-4 space-y-3 overflow-y-auto h-[360px]"
+            /* flex-1 instead of a fixed height: the transcript gives up space as
+               the composer grows, so the panel never overflows. min-h-0 is what
+               actually lets a flex child shrink below its content. */
+            className="flex-1 min-h-0 p-4 space-y-3 overflow-y-auto"
           >
             {messages.map((m, i) => (
               <div
@@ -220,15 +240,25 @@ export default function Chatbot() {
               isDark ? "border-[#333]" : "border-gray-200"
             }`}
           >
-            <div className="flex gap-2">
-              <input
+            {/* items-end keeps the buttons on the bottom line as the box grows */}
+            <div className="flex gap-2 items-end">
+              <textarea
+                ref={inputRef}
+                rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => {
+                  // Enter sends, Shift+Enter writes a newline. preventDefault
+                  // stops the newline landing in the box before we clear it.
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
                 placeholder={
                   listening ? "Listening..." : "Ask about your issue..."
                 }
-                className={`flex-1 px-4 py-2 rounded-xl focus:outline-none ${
+                className={`flex-1 px-4 py-2 rounded-xl resize-none overflow-y-auto leading-6 focus:outline-none ${
                   isDark
                     ? "bg-[#262626] text-white"
                     : "bg-gray-50 text-black"
@@ -243,7 +273,7 @@ export default function Chatbot() {
                   aria-label={listening ? "Stop voice input" : "Start voice input"}
                   aria-pressed={listening}
                   title={listening ? "Stop listening" : "Speak your question"}
-                  className={`px-4 rounded-xl transition ${
+                  className={`shrink-0 w-10 h-10 grid place-items-center rounded-xl transition ${
                     listening
                       ? "bg-red-500 text-white animate-pulse"
                       : isDark
@@ -257,7 +287,7 @@ export default function Chatbot() {
               <button
                 onClick={sendMessage}
                 disabled={loading}
-                className={`px-5 rounded-xl text-white transition ${
+                className={`shrink-0 w-10 h-10 grid place-items-center rounded-xl text-white transition ${
                   loading
                     ? "bg-blue-400"
                     : "bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90"

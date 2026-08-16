@@ -1,6 +1,6 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, ArrowLeft } from "lucide-react";
+import { Camera, Image as ImageIcon, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { ThemeContext } from "../Context/ThemeContext";
@@ -15,6 +15,19 @@ export default function ImageReport() {
 
   const [status, setStatus] = useState("idle"); // idle | uploading | reading
   const [preview, setPreview] = useState(null);
+
+  // Two inputs rather than one: the OS chooser differs on every device, and on
+  // some Android builds it opens straight into the camera with no way back to
+  // the gallery. Giving each source its own button makes the choice ours.
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+
+  // `capture` is honoured on phones and silently ignored on desktop, where a
+  // "Take a photo" button would just reopen the same file dialog. Hide it there
+  // instead of lying about what it does.
+  const hasCamera =
+    typeof navigator !== "undefined" &&
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   useEffect(() => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -42,6 +55,11 @@ export default function ImageReport() {
 
   const handlePhoto = async (event) => {
     const file = event.target.files[0];
+
+    // Clearing the value lets the same file be picked twice in a row — without
+    // it the second pick fires no change event and the page just sits there.
+    event.target.value = "";
+
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
@@ -111,15 +129,45 @@ export default function ImageReport() {
               {status === "uploading" ? "Uploading your photo…" : "📷 Reading your photo…"}
             </p>
           ) : (
-            <label className="mt-6 block cursor-pointer">
-              <span className="inline-block px-8 py-4 rounded-xl text-white text-lg font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90">
-                Add a photo
-              </span>
-              {/* No `capture` attribute: it would force the rear camera and hide
-                  the gallery. Without it the OS shows its own chooser, which
-                  already offers camera, photos and files. */}
-              <input type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
-            </label>
+            <div className="mt-6 space-y-3">
+              {hasCamera && (
+                <button
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-xl text-white text-lg font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90"
+                >
+                  <Camera size={22} /> Take a photo
+                </button>
+              )}
+
+              <button
+                onClick={() => galleryInputRef.current?.click()}
+                className={`w-full flex items-center justify-center gap-3 px-8 py-4 rounded-xl text-lg font-semibold border-2 ${
+                  isDark
+                    ? "border-[#404040] text-gray-200 hover:bg-[#1E1E1E]"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ImageIcon size={22} /> Choose from gallery
+              </button>
+
+              {/* `capture` asks for the rear camera directly; the second input
+                  omits it so the OS opens the photo library instead. */}
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handlePhoto}
+                className="hidden"
+              />
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhoto}
+                className="hidden"
+              />
+            </div>
           )}
         </div>
 

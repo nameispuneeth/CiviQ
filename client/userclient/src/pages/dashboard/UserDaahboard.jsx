@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FilePlus, Eye, Sun, Moon, Camera } from "lucide-react";
 import { ThemeContext } from "../../Context/ThemeContext";
 import toast from "react-hot-toast";
+import { clearToken } from "../../lib/auth";
 
 const CitizenDashboard = () => {
   const navigate = useNavigate();
@@ -55,9 +56,12 @@ const CitizenDashboard = () => {
       {LoggedIn?(
          <button
           onClick={() => {
-            if(localStorage.getItem("token")) localStorage.removeItem("token");
-            else if(sessionStorage.getItem("token")) sessionStorage.removeItem("token");
+            // clearToken() drops both stores. The old if/else if cleared only
+            // one, so a token left in the other kept the user quietly signed in.
+            clearToken();
             setLoggedIn(null);
+            toast.success("Logged out");
+            navigate("/login");
           }}
           className="px-4 py-1 rounded-xl border border-red-500 bg-red-500 text-white hover:bg-red-600 transform transition hover:scale-105"
         >
@@ -74,7 +78,11 @@ const CitizenDashboard = () => {
        </div>
 
       {/* Hero Section */}
-      <div className="max-w-3xl text-center mb-12 mt-[150px]">
+      {/* The theme and logout buttons are absolute at top-4 and ~32px tall, so
+          they only occupy the first ~48px. A flat 150px was sized for desktop
+          and left a dead band on phones — clear the buttons on small screens
+          and keep the roomier spacing from sm up. */}
+      <div className="max-w-3xl text-center mb-8 sm:mb-12 mt-16 sm:mt-[150px]">
         <h1 className={`text-3xl sm:text-5xl font-bold mb-4 font-sora ${isDark ? "text-white" : "text-gray-900"}`}>
           Welcome, Citizen!
         </h1>

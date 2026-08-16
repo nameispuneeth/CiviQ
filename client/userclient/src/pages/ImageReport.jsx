@@ -28,14 +28,6 @@ export default function ImageReport() {
     typeof navigator !== "undefined" &&
     /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("Login required");
-      navigate("/login");
-    }
-  }, [navigate]);
-
   const uploadPhoto = async (file) => {
     const data = new FormData();
     data.append("file", file);

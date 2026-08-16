@@ -70,11 +70,6 @@ export default function TrackIssues() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (!token) {
-        toast.error("Login required");
-        navigate("/login");
-        return;
-      }
       const response = await fetch(`${import.meta.env.VITE_APP_API_BACKEND_URL}/api/user/issues`, {
         method: 'GET',
         headers: {

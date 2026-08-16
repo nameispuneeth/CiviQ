@@ -37,14 +37,6 @@ export default function ReportPage() {
     reporter_phone: "",
     is_anonymous: false,
   });
-  useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      toast.error("Login required");
-      navigate("/login");
-      return;
-    }
-  }, [])
   const [open, setOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [duplicateMatches, setDuplicateMatches] = useState(null);

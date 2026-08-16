@@ -113,10 +113,12 @@ export default function ImageReport() {
           ) : (
             <label className="mt-6 block cursor-pointer">
               <span className="inline-block px-8 py-4 rounded-xl text-white text-lg font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90">
-                Take a photo
+                Add a photo
               </span>
-              {/* capture="environment" opens the rear camera directly on mobile */}
-              <input type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
+              {/* No `capture` attribute: it would force the rear camera and hide
+                  the gallery. Without it the OS shows its own chooser, which
+                  already offers camera, photos and files. */}
+              <input type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
             </label>
           )}
         </div>

@@ -441,7 +441,10 @@ export default function ReportPage() {
                   <label className="cursor-pointer">
                     <Camera size={32} className={`mx-auto mb-2 ${isDark ? "text-gray-500" : "text-gray-400"}`} />
                     <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>Click to capture or upload a photo</p>
-                    <input type="file" accept="image/*" capture="environment" onChange={handlePhotoCapture} className="hidden" />
+                    {/* No `capture` attribute: it would force the rear camera and
+                        hide the gallery. Without it the OS shows its own chooser,
+                        which already offers camera, photos and files. */}
+                    <input type="file" accept="image/*" onChange={handlePhotoCapture} className="hidden" />
                   </label>
                 )}
               </div>

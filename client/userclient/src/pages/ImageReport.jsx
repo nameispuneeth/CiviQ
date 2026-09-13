@@ -65,7 +65,7 @@ export default function ImageReport() {
       const photoUrl = await uploadPhoto(file);
 
       setStatus("reading");
-      const res = await fetch(`${import.meta.env.VITE_APP_CHATBOT_API_URL}/analyze-image`, {
+      const res = await fetch(`https://chatbot-javeed-1.onrender.com/analyze-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: photoUrl }),

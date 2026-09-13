@@ -157,7 +157,7 @@ export default function Chatbot() {
       })),
     };
     try {
-      const res = await fetch(`https://civiq-1-um57.onrender.com/ask`, {
+      const res = await fetch(`https://chatbot-javeed-1.onrender.com/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: payloadMessages, userData }),

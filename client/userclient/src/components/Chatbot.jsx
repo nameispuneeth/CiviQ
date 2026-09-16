@@ -157,7 +157,7 @@ export default function Chatbot() {
       })),
     };
     try {
-      const res = await fetch(`${import.meta.env.VITE_APP_CHATBOT_URL}/ask`, {
+      const res = await fetch(`https://chatbot-krmn.onrender.com/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: payloadMessages, userData }),

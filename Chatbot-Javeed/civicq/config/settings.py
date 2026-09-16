@@ -68,7 +68,7 @@ EMBED_BATCH = 32
 # llama-3.3-70b-versatile reject a list-shaped `content` outright, and the
 # llama-4 vision models are not served here. Re-check `client.models.list()`
 # before changing this.
-VISION_MODEL = "qwen/qwen3.6-27b"
+VISION_MODEL = "qwen/qwen3.8-27b"
 
 # A reasoning model: it spends tokens thinking before it answers, so a budget
 # sized for the JSON alone gets truncated mid-object.

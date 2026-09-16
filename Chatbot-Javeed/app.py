@@ -28,7 +28,7 @@ CORS(app)
 # ---------------- LLM ----------------
 llm = ChatGroq(
     groq_api_key=GROQ_API_KEY,
-    model_name="llama-3.1-8b-instant"
+    model_name="openai/gpt-oss-20b"
 )
 
 # ---------------- VECTOR STORE (STATIC KNOWLEDGE) ----------------
@@ -118,4 +118,3 @@ def ask():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
